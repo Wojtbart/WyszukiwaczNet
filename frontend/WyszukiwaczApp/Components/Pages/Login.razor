@@ -1,0 +1,202 @@
+@page "/login"
+@layout MainLayout
+@using WyszukiwaczAppDTO
+@using WyszukiwaczApp
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 620px;
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-header h2 {
+        color: #333;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #555;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-login:active {
+        transform: translateY(0);
+    }
+    
+    .register-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #666;
+    }
+    
+    .register-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+    
+    .error-message {
+        background: #fee;
+        border: 1px solid #fcc;
+        color: #c33;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Logowanie</h2>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-message">@errorMessage</div>
+        }
+
+        <EditForm Model="@loginModel" OnValidSubmit="OnLogin">
+            <DataAnnotationsValidator />
+            
+            <div class="form-group">
+                <label for="login">Email lub login</label>
+                <InputText id="login" @bind-Value="loginModel.Login" class="form-control" placeholder="Wprowadź email lub login" />
+                <ValidationMessage For="@(() => loginModel.Login)" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Hasło</label>
+                <InputText id="password" @bind-Value="loginModel.Password" type="password" class="form-control" placeholder="Wprowadź hasło" />
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+
+            <button type="submit" class="btn-login" disabled="@isLoading">
+                @(isLoading ? "Logowanie..." : "Zaloguj się")
+            </button>
+        </EditForm>
+
+        <div class="register-link">
+            Nie masz konta? <a href="/register">Zarejestruj się</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel loginModel = new();
+    private bool isLoading = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Globals.IsLogged = false;
+    }
+
+    private async Task OnLogin()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var result = await UserService.LoginAsync(loginModel.Login, loginModel.Password);
+
+            if (result?.Success == true && !string.IsNullOrEmpty(result.Token))
+            {
+                Globals.IsLogged = true;
+                Globals.Login = loginModel.Login;
+                Globals.AuthToken = result.Token;
+                
+                await LocalStorage.SetItemAsync("authToken", result.Token);
+                await LocalStorage.SetItemAsync("login", loginModel.Login);
+                
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = result?.Message ?? "Nieprawidłowy login lub hasło";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Wystąpił błąd: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    class LoginModel
+    {
+        public string Login { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

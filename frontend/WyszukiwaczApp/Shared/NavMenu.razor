@@ -1,0 +1,179 @@
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+@using WyszukiwaczApp
+
+<style>
+    .nav-menu {
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem 0;
+        min-height: 100vh;
+        width: 250px;
+    }
+    
+    .nav-brand {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .nav-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        color: rgba(255, 255, 255, 0.85);
+        text-decoration: none;
+        border-radius: 0;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
+    
+    .nav-link.active {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-weight: 500;
+        border-left: 4px solid white;
+    }
+    
+    .nav-link-icon {
+        font-size: 1.25rem;
+        width: 24px;
+        text-align: center;
+    }
+    
+    .nav-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 1rem 0;
+    }
+    
+    .user-info {
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        margin-top: auto;
+    }
+    
+    .logout-btn {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.85);
+        cursor: pointer;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        text-align: left;
+        transition: all 0.2s;
+    }
+    
+    .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
+</style>
+
+<div class="nav-menu d-flex flex-column">
+    <div class="nav-brand">
+        🔍 Wyszukiwacz
+    </div>
+    
+    <ul class="nav-links">
+        <li>
+            <NavLink href="/" class="nav-link" Match="NavLinkMatch.All">
+                <span class="nav-link-icon">🏠</span>
+                Strona główna
+            </NavLink>
+        </li>
+        <li>
+            <NavLink href="/offers" class="nav-link">
+                <span class="nav-link-icon">📋</span>
+                Oferty
+            </NavLink>
+        </li>
+        <li>
+            <NavLink href="/categories" class="nav-link">
+                <span class="nav-link-icon">📁</span>
+                Kategorie
+            </NavLink>
+        </li>
+        
+        <div class="nav-divider"></div>
+        
+        <li>
+            <NavLink href="/notification" class="nav-link">
+                <span class="nav-link-icon">🔔</span>
+                Powiadomienia
+            </NavLink>
+        </li>
+        <li>
+            <NavLink href="/history" class="nav-link">
+                <span class="nav-link-icon">📜</span>
+                Historia
+            </NavLink>
+        </li>
+        
+        <div class="nav-divider"></div>
+        
+        @if (!Globals.IsLogged)
+        {
+            <li>
+                <NavLink href="/login" class="nav-link">
+                    <span class="nav-link-icon">🔑</span>
+                    Logowanie
+                </NavLink>
+            </li>
+            <li>
+                <NavLink href="/register" class="nav-link">
+                    <span class="nav-link-icon">📝</span>
+                    Rejestracja
+                </NavLink>
+            </li>
+        }
+        else
+        {
+            <li>
+                <button class="logout-btn" @onclick="Logout">
+                    <span class="nav-link-icon">🚪</span>
+                    Wyloguj
+                </button>
+            </li>
+        }
+    </ul>
+    
+    @if (Globals.IsLogged)
+    {
+        <div class="user-info mt-auto">
+            Zalogowany: @Globals.Login
+        </div>
+    }
+</div>
+
+@code {
+    private async Task Logout()
+    {
+        Globals.IsLogged = false;
+        Globals.Login = string.Empty;
+        Globals.AuthToken = null;
+        await LocalStorage.RemoveItemAsync("authToken");
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

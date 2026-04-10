@@ -1,0 +1,403 @@
+
+<html>
+  <head>
+    <title>MAILING Sprzedażowy</title>
+    <!-- Radzen CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@radzen/radzen@latest/dist/radzen.css"
+    />
+    <style>
+      body {
+        background-image: linear-gradient(
+          95.2deg,
+          rgba(173, 252, 234, 1) 26.8%,
+          rgba(192, 229, 246, 1) 64%
+        );
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+       table tbody tr:nth-child(odd) {
+      background-color: #f9f9f9;
+    }
+    table tbody tr:hover {
+      background-color: #f1f1f1;
+      cursor: pointer;
+    }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      table {
+        width: 95%;
+        margin-bottom: 40px;
+        border-collapse: collapse;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      caption {
+        font-weight: bold;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #f46b45;
+        text-align: center;
+        padding: 10px;
+        background-color: #fafafa;
+        border-bottom: 2px solid #ddd;
+      }
+
+      th,
+      td {
+        padding: 12px 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+
+      thead {
+        background-color: #007bff;
+        color: white;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      tbody tr:hover {
+        background-color: #e2e2e2;
+      }
+
+      .table-link {
+        display: block;
+        max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+         white-space: nowrap;
+      }
+
+      .table-link:hover {
+        background-color: #0056b3;
+        text-decoration: underline;
+      }
+
+      img {
+        width: 70px;
+        height: auto;
+        border-radius: 4px;
+        object-fit: cover;
+      }
+
+      .description_product {
+        white-space: normal;
+        word-wrap: break-word;
+        text-align: left;
+        max-height: 40px;
+        overflow: auto;
+      }
+      .placeholder {
+      font-size: 0.9rem;
+      color: #999;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    </style>
+  </head>
+  <body>
+    <h2>OFERTY SPRZEDAŻOWE</h2>
+    <div class="container">
+      <div class="table_div">
+        {{#if arrayOlx}}
+        <table>
+          <caption>OLX</caption>
+          <thead>
+            <tr>
+              <th>Tytuł</th>
+              <th>Cena</th>
+              <th>Lokalizacja</th>
+              <th>Link</th>
+              <th>Stan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each arrayOlx}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.price}}</td>
+              <td>{{this.location}}</td>
+              <td>
+                <a class="table-link" target="_blank" href="{{this.link}}">Link</a>
+              </td>
+              <td>{{this.state}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        {{/if}}
+
+        {{#if arrayAllegro}}
+        <table class="set_active">
+          <caption>Allegro</caption>
+          <thead>
+            <tr>
+              <th>Tytuł</th>
+              <th>Link</th>
+              <th>Czy jest w promocji</th>
+              <th>Ilość</th>
+              <th>Cena</th>
+              <th>Popularność</th>
+              <th>Dostawa</th>
+              <th>Użytkownik wystawiający</th>
+            </tr>
+          </thead>
+    
+          <tbody>
+            {{#each arrayAllegro}}
+              <tr>
+                <th>{{#if (or (eq this.product_name '') (eq this.product_name null))}}BRAK{{else}}{{this.product_name}}{{/if}}</th>
+                <td>{{#if (or (eq this.image_link '') (eq this.image_link null))}}BRAK{{else}}<a target="_blank" rel="noopener noreferrer" href={{this.image_link}}><img src={{this.image_link}} alt="Kliknij, aby wyświetlić"></img></a>{{/if}}</td>
+                <td>{{#if (or (eq this.has_promotion '') (eq this.has_promotion null))}}BRAK{{else}}{{this.has_promotion}}{{/if}}</td>
+                <td>{{#if (or (eq this.quantity '') (eq this.quantity null))}}BRAK{{else}}{{this.quantity}}{{/if}}</td>
+                <td>{{#if (or (eq this.price_in_PLN '') (eq this.price_in_PLN null))}}BRAK{{else}}{{this.price_in_PLN}}{{/if}}</td>
+                <td>{{#if (or (eq this.popularity '') (eq this.popularity null))}}BRAK{{else}}{{this.popularity}}{{/if}}</td>
+                <td>{{#if (or (eq this.delivery_in_PLN '') (eq this.delivery_in_PLN null))}}BRAK{{else}}{{this.delivery_in_PLN}}{{/if}}</td>
+                <td>{{#if (or (eq this.seller_name '') (eq this.seller_name null))}}BRAK{{else}}{{this.seller_name}}{{/if}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        {{/if}}
+
+        {{#if arrayPepper}}
+        <table class="set_active">
+          <caption>Pepper</caption>
+          <thead>
+            <tr>
+              <th>Tytuł</th>
+              <th>Cena oryginalna</th>
+              <th>Cena promocyjna</th>
+              <th>Czy promocja trwa</th>
+              <th>Dostawa</th>
+              <th>Opis</th>
+              <th>Link</th>
+              <th>Obniżka w %</th>
+              <th>Opublikowano</th>
+              <th>Zdjęcie</th>
+              <th>Ilość komentarzy</th>
+              <th>Użytkownik wystawiający</th>
+            </tr>
+          </thead>
+    
+          <tbody>
+            {{#each arrayPepper}}
+              <tr>
+                <th>{{#if (or (eq this.Tytul '') (eq this.Tytul null))}}BRAK{{else}}{{this.Tytul}}{{/if}}</th>
+                <td>{{#if (or (eq this.Cena_oryginalna '') (eq this.Cena_oryginalna null))}}BRAK{{else}}{{this.Cena_oryginalna}}{{/if}}</td>
+                <td>{{#if (or (eq this.Cena_promocyjna '') (eq this.Cena_promocyjna null))}}BRAK{{else}}{{this.Cena_promocyjna}}{{/if}}</td>
+                <td>{{#if (or (eq this.Czy_promocja_trwa '') (eq this.Czy_promocja_trwa null))}}TAK{{else}}{{this.Czy_promocja_trwa}}{{/if}}</td>
+                <td>{{#if (or (eq this.Dostawa '') (eq this.Dostawa null))}}BRAK{{else}}{{this.Dostawa}}{{/if}}</td>
+                <td class="description_product">{{#if (or (eq this.Opis '') (eq this.Opis null))}}BRAK{{else}}{{this.Opis}}{{/if}}</td>
+                <td>{{#if (or (eq this.Link '') (eq this.Link null))}}BRAK{{else}}<a class="table-link" target="_blank" rel="noopener noreferrer" href={{this.Link}}>Link</a>{{/if}}</td>
+                <td>{{#if (or (eq this.Obnizka_w_procentach '') (eq this.Obnizka_w_procentach null))}}BRAK{{else}}{{this.Obnizka_w_procentach}}{{/if}}</td>
+                <td>{{#if (or (eq this.Opublikowano '') (eq this.Opublikowano null))}}BRAK{{else}}{{this.Opublikowano}}{{/if}}</td>
+                <td>{{#if (or (eq this.Zdjecie '') (eq this.Zdjecie null))}}BRAK{{else}}<a  target="_blank" rel="noopener noreferrer" href={{this.Zdjecie}}><img src={{this.Zdjecie}} alt="Kliknij, aby wyświetlić"></img></a>{{/if}}</td>
+                <td>{{#if (or (eq this.ilosc_komentarzy '') (eq this.ilosc_komentarzy null))}}BRAK{{else}}{{this.ilosc_komentarzy}}{{/if}}</td>
+                <td>{{#if (or (eq this.uzytkownik_wystawiajacy '') (eq this.uzytkownik_wystawiajacy null))}}BRAK{{else}}{{this.uzytkownik_wystawiajacy}}{{/if}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        {{/if}}
+
+         {{#if arrayAmazon}}
+        <table class="set_active">
+          <caption>Amazon</caption>
+          <thead>
+            <tr>
+              <th>Tytuł</th>
+              <th>Cena oryginalna</th>
+              <th>Cena promocyjna</th>
+              <th>Link</th>
+              <th>Zdjęcie</th>
+              <th>Do kiedy dostawa</th>
+              <th>Czy darmowa dostawa</th>
+              <th>Ocena</th>
+              <th>Ilosc komentarzy</th>
+            </tr>
+          </thead>
+    
+          <tbody>
+            {{#each arrayAmazon}}
+              <tr>
+                <th>{{#if (or (eq this.Tytul '') (eq this.Tytul null))}}BRAK{{else}}{{this.Tytul}}{{/if}}</th>
+                <td>{{#if (or (eq this.Cena_oryginalna '') (eq this.Cena_oryginalna null))}}BRAK{{else}}{{this.Cena_oryginalna}}{{/if}}</td>
+                <td>{{#if (or (eq this.Cena_promocyjna '') (eq this.Cena_promocyjna null))}}BRAK{{else}}{{this.Cena_promocyjna}}{{/if}}</td>
+                <td>{{#if (or (eq this.Link '') (eq this.Link null))}}BRAK{{else}}<a class="table-link" target="_blank" rel="noopener noreferrer" href={{this.Link}}>Link</a>{{/if}}</td>
+                <td>{{#if (or (eq this.Zdjecie '') (eq this.Zdjecie null))}}BRAK{{else}}<a target="_blank" rel="noopener noreferrer" href={{this.Zdjecie}}><img src={{this.Zdjecie}} alt="Kliknij, aby wyświetlić"></img></a>{{/if}}</td>
+                <td>{{#if (or (eq this.Dostawa '') (eq this.Dostawa null))}}BRAK{{else}}{{this.Dostawa}}{{/if}}</td>
+                <td>{{#if (or (eq this.Czy_darmowa_dostawa '') (eq this.Czy_darmowa_dostawa null))}}BRAK{{else}}{{this.Czy_darmowa_dostawa}}{{/if}}</td>
+                <td>{{#if (or (eq this.Ocena_w_gwiazdkach '') (eq this.Ocena_w_gwiazdkach null))}}BRAK{{else}}{{this.Ocena_w_gwiazdkach}}{{/if}}</td>
+                <td>{{#if (or (eq this.Ilosc_komentarzy '') (eq this.Ilosc_komentarzy null))}}BRAK{{else}}{{this.Ilosc_komentarzy}}{{/if}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        {{/if}}
+
+        {{#if arrayOtoMoto}}
+        <table>
+          <caption>OtoMoto</caption>
+          <thead>
+            <tr>
+              <th>Data utworzenia wpisu</th>
+              <th>Nazwa</th>
+              <th>Link</th>
+              <th>Przebieg</th>
+              <th>Lokalizacja</th>
+              <th>Cena</th>
+              <th>Rok Produkcji</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each arrayOtoMoto}}
+            <tr>
+              <td>
+                {{#if this.create_date}}
+                {{this.create_date}}
+                {{else}}
+                BRAK
+                {{/if}}
+              </td>
+              <td class="bold">{{this.name}}</td>
+              <td>
+                {{#if this.link}}
+                <a class="table-link" target="_blank" href="{{this.link}}">Link</a>
+                {{else}}
+                BRAK
+                {{/if}}
+              </td>
+              <td>{{this.mileage}}</td>
+              <td>{{this.location}}</td>
+              <td>{{this.price}}</td>
+              <td>{{this.production_year}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+       </table>
+        {{else}}
+        <caption>OtoMoto</caption>
+        <p style="text-align: center;">Brak danych do wyświetlenia</p>
+        {{/if}}
+
+        {{#if arrayOtoDom}}
+        <table>
+          <caption>OtoDom</caption>
+          <thead>
+            <tr>
+              <th>Data utworzenia wpisu</th>
+              <th>Nazwa</th>
+              <th>Link</th>
+              <th>Cena</th>
+              <th>Lokalizacja</th>
+              <th>Dodatkowe informacje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each arrayOtoDom}}
+            <tr>
+              <td>
+                {{#if this.create_date}}
+                {{this.create_date}}
+                {{else}}
+                BRAK
+                {{/if}}
+              </td>
+              <td class="bold">{{this.title}}</td>
+              <td>
+                {{#if this.link}}
+                <a class="table-link" target="_blank" href="{{this.link}}">Link</a>
+                {{else}}
+                BRAK
+                {{/if}}
+              </td>
+              <td>{{this.price}}</td>
+              <td>{{this.location}}</td>
+              <td>{{this.additional_info}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+       </table>
+        {{else}}
+        <caption>OtoDom</caption>
+        <p style="text-align: center;">Brak danych do wyświetlenia</p>
+        {{/if}}
+
+        {{#if arraySprzedajemy}}
+        <table>
+          <caption>Sprzedajemy</caption>
+          <thead>
+            <tr>
+              <th>Data utworzenia wpisu</th>
+              <th>Nazwa</th>
+              <th>Link</th>
+              <th>Cena</th>
+              <th>Lokalizacja</th>
+              <th>Silnik</th>
+              <th>Przebieg</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each arraySprzedajemy}}
+            <tr>
+              <td>
+                {{#if this.create_date}}
+                {{this.create_date}}
+                {{else}}
+                BRAK
+                {{/if}}
+              </td>
+              <td class="bold">{{this.name}}</td>
+              <td>
+                {{#if this.link}}
+                <a class="table-link" target="_blank" href="{{this.link}}">Link</a>
+                {{else}}
+                BRAK
+                {{/if}}
+              </td>
+              <td>{{this.price}}</td>
+              <td>{{this.address}}</td>
+              <td>{{this.motor_engine}}</td>
+              <td>{{this.gearbox}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+       </table>
+        {{else}}
+        <caption>Sprzedajemy</caption>
+        <p style="text-align: center;">Brak danych do wyświetlenia</p>
+        {{/if}}
+      </div>
+    </div>
+  </body>
+</html>

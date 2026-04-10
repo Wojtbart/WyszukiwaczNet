@@ -1,0 +1,4 @@
+requests==2.28.1
+mysql-connector-python==8.0.32
+urllib3==1.26.13
+beautifulsoup4==4.11.1

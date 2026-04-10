@@ -1,0 +1,226 @@
+﻿@page "/shopping"
+
+@using WyszukiwaczAppDTO
+@using System.Threading.Tasks
+@inject DataProxy DataProxy
+@inject DialogService DialogService
+
+<style>
+    .RadzenDataGridColumnCss {
+        padding: 10px;
+    }
+
+    .link {
+        background-color: #a04ba7;
+        border: none;
+        color: white;
+        padding: 6px 19px;
+        text-decoration: none;
+        display: inline-block;
+        border: 1px solid #7c658b;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+        .link:hover span {
+            text-decoration: none !important;
+            outline: none !important;
+            color: #7c658b;
+        }
+
+        .link:focus span, .link:focus-visible span {
+            color: white !important;
+            outline: none !important;
+            text-decoration: none !important;
+        }
+
+        .link:hover {
+            color: #7c658b;
+            text-decoration: none !important;
+            background-color: white;
+            border: 2px solid #7c658b;
+        }
+
+        .link:active {
+            box-shadow: none;
+            top: 5px;
+            color: white;
+            text-decoration: none !important;
+        }
+
+    .rz-form-field-content {
+        outline: none !important;
+        border-radius: 15px;
+    }
+
+    .grid-margin {
+        margin-bottom: 20px;
+        box-shadow: 0 0 50px #ccc;
+    }
+</style>
+
+<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
+    <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
+        <RadzenFormField Text="Szukany tekst" Variant="Variant.Flat" Style="width:50%;margin-right:50px;">
+            <RadzenTextBox @bind-Value="@searchedText" Style="width: 100%; border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
+            <RadzenButton Click=LoadData Text="ZAŁADUJ" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" />
+        </RadzenFormField>
+    </RadzenColumn>
+</RadzenRow>
+
+<RadzenText TextStyle="TextStyle.H4" Text="Wybierz strony, z których chesz pobrać ogłoszenie" Style="color:red; margin-bottom:20px;" />
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
+    <RadzenLabel Text="Olx" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setOlxGrid Name="CheckBox1" />
+</RadzenButton>
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/amazon.png" Style="width: 4rem;height:2rem;" AlternateText="Amazon" />
+    <RadzenLabel Text="Amazon" Component="CheckBox2" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setAmazonGrid Name="CheckBox2" />
+</RadzenButton>
+
+@if (setAmazonGrid)
+{
+
+    <RadzenDataGrid Data="@amazonData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;" show
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
+                    FilterPopupRenderMode="PopupRenderMode.OnDemand" class="grid-margin" IsLoading="isLoading"
+                    ShowPagingSummary="true" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/otomoto.gif" Style="width: 6rem;height:3rem;" AlternateText="Amazon" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Amazon</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="300px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false"  TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="Zdjęcie" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="Dodatkowe informacje" TextAlign="TextAlign.Left" />
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@if (setOlxGrid)
+{
+
+    <RadzenDataGrid Data="@olxData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
+                    FilterPopupRenderMode="PopupRenderMode.OnDemand" class="grid-margin" IsLoading="isLoading"
+                    ShowPagingSummary="true" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/olx.png" Style="width: 4rem; height:4rem;" AlternateText="Olx" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Olx</h3>
+        </HeaderTemplate>
+
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="300px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @(context.Location?.Contains(" - ") == true ? context.Location.Substring(0, context.Location.IndexOf(" - ")) : context.Location)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Data dodania" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @(context.Location?.Contains(" - ") == true ? context.Location.Substring(context.Location.IndexOf(" - ") + 3) : "")
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+
+@code {
+    private string searchedText = string.Empty;
+
+    private bool isLoading = false;
+    private bool setAmazonGrid = false;
+    private bool setOlxGrid = false;
+
+    private IEnumerable<ScrapedItem>? olxData;
+    private IEnumerable<ScrapedItem>? amazonData;
+
+    DataModel model = new();
+
+    private async Task LoadData()
+    {
+        if (string.IsNullOrEmpty(searchedText))
+        {
+            await DialogService.Alert("Wypełnij pole \"Szukany tekst\"");
+            return;
+        }
+
+        isLoading = true;
+
+        var websites = new List<string>();
+        if (setAmazonGrid) websites.Add("amazon");
+        if (setOlxGrid)    websites.Add("olx");
+
+        model = new DataModel
+        {
+            websites = websites,
+            phrase = searchedText,
+            request_number = "30",
+            additional_phrase = ""
+        };
+
+        try
+        {
+            var result = await DataProxy.getData(model);
+
+            olxData    = result?.Data?.OlxData?.Output;
+            amazonData = result?.Data?.AmazonData?.Output;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"Błąd podczas pobierania danych: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,84 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+
+<RadzenComponents />
+
+<style>
+    :root {
+        --sidebar-width: 250px;
+    }
+    
+    .app-layout {
+        display: flex;
+        min-height: 100vh;
+    }
+    
+    .main-content {
+        flex: 1;
+        background: #f5f5f5;
+        min-height: 100vh;
+    }
+    
+    .page-container {
+        padding: 1.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .auth-page {
+        min-height: 100vh;
+        min-width: 50vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+</style>
+
+@if (Globals.IsLogged)
+{
+    <div class="app-layout">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+        <div class="main-content">
+            <div class="page-container">
+                @Body
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="auth-page">
+        @Body
+    </div>
+}
+
+<div id="blazor-error-ui">
+    Wystąpił nieoczekiwany błąd.
+    <a href="" class="reload">Odśwież</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var uri = Navigation.ToBaseRelativePath(Navigation.Uri);
+        if (uri == "login" || uri == "register") return;
+
+        var token = await LocalStorage.GetItemAsync<string>("authToken");
+        var login = await LocalStorage.GetItemAsync<string>("login");
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            Globals.IsLogged = true;
+            Globals.AuthToken = token;
+            Globals.Login = login ?? string.Empty;
+            StateHasChanged();
+        }
+    }
+}

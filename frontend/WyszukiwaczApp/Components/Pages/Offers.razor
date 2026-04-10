@@ -1,0 +1,203 @@
+@page "/offers"
+@page "/offers/recent"
+@using WyszukiwaczAppDTO
+@inject OfferService OfferService
+
+<PageTitle>Oferty - Wyszukiwacz</PageTitle>
+
+<style>
+    .link {
+        background-color: #a04ba7;
+        border: none;
+        color: white;
+        padding: 6px 19px;
+        text-decoration: none;
+        display: inline-block;
+        border: 1px solid #7c658b;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .link:hover {
+        color: #7c658b;
+        text-decoration: none !important;
+        background-color: white;
+        border: 2px solid #7c658b;
+    }
+
+    .link:active {
+        box-shadow: none;
+        color: white;
+        text-decoration: none !important;
+    }
+
+    .grid-margin {
+        margin-bottom: 20px;
+        box-shadow: 0 0 50px #ccc;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #666;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<RadzenText TextStyle="TextStyle.H4" Text="Oferty" Style="color:red; margin-bottom:20px;" />
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
+    <RadzenLabel Text="Olx" Component="cbOlx" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbOlx" Value="@(selectedPlatform == "olx")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "olx"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/sprzedajemy.jpg" Style="width: 4rem;height:2rem;" AlternateText="Sprzedajemy" />
+    <RadzenLabel Text="Sprzedajemy" Component="cbSprzedajemy" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbSprzedajemy" Value="@(selectedPlatform == "sprzedajemy")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "sprzedajemy"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/otomoto.gif" Style="width: 3rem;height:2rem;" AlternateText="OtoMoto" />
+    <RadzenLabel Text="OtoMoto" Component="cbOtomoto" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbOtomoto" Value="@(selectedPlatform == "otomoto")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "otomoto"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/gratka.png" Style="width: 2rem;height:2rem;" AlternateText="Gratka" />
+    <RadzenLabel Text="Gratka" Component="cbGratka" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbGratka" Value="@(selectedPlatform == "gratka")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "gratka"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/autoscout.png" Style="width: 2rem;height:2rem;" AlternateText="Autoscout" />
+    <RadzenLabel Text="Autoscout" Component="cbAutoscout" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbAutoscout" Value="@(selectedPlatform == "autoscout")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "autoscout"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/autocentrum.png" Style="width: 2rem;height:2rem;" AlternateText="Autocentrum" />
+    <RadzenLabel Text="Autocentrum" Component="cbAutocentrum" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbAutocentrum" Value="@(selectedPlatform == "autocentrum")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "autocentrum"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/amazon.png" Style="width: 4rem;height:2rem;" AlternateText="Amazon" />
+    <RadzenLabel Text="Amazon" Component="cbAmazon" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbAmazon" Value="@(selectedPlatform == "amazon")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "amazon"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+    <RadzenImage Path="images/otoDom.png" Style="width: 4rem;height:2rem;" AlternateText="OtoDom" />
+    <RadzenLabel Text="OtoDom" Component="cbOtodom" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbOtodom" Value="@(selectedPlatform == "otodom")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "otodom"))" />
+</RadzenButton>
+
+@if (selectedPlatform == null)
+{
+    <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <h3>Wybierz platformę, dla której chcesz zobaczyć 100 ostatnich ofert</h3>
+    </div>
+}
+else
+{
+    <RadzenDataGrid Data="@offers" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="250px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @if (string.IsNullOrEmpty(context.ImageUrl))
+                    {
+                        <div style="color: gray; text-align: center; font-style: italic;">Brak zdjęcia</div>
+                    }
+                    else
+                    {
+                        <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="Zdjęcie" />
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena" TextAlign="TextAlign.Center">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center" />
+            <RadzenDataGridColumn Property="CreatedAt" Title="Data dodania" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.CreatedAt.ToString("dd.MM.yyyy")</Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    private List<OfferResponse> offers = new();
+    private bool isLoading = false;
+    private string? selectedPlatform = null;
+
+    private async Task OnPlatformChange(bool isChecked, string platform)
+    {
+        if (isChecked)
+        {
+            selectedPlatform = platform;
+            await LoadPlatformData(platform);
+        }
+        else
+        {
+            selectedPlatform = null;
+            offers = new();
+        }
+    }
+
+    private async Task LoadPlatformData(string platform)
+    {
+        isLoading = true;
+        offers = new();
+        StateHasChanged();
+        try
+        {
+            var result = await OfferService.GetOffersByPlatformAsync(platform);
+            offers = result ?? new List<OfferResponse>();
+        }
+        catch
+        {
+            offers = new();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

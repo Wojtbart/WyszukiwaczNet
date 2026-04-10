@@ -1,0 +1,559 @@
+@page "/cars"
+
+@using WyszukiwaczAppDTO
+@using System.Threading.Tasks
+@inject DataProxy DataProxy
+@inject DialogService DialogService
+
+<style>
+    .link {
+        background-color: #a04ba7;
+        border: none;
+        color: white;
+        padding: 6px 19px;
+        text-decoration: none;
+        display: inline-block;
+        border: 1px solid #7c658b;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .link:hover {
+        color: #7c658b;
+        text-decoration: none !important;
+        background-color: white;
+        border: 2px solid #7c658b;
+    }
+
+    .link:active {
+        box-shadow: none;
+        color: white;
+        text-decoration: none !important;
+    }
+
+    .rz-form-field-content {
+        outline: none !important;
+        border-radius: 15px;
+    }
+
+    .grid-margin {
+        margin-bottom: 20px;
+        box-shadow: 0 0 50px #ccc;
+    }
+</style>
+
+<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
+    <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
+        <RadzenFormField Text="Marka" Variant="Variant.Flat" Style="width:49%;">
+            <RadzenTextBox @bind-Value="@searchedBrand" Style="width: 49%; border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Model" Variant="Variant.Flat" Style="width:50%">
+            <RadzenTextBox @bind-Value="@searchedModel" Style="width: 50%; border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenDropDown TValue="string"
+                        @bind-Value="@selectedFuelType"
+                        Data="@fuelTypes"
+                        TextProperty="DisplayText"
+                        ValueProperty="Value"
+                        Placeholder="Wybierz rodzaj paliwa"
+                        Style="width: 300px"
+                        Name="FuelType" />
+        <RadzenDropDown TValue="int?"
+                        @bind-Value="@selectedHorsepower"
+                        Data="@horsepowerValues"
+                        Placeholder="Wybierz moc silnika (KM)"
+                        Style="width: 300px"
+                        Name="Horsepower" />
+        <RadzenDropDown TValue="int?"
+                        @bind-Value="@selectedCapacity"
+                        Data="@capacityValues"
+                        Placeholder="Wybierz pojemność silnika (cm³)"
+                        Style="width: 300px"
+                        Name="EngineCapacity" />
+        <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
+            <RadzenButton Click=LoadData Text="ZAŁADUJ" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(SearchPhrase)" />
+        </RadzenFormField>
+    </RadzenColumn>
+</RadzenRow>
+
+<RadzenText TextStyle="TextStyle.H4" Text="Wybierz strony, z których chcesz pobrać ogłoszenia" Style="color:red; margin-bottom:20px;" />
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
+    <RadzenLabel Text="Olx" Component="CheckBox2" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setOlxGrid Name="CheckBox2" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/sprzedajemy.jpg" Style="width: 4rem;height:2rem;" AlternateText="Sprzedajemy" />
+    <RadzenLabel Text="Sprzedajemy" Component="CheckBox6" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setSprzedajemyGrid Name="CheckBox6" />
+</RadzenButton>
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/otomoto.gif" Style="width: 3rem;height:2rem;" AlternateText="OTOMOTO" />
+    <RadzenLabel Text="OtoMoto" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setOtomotoGrid Name="CheckBox1" />
+</RadzenButton>
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/gratka.png" Style="width: 2rem;height:2rem;" AlternateText="Gratka" />
+    <RadzenLabel Text="Gratka" Component="CheckBox4" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setGratkaGrid Name="CheckBox4" />
+</RadzenButton>
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/autoscout.png" Style="width: 2rem;height:2rem;" AlternateText="Autoscout" />
+    <RadzenLabel Text="Autoscout" Component="CheckBox3" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setAutoscoutGrid Name="CheckBox3" />
+</RadzenButton>
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+    <RadzenImage Path="images/autocentrum.png" Style="width: 2rem;height:2rem;" AlternateText="Autocentrum" />
+    <RadzenLabel Text="Autocentrum" Component="CheckBox5" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setAutocentrumGrid Name="CheckBox5" />
+</RadzenButton>
+
+@if (setOlxGrid)
+{
+
+    <RadzenDataGrid Data="@olxData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/olx.png" Style="width: 4rem; height:4rem;" AlternateText="Olx" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Olx</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="300px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @(context.Location?.Contains(" - ") == true ? context.Location.Substring(0, context.Location.IndexOf(" - ")) : context.Location)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Data dodania" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @(context.Location?.Contains(" - ") == true ? context.Location.Substring(context.Location.IndexOf(" - ") + 3) : "")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="Przebieg (km)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="Rok produkcji" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@if (setSprzedajemyGrid)
+{
+
+    <RadzenDataGrid Data="@sprzedajemyData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/sprzedajemy.jpg" Style="width: 8rem; height:4rem;" AlternateText="Sprzedajemy" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Sprzedajemy</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="200px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="Brak zdjęcia" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center" />
+            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="Przebieg (km)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="Rok produkcji" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@if (setOtomotoGrid)
+{
+
+    <RadzenDataGrid Data="@otoMotoData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/otomoto.gif" Style="width: 6rem;height:3rem;" AlternateText="Otomoto" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">OtoMoto</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="200px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @if (string.IsNullOrEmpty(context.ImageUrl))
+                    {
+                        <div style="color: gray; text-align: center; font-style: italic;">Brak zdjęcia</div>
+                    }
+                    else
+                    {
+                        <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="Zdjęcie" />
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Left">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="Przebieg (km)" Filterable="false" Sortable="false" TextAlign="TextAlign.Left">
+                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="Rok produkcji" Filterable="false" Sortable="false" TextAlign="TextAlign.Left">
+                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Left">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.FuelType" Title="Paliwo" Filterable="false" Sortable="false" TextAlign="TextAlign.Left">
+                <Template Context="context">@context.VehicleDetail?.FuelType</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Gearbox" Title="Skrzynia" Filterable="false" Sortable="false" TextAlign="TextAlign.Left">
+                <Template Context="context">@context.VehicleDetail?.Gearbox</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="Dodatkowe" TextAlign="TextAlign.Left">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.AdditionalInfo</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@if (setAutoscoutGrid)
+{
+
+    <RadzenDataGrid Data="@autoscoutData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/autoscout.png" Style="width: 4rem; height:4rem;" AlternateText="Autoscout" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Autoscout</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="200px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="Brak zdjęcia" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (€)" TextAlign="TextAlign.Center">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="SellerName" Title="Sprzedawca" TextAlign="TextAlign.Center" />
+            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="Przebieg (km)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Gearbox" Title="Skrzynia" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Gearbox</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="Rok produkcji" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.FuelType" Title="Paliwo" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.FuelType</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.EnginePower" Title="Moc (KM)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.EnginePower</Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@if (setGratkaGrid)
+{
+
+    <RadzenDataGrid Data="@gratkaData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/gratka.png" Style="width: 4rem; height:4rem;" AlternateText="Gratka" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Gratka</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="200px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="Brak zdjęcia" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="Przebieg (km)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="Rok produkcji" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.BodyType" Title="Typ nadwozia" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @{
+                        var bt = context.VehicleDetail?.BodyType;
+                        var colon = bt?.IndexOf(": ") ?? -1;
+                    }
+                    @(colon >= 0 ? bt!.Substring(colon + 2) : bt)
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@if (setAutocentrumGrid)
+{
+
+    <RadzenDataGrid Data="@autocentrumData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/autocentrum.png" Style="width: 4rem; height:4rem;" AlternateText="Autocentrum" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Autocentrum</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="200px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="Brak zdjęcia" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
+                <Template Context="context">@((int?)context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="Przebieg (km)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="Rok produkcji" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Gearbox" Title="Skrzynia" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Gearbox</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.BodyType" Title="Nadwozie" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.BodyType</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="Dodatkowe" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.AdditionalInfo</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    private string searchedBrand = string.Empty;
+    private string searchedModel = string.Empty;
+
+    private string SearchPhrase => $"{searchedBrand} {searchedModel}".Trim();
+
+    private bool isLoading = false;
+    private bool setOtomotoGrid = false;
+    private bool setOlxGrid = false;
+    private bool setAutoscoutGrid = false;
+    private bool setGratkaGrid = false;
+    private bool setSprzedajemyGrid = false;
+    private bool setAutocentrumGrid = false;
+
+    private IEnumerable<ScrapedItem>? otoMotoData;
+    private IEnumerable<ScrapedItem>? olxData;
+    private IEnumerable<ScrapedItem>? autoscoutData;
+    private IEnumerable<ScrapedItem>? gratkaData;
+    private IEnumerable<ScrapedItem>? sprzedajemyData;
+    private IEnumerable<ScrapedItem>? autocentrumData;
+
+    private List<FuelType> fuelTypes = new()
+    {
+        new FuelType { DisplayText = "Benzyna",     Value = "petrol" },
+        new FuelType { DisplayText = "Benzyna-CNG", Value = "petrol-cng" },
+        new FuelType { DisplayText = "Benzyna-LNG", Value = "petrol-lng" },
+        new FuelType { DisplayText = "Diesel",      Value = "diesel" },
+        new FuelType { DisplayText = "Elektryczny", Value = "electric" },
+        new FuelType { DisplayText = "Hybrydowy",   Value = "hybrid" }
+    };
+
+    private string selectedFuelType = string.Empty;
+
+    public class FuelType
+    {
+        public string DisplayText { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+    }
+
+    private List<int> horsepowerValues = new() { 50, 80, 120, 150, 200, 300, 500 };
+    private int? selectedHorsepower;
+
+    private List<int> capacityValues = new() { 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000, 6000 };
+    private int? selectedCapacity;
+
+    DataModel model = new();
+
+    private async Task LoadData()
+    {
+        if (string.IsNullOrWhiteSpace(SearchPhrase))
+        {
+            await DialogService.Alert("Wypełnij pole Marka lub Model.");
+            return;
+        }
+
+        isLoading = true;
+
+        var websites = new List<string>();
+        if (setOtomotoGrid)    websites.Add("otoMoto");
+        if (setOlxGrid)        websites.Add("olx");
+        if (setAutoscoutGrid)  websites.Add("autoscout");
+        if (setGratkaGrid)     websites.Add("gratka");
+        if (setSprzedajemyGrid) websites.Add("sprzedajemy");
+        if (setAutocentrumGrid) websites.Add("autocentrum");
+
+        model = new DataModel
+        {
+            websites = websites,
+            phrase = SearchPhrase,
+            request_number = "30",
+            additional_phrase = selectedFuelType ?? ""
+        };
+
+        try
+        {
+            var result = await DataProxy.getData(model);
+
+            otoMotoData  = result?.Data?.OtoMotoData?.Output;
+            olxData      = result?.Data?.OlxData?.Output;
+            autoscoutData   = result?.Data?.AutoscoutData?.Output;
+            gratkaData      = result?.Data?.GratkaData?.Output;
+            sprzedajemyData = result?.Data?.SprzedajemyData?.Output;
+            autocentrumData = result?.Data?.AutocentrumData?.Output;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"Błąd podczas pobierania danych: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

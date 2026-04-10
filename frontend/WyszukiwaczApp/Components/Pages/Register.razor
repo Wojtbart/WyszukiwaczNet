@@ -1,0 +1,247 @@
+@page "/register"
+@layout MainLayout
+@using WyszukiwaczAppDTO
+@using WyszukiwaczApp
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+<style>
+    .register-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 2rem 1rem;
+    }
+    
+    .register-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 480px;
+    }
+    
+    .register-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .register-header h2 {
+        color: #333;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #555;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.7rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .btn-register {
+        width: 100%;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-register:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #666;
+    }
+    
+    .login-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+    
+    .error-message {
+        background: #fee;
+        border: 1px solid #fcc;
+        color: #c33;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .success-message {
+        background: #efe;
+        border: 1px solid #cfc;
+        color: #3c3;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    @@media (max-width: 500px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h2>Rejestracja</h2>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-message">@errorMessage</div>
+        }
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="success-message">@successMessage</div>
+        }
+
+        <EditForm Model="@registerModel" OnValidSubmit="OnRegister">
+            <DataAnnotationsValidator />
+            
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="email">Email *</label>
+                    <InputText id="email" @bind-Value="registerModel.Email" class="form-control" placeholder="twoj@email.pl" />
+                    <ValidationMessage For="@(() => registerModel.Email)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Telefon</label>
+                    <InputText id="phone" @bind-Value="registerModel.Phone" class="form-control" placeholder="+48 123 456 789" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Hasło *</label>
+                    <InputText id="password" @bind-Value="registerModel.Password" type="password" class="form-control" placeholder="Min. 6 znaków" />
+                    <ValidationMessage For="@(() => registerModel.Password)" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn-register" disabled="@isLoading">
+                @(isLoading ? "Rejestracja..." : "Zarejestruj się")
+            </button>
+        </EditForm>
+
+        <div class="login-link">
+            Masz już konto? <a href="/login">Zaloguj się</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RegisterModel registerModel = new();
+    private bool isLoading = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Globals.IsLogged = false;
+    }
+
+    private async Task OnRegister()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            successMessage = null;
+            StateHasChanged();
+
+            var request = new RegisterUserRequest
+            {
+                Email = registerModel.Email,
+                Phone = registerModel.Phone,
+                Password = registerModel.Password
+            };
+
+            var result = await UserService.RegisterAsync(request);
+
+            if (result?.Success == true)
+            {
+                successMessage = "Rejestracja zakończona pomyślnie! Możesz się teraz zalogować.";
+                await Task.Delay(1500);
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                errorMessage = result?.Message ?? "Rejestracja nie powiodła się";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Wystąpił błąd: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    class RegisterModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+        public string Password { get; set; } = string.Empty;
+    }
+}

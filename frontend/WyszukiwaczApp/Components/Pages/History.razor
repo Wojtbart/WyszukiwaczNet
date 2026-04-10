@@ -1,0 +1,159 @@
+﻿@page "/history"
+
+@using WyszukiwaczAppDTO
+@using System.Threading.Tasks
+@inject HistoryProxy HistoryProxy
+@inject DialogService DialogService
+
+<style>
+    .RadzenDataGridColumnCss {
+        padding: 10px;
+    }
+
+    .link {
+        background-color: #a04ba7;
+        border: none;
+        color: white;
+        padding: 6px 19px;
+        text-decoration: none;
+        display: inline-block;
+        border: 1px solid #7c658b;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+        .link:hover span {
+            text-decoration: none !important;
+            outline: none !important;
+            color: #7c658b;
+        }
+
+        .link:focus span, .link:focus-visible span {
+            color: white !important;
+            outline: none !important;
+            text-decoration: none !important;
+        }
+
+        .link:hover {
+            color: #7c658b;
+            text-decoration: none !important;
+            background-color: white;
+            border: 2px solid #7c658b;
+        }
+
+        .link:active {
+            box-shadow: none;
+            top: 5px;
+            color: white;
+            text-decoration: none !important;
+        }
+
+    .rz-form-field-content {
+        outline: none !important;
+        border-radius: 15px;
+    }
+
+    .grid-margin {
+        margin-bottom: 20px;
+        box-shadow: 0 0 50px #ccc;
+    }
+</style>
+
+
+<RadzenText TextStyle="TextStyle.H4" Text="HISTORIA" Style="color:red; margin-bottom:20px;" />
+
+@* <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
+    <RadzenLabel Text="Olx" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setOlxGrid Name="CheckBox1" />
+</RadzenButton>
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/amazon.png" Style="width: 4rem;height:2rem;" AlternateText="Amazon" />
+    <RadzenLabel Text="Amazon" Component="CheckBox2" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setAmazonGrid Name="CheckBox2" />
+</RadzenButton> *@
+
+
+
+
+
+<RadzenDataGrid Data="@historyData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;" LoadData="@LoadData"
+                AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true" Count="@count"
+                FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
+                FilterPopupRenderMode="PopupRenderMode.OnDemand" class="grid-margin" IsLoading="isLoading"
+                ShowPagingSummary="true" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+    <EmptyTemplate>
+        <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+    </EmptyTemplate>
+    <HeaderTemplate>
+        @* <RadzenImage Path="images/olx.png" Style="width: 4rem; height:4rem;" AlternateText="Olx" /> *@
+        <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">HISTORIA</h3>
+    </HeaderTemplate>
+
+    <Columns>
+        <RadzenDataGridColumn Property="Name" Title="Tytuł" Frozen="true"  TextAlign="TextAlign.Center">
+            <Template Context="context">
+                <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.title</RadzenText>
+            </Template>
+        </RadzenDataGridColumn>
+        
+        <RadzenDataGridColumn Property="Image" Title="Zdjęcie" Sortable="false" Filterable="false"  TextAlign="TextAlign.Center">
+            <Template Context="context">
+                <RadzenImage Path="@context.image" Style="width:4rem;height:4rem;" AlternateText="Brak zdjęcia" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="Link" Title="Link" TextAlign="TextAlign.Center">
+            <Template Context="context">
+                <div class="rz-text-align-center " style="height:38px;">
+                    <RadzenLink Path="@context.link" Text="Otwórz Link" Target="_blank" class="link" />
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="price" Title="Cena" Sortable="true" Filterable="true" TextAlign="TextAlign.Center" />
+
+        <RadzenDataGridColumn Property="createDate" Title="Data utworzenia" Sortable="true" Filterable="true"  TextAlign="TextAlign.Center">
+
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    private IEnumerable<HistoryModel>? historyData;
+    private bool isLoading = false;
+    private int count;
+
+    private async Task LoadData(LoadDataArgs args)
+    {
+        isLoading = true;
+        try
+        {
+            var userId = Globals.UserId ?? 0;
+            var result = await HistoryProxy.getHistory(userId);
+
+            if (result?.Data != null)
+            {
+                count = result.Data.Count;
+                historyData = result.Data
+                    .Skip(args.Skip ?? 0)
+                    .Take(args.Top ?? 10)
+                    .ToList();
+            }
+            else
+            {
+                count = 0;
+                historyData = Enumerable.Empty<HistoryModel>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Błąd ładowania historii: {ex.Message}");
+            historyData = Enumerable.Empty<HistoryModel>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,0 +1,52 @@
+﻿
+    .RadzenDataGridColumnCss {
+        padding: 10px;
+    }
+
+    .link {
+        background-color: #a04ba7;
+        color: white;
+        padding: 6px 19px;
+        text-decoration: none;
+        display: inline-block;
+        border: 1px solid #7c658b;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .link:hover span {
+        text-decoration: none !important;
+        outline: none !important;
+        color: #7c658b;
+    }
+
+    .link:focus span, .link:focus-visible span {
+        color: white !important;
+        outline: none !important;
+        text-decoration: none !important;
+    }
+
+    .link:hover {
+        color: #7c658b;
+        text-decoration: none !important;
+        background-color: white;
+        border: 2px solid #7c658b;
+    }
+
+    .link:active {
+        box-shadow: none;
+        top: 5px;
+        color: white;
+        text-decoration: none !important;
+    }
+
+    .rz-form-field-content {
+        outline: none !important;
+        border-radius: 15px;
+    }
+
+    .grid-margin {
+        margin-bottom: 20px;
+        box-shadow: 0 0 50px #ccc;
+    }

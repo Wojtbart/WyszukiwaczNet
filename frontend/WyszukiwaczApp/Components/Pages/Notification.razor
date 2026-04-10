@@ -1,0 +1,348 @@
+@page "/notification"
+@using WyszukiwaczAppDTO
+@using WyszukiwaczApp.Proxies
+@using WyszukiwaczApp.Services
+
+@inject NotificationService NotificationService
+@inject NavigationManager Navigation
+@inject NotificationProxy NotificationProxy
+@inject LoginProxy LoginProxy
+@inject UserService UserService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
+<RadzenTemplateForm Data="@formData">
+    <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenFieldset Text="Ustawienia">
+                <RadzenStack Gap="1rem">
+                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">Wybrane kanały powiadomień:</RadzenText>
+                    @if (isSMSChecked) { <div>- <b style="color:red;">SMS</b></div> }
+                    @if (isDiscordChecked) { <div>- <b style="color:red;">Discord</b></div> }
+                    @if (isEmailChecked) { <div>- <b style="color:red;">Email</b></div> }
+                    @if (!isSMSChecked && !isDiscordChecked && !isEmailChecked)
+                    {
+                        <div style="color:gray;">Brak wybranych kanałów</div>
+                    }
+                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">Wybrane platformy:</RadzenText>
+                    @foreach (var platform in selectedPlatforms)
+                    {
+                        <div>- <b style="color:red;">@platform</b></div>
+                    }
+                    @if (!selectedPlatforms.Any())
+                    {
+                        <div style="color:gray;">Brak wybranych platform</div>
+                    }
+                    <hr />
+                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">
+                        Powtórz wysyłanie powiadomienia po czasie: @(minutesAfterSendingNotification > 0 ? minutesAfterSendingNotification : "----") min
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">
+                        Godzina wysłania powiadomienia: @(string.IsNullOrEmpty(timeToSendingMail) ? "----" : timeToSendingMail)
+                    </RadzenText>
+                </RadzenStack>
+            </RadzenFieldset>
+        </RadzenColumn>
+        <RadzenColumn Size="10" SizeMD="5">
+            <RadzenFieldset Text="Konfiguracja czasu wysyłania wiadomości">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" @bind-Value="isSendingHourChecked" Change="OnCheckboxHourChanged" />
+                        <label>Ustaw godzinę wysyłania</label>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenLabel Text="Ustaw godzinę wysyłania" />
+                        <RadzenDatePicker ReadOnly="@setSendingHourPreview" Disabled="@setSendingHourPreview"
+                                          @bind-Value="@dateSendingNotification" ShowTime="true" TimeOnly="true"
+                                          DateFormat="HH:mm" Style="width: 150px;" />
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" @bind-Value="isCyclicMessagingChecked" Change="OnCheckboxCyclicChanged" />
+                        <label>Ustaw cykliczne wysyłanie wiadomości</label>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenLabel Text="Co ile minut chcesz wysyłać wiadomości" />
+                        <RadzenNumeric ReadOnly="@repeatRequestAfterTimePreview" Disabled="@repeatRequestAfterTimePreview"
+                                       Min="1" Max="100" @bind-Value="@minutesAfterSendingNotification" Style="width: 100px;" />
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+            <RadzenFieldset Text="Szukany tekst">
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenTextBox @bind-Value="@searchedText" Style="width:75%;" />
+                </RadzenRow>
+                <RadzenRow AlignItems="AlignItems.Center" style="margin-bottom:10px;">
+                    <RadzenLabel Text="Ilość szukanych wpisów" />
+                    <RadzenNumeric Min="1" Max="30" @bind-Value="@requestNumbers" Style="width: 100px;" />
+                </RadzenRow>
+            </RadzenFieldset>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenFieldset Text="Systemy powiadomień">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" @bind-Value="isSMSChecked" />
+                        <label>SMS</label>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" @bind-Value="isDiscordChecked" />
+                        <label>Discord</label>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" @bind-Value="isEmailChecked" />
+                        <label>Email</label>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+        </RadzenColumn>
+        <RadzenColumn Size="10" SizeMD="5">
+            <RadzenFieldset Text="Szukane platformy">
+                <RadzenListBox @bind-Value="@selectedPlatforms" Data="@availablePlatforms"
+                               Multiple="true" AllowClear="true" Placeholder="Wybierz platformy"
+                               Style="width: 100%; max-width: 400px; height: 200px" />
+            </RadzenFieldset>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenTemplateForm>
+<RadzenFieldset Text="Ustawienia dotyczące mieszkań">
+    <RadzenStack Gap="1rem">
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenCheckBox TValue="bool" @bind-Value="isSprzedaz" Change="@OnCheckboxChanged" />
+            <label>Sprzedaz</label>
+        </RadzenRow>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenCheckBox TValue="bool" @bind-Value="isWynajem" Change="@OnCheckboxChanged" />
+            <label>Wynajem</label>
+        </RadzenRow>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenCheckBox TValue="bool" @bind-Value="isPrywatne" Change="@OnCheckboxChanged" />
+            <label>Prywatne</label>
+        </RadzenRow>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenCheckBox TValue="bool" @bind-Value="isPubliczne" Change="@OnCheckboxChanged" />
+            <label>Publiczne</label>
+        </RadzenRow>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenCheckBox TValue="bool" @bind-Value="isOstatnie24h" Change="@OnCheckboxChanged" />
+            <label>Ostatnie24h</label>
+        </RadzenRow>
+        <RadzenRow AlignItems="AlignItems.Center">
+            <RadzenCheckBox TValue="bool" @bind-Value="isDowolna" Change="@OnCheckboxChanged" />
+            <label>Dowolna</label>
+        </RadzenRow>
+    </RadzenStack>
+</RadzenFieldset>
+<RadzenButton ButtonType="ButtonType.Submit" Click="DeleteJobs" Icon="delete" Text="USUŃ JOBY"
+              ButtonStyle="ButtonStyle.Danger" Shade="Shade.Darker" Size="ButtonSize.Large"
+              Style="height:3.25rem; border-radius:15px;" />
+
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" class="rz-mt-8 rz-mb-4">
+    <RadzenButton ButtonType="ButtonType.Submit" Click="SaveConfiguration" Icon="save" Text="ZAPISZ USTAWIENIA"
+                  ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Size="ButtonSize.Large"
+                  Style="height:3.25rem; border-radius:15px;" />
+</RadzenStack>
+
+@code {
+    private object formData = new();
+
+    private int userId;
+
+    // Loaded from GET /api/users/{userId}/notifications
+    private List<UserNotificationSettingDto> notificationChannels = new();
+    // Loaded from GET /api/users/{userId}/platforms
+    private List<UserPlatformSubscriptionDto> platformSubscriptions = new();
+
+    private bool isSMSChecked = false;
+    private bool isDiscordChecked = false;
+    private bool isEmailChecked = false;
+
+    private bool setSendingHourPreview = true;
+    private bool repeatRequestAfterTimePreview = true;
+    private bool isSendingHourChecked = false;
+    private bool isCyclicMessagingChecked = false;
+    private int minutesAfterSendingNotification;
+
+    private bool isSprzedaz;
+    private bool isWynajem;
+    private bool isPrywatne;
+    private bool isPubliczne;
+    private bool isOstatnie24h;
+    private bool isDowolna;
+
+    private string additional_phrase = string.Empty;
+
+    private List<string> availablePlatforms = new() { "Olx", "Amazon", "OtoMoto", "OtoDom", "Autoscout", "Gratka", "Sprzedajemy", "Autocentrum" };
+    private List<string> selectedPlatforms = new();
+
+    private DateTime? dateSendingNotification = null;
+    private string timeToSendingMail = string.Empty;
+    private string searchedText = string.Empty;
+    private int requestNumbers;
+
+    private void OnCheckboxChanged(bool value)
+    {
+        var selectedOptions = new List<string>();
+
+        if (isSprzedaz) selectedOptions.Add("sprzedaz");
+        if (isWynajem) selectedOptions.Add("wynajem");
+        if (isPrywatne) selectedOptions.Add("prywatne");
+        if (isPubliczne) selectedOptions.Add("publiczne");
+        if (isOstatnie24h) selectedOptions.Add("ostatnie24h");
+        if (isDowolna) selectedOptions.Add("dowolna");
+
+        additional_phrase = string.Join(" ", selectedOptions);
+    }
+
+    private void OnCheckboxHourChanged(bool value)
+    {
+        setSendingHourPreview = !value;
+        dateSendingNotification = value ? DateTime.Now : null;
+        isCyclicMessagingChecked = !value;
+        repeatRequestAfterTimePreview = value;
+        minutesAfterSendingNotification = 0;
+        StateHasChanged();
+    }
+
+    private void OnCheckboxCyclicChanged(bool value)
+    {
+        repeatRequestAfterTimePreview = !value;
+        if (value) minutesAfterSendingNotification = 1;
+        setSendingHourPreview = value;
+        isSendingHourChecked = !value;
+        dateSendingNotification = null;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        string username = await LocalStorage.GetItemAsync<string>("login") ?? string.Empty;
+        if (string.IsNullOrEmpty(username)) return;
+
+        var userInfo = await LoginProxy.GetUser(username);
+        if (userInfo == null || userInfo.user_id <= 0) return;
+
+        userId = userInfo.user_id;
+
+        // Load notification channel settings via GET /api/users/{userId}/notifications
+        notificationChannels = await UserService.GetUserNotificationSettingsAsync(userId) ?? new();
+        foreach (var channel in notificationChannels)
+        {
+            switch (channel.ChannelName.ToLower())
+            {
+                case "sms":
+                    isSMSChecked = channel.Enabled;
+                    break;
+                case "discord":
+                    isDiscordChecked = channel.Enabled;
+                    break;
+                case "email":
+                    isEmailChecked = channel.Enabled;
+                    break;
+            }
+        }
+
+        // Load platform subscriptions via GET /api/users/{userId}/platforms
+        platformSubscriptions = await UserService.GetUserPlatformSubscriptionsAsync(userId) ?? new();
+        selectedPlatforms = platformSubscriptions
+            .Where(p => p.Enabled)
+            .Select(p => availablePlatforms.FirstOrDefault(a => a.Equals(p.PlatformName, StringComparison.OrdinalIgnoreCase)) ?? p.PlatformName)
+            .Where(name => !string.IsNullOrEmpty(name))
+            .ToList();
+    }
+
+    private async Task SaveConfiguration()
+    {
+        try
+        {
+            if (userId <= 0)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Błąd: Nie można uzyskać identyfikatora użytkownika.");
+                return;
+            }
+            if (requestNumbers <= 0)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Błąd: Ilość szukanych wpisów musi być większa niż 0.");
+                return;
+            }
+            if (string.IsNullOrEmpty(searchedText))
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Błąd: Nie podano szukanego tekstu.");
+                return;
+            }
+            if (!selectedPlatforms.Any())
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Błąd: Nie wybrano platformy do pobrania danych.");
+                return;
+            }
+
+            var hourToSend = dateSendingNotification?.ToString("HH:mm");
+            var repeatMinutes = minutesAfterSendingNotification > 0 ? (int?)minutesAfterSendingNotification : null;
+
+            if (repeatMinutes != null && !string.IsNullOrEmpty(hourToSend))
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Błąd: Nie można ustawić obydwu właściwości jednocześnie.");
+                return;
+            }
+
+            // Persist notification channel settings via POST /api/users/notifications
+            foreach (var channel in notificationChannels)
+            {
+                bool enabled = channel.ChannelName.ToLower() switch
+                {
+                    "sms" => isSMSChecked,
+                    "discord" => isDiscordChecked,
+                    "email" => isEmailChecked,
+                    _ => channel.Enabled
+                };
+                await UserService.UpdateNotificationSettingAsync(userId, channel.ChannelId, enabled);
+            }
+
+            // Persist platform subscriptions via POST /api/users/platforms
+            foreach (var sub in platformSubscriptions)
+            {
+                bool enabled = selectedPlatforms.Any(p => p.Equals(sub.PlatformName, StringComparison.OrdinalIgnoreCase));
+                await UserService.UpdatePlatformSubscriptionAsync(userId, sub.PlatformId, enabled);
+            }
+
+            // Schedule cron job via POST /api/notifications/cronJob
+            var request = new NotificationRequest
+            {
+                UserId = userId,
+                Phrase = searchedText,
+                AdditionalPhrase = string.IsNullOrWhiteSpace(additional_phrase) ? null : additional_phrase,
+                RequestNumber = requestNumbers,
+                HourToSendMail = hourToSend,
+                RepeatAfterSpecifiedTime = repeatMinutes,
+                Email = isEmailChecked,
+                Sms = isSMSChecked,
+                Discord = isDiscordChecked,
+                Websites = selectedPlatforms.Select(p => p.ToLower()).ToList()
+            };
+
+            await NotificationProxy.setCronJob(request);
+
+            NotificationService.Notify(NotificationSeverity.Info, "Zmiany zapisano.");
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, $"Błąd: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteJobs()
+    {
+        if (userId <= 0)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Błąd: Nie można uzyskać identyfikatora użytkownika.");
+            return;
+        }
+
+        var result = await NotificationProxy.DeleteJobs(new DeleteJobModel { user_id = userId });
+
+        if (result.success)
+            NotificationService.Notify(NotificationSeverity.Success, result.message);
+        else
+            NotificationService.Notify(NotificationSeverity.Error, result.message ?? "Błąd podczas usuwania jobów.");
+    }
+}

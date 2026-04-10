@@ -1,0 +1,46 @@
+﻿@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Routing;
+
+<Router AppAssembly="typeof(Program).Assembly" OnNavigateAsync="OnNavigateAsync">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="typeof(Shared.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+@code{
+    private async Task OnNavigateAsync(NavigationContext context)
+    {
+        try
+        {
+            if (!Globals.IsLogged && context.Path != "login" && context.Path != "register")
+            {
+                if (Navigation.Uri != Navigation.ToAbsoluteUri("login").ToString())
+                {
+                    Navigation.NavigateTo("login", forceLoad: false);
+                }
+            }
+            else if (!Globals.IsLogged && context.Path == "register")
+            {
+                if (Navigation.Uri != Navigation.ToAbsoluteUri("register").ToString())
+                {
+                    Navigation.NavigateTo("register", forceLoad: false);
+                }
+            }
+
+            Console.WriteLine("Navigation check completed");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error during navigation: " + ex.Message);
+        }
+
+        await Task.CompletedTask;
+    }
+}

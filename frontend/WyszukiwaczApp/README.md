@@ -1,0 +1,1 @@
+# WyszukiwaczApp Frontend
