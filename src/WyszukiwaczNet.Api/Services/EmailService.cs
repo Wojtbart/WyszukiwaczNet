@@ -1,12 +1,15 @@
 using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using WyszukiwaczNet.Api.Entities;
+using WyszukiwaczNet.Api.Repositories;
 
 namespace WyszukiwaczNet.Api.Services;
 
 public interface IEmailService
 {
     Task SendNotificationEmailAsync(int userId, int offerCount);
+    Task SendOffersEmailAsync(int userId, List<Offer> offers);
     Task SendEmailAsync(string to, string subject, string body);
 }
 
@@ -14,23 +17,46 @@ public class EmailService : IEmailService
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<EmailService> _logger;
+    private readonly IEmailTemplateService _templateService;
+    private readonly IUserRepository _userRepository;
 
-    public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+    public EmailService(
+        IConfiguration configuration,
+        ILogger<EmailService> logger,
+        IEmailTemplateService templateService,
+        IUserRepository userRepository)
     {
         _configuration = configuration;
         _logger = logger;
+        _templateService = templateService;
+        _userRepository = userRepository;
     }
 
     public async Task SendNotificationEmailAsync(int userId, int offerCount)
     {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null || string.IsNullOrEmpty(user.Email))
+        {
+            _logger.LogWarning("Cannot send email: user {UserId} not found or has no email", userId);
+            return;
+        }
+
         var subject = "New Offers Found!";
         var body = $"Found {offerCount} new offers matching your search criteria.";
-        
-        var email = _configuration.GetValue<string>("Notification:DefaultEmail");
-        if (!string.IsNullOrEmpty(email))
+        await SendEmailAsync(user.Email, subject, body);
+    }
+
+    public async Task SendOffersEmailAsync(int userId, List<Offer> offers)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null || string.IsNullOrEmpty(user.Email))
         {
-            await SendEmailAsync(email, subject, body);
+            _logger.LogWarning("Cannot send email: user {UserId} not found or has no email", userId);
+            return;
         }
+
+        var html = _templateService.BuildOffersHtml(offers);
+        await SendEmailAsync(user.Email, "Oferty Sprzedażowe", html);
     }
 
     //public async Task SendEmailAsync(string to, string subject, string body)

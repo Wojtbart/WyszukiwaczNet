@@ -10,143 +10,261 @@
 @inject UserService UserService
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
-<RadzenTemplateForm Data="@formData">
-    <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
-        <RadzenColumn Size="12" SizeMD="6">
-            <RadzenFieldset Text="Ustawienia">
-                <RadzenStack Gap="1rem">
-                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">Wybrane kanały powiadomień:</RadzenText>
-                    @if (isSMSChecked) { <div>- <b style="color:red;">SMS</b></div> }
-                    @if (isDiscordChecked) { <div>- <b style="color:red;">Discord</b></div> }
-                    @if (isEmailChecked) { <div>- <b style="color:red;">Email</b></div> }
-                    @if (!isSMSChecked && !isDiscordChecked && !isEmailChecked)
-                    {
-                        <div style="color:gray;">Brak wybranych kanałów</div>
-                    }
-                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">Wybrane platformy:</RadzenText>
-                    @foreach (var platform in selectedPlatforms)
-                    {
-                        <div>- <b style="color:red;">@platform</b></div>
-                    }
-                    @if (!selectedPlatforms.Any())
-                    {
-                        <div style="color:gray;">Brak wybranych platform</div>
-                    }
-                    <hr />
-                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">
-                        Powtórz wysyłanie powiadomienia po czasie: @(minutesAfterSendingNotification > 0 ? minutesAfterSendingNotification : "----") min
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.P">
-                        Godzina wysłania powiadomienia: @(string.IsNullOrEmpty(timeToSendingMail) ? "----" : timeToSendingMail)
-                    </RadzenText>
-                </RadzenStack>
-            </RadzenFieldset>
-        </RadzenColumn>
-        <RadzenColumn Size="10" SizeMD="5">
-            <RadzenFieldset Text="Konfiguracja czasu wysyłania wiadomości">
-                <RadzenStack Gap="1rem">
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenCheckBox TValue="bool" @bind-Value="isSendingHourChecked" Change="OnCheckboxHourChanged" />
-                        <label>Ustaw godzinę wysyłania</label>
-                    </RadzenRow>
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenLabel Text="Ustaw godzinę wysyłania" />
-                        <RadzenDatePicker ReadOnly="@setSendingHourPreview" Disabled="@setSendingHourPreview"
-                                          @bind-Value="@dateSendingNotification" ShowTime="true" TimeOnly="true"
-                                          DateFormat="HH:mm" Style="width: 150px;" />
-                    </RadzenRow>
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenCheckBox TValue="bool" @bind-Value="isCyclicMessagingChecked" Change="OnCheckboxCyclicChanged" />
-                        <label>Ustaw cykliczne wysyłanie wiadomości</label>
-                    </RadzenRow>
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenLabel Text="Co ile minut chcesz wysyłać wiadomości" />
-                        <RadzenNumeric ReadOnly="@repeatRequestAfterTimePreview" Disabled="@repeatRequestAfterTimePreview"
-                                       Min="1" Max="100" @bind-Value="@minutesAfterSendingNotification" Style="width: 100px;" />
-                    </RadzenRow>
-                </RadzenStack>
-            </RadzenFieldset>
-            <RadzenFieldset Text="Szukany tekst">
-                <RadzenRow AlignItems="AlignItems.Center">
-                    <RadzenTextBox @bind-Value="@searchedText" Style="width:75%;" />
-                </RadzenRow>
-                <RadzenRow AlignItems="AlignItems.Center" style="margin-bottom:10px;">
-                    <RadzenLabel Text="Ilość szukanych wpisów" />
-                    <RadzenNumeric Min="1" Max="30" @bind-Value="@requestNumbers" Style="width: 100px;" />
-                </RadzenRow>
-            </RadzenFieldset>
-        </RadzenColumn>
-    </RadzenRow>
-    <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
-        <RadzenColumn Size="12" SizeMD="6">
-            <RadzenFieldset Text="Systemy powiadomień">
-                <RadzenStack Gap="1rem">
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenCheckBox TValue="bool" @bind-Value="isSMSChecked" />
-                        <label>SMS</label>
-                    </RadzenRow>
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenCheckBox TValue="bool" @bind-Value="isDiscordChecked" />
-                        <label>Discord</label>
-                    </RadzenRow>
-                    <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenCheckBox TValue="bool" @bind-Value="isEmailChecked" />
-                        <label>Email</label>
-                    </RadzenRow>
-                </RadzenStack>
-            </RadzenFieldset>
-        </RadzenColumn>
-        <RadzenColumn Size="10" SizeMD="5">
-            <RadzenFieldset Text="Szukane platformy">
-                <RadzenListBox @bind-Value="@selectedPlatforms" Data="@availablePlatforms"
-                               Multiple="true" AllowClear="true" Placeholder="Wybierz platformy"
-                               Style="width: 100%; max-width: 400px; height: 200px" />
-            </RadzenFieldset>
-        </RadzenColumn>
-    </RadzenRow>
-</RadzenTemplateForm>
-<RadzenFieldset Text="Ustawienia dotyczące mieszkań">
-    <RadzenStack Gap="1rem">
-        <RadzenRow AlignItems="AlignItems.Center">
-            <RadzenCheckBox TValue="bool" @bind-Value="isSprzedaz" Change="@OnCheckboxChanged" />
-            <label>Sprzedaz</label>
-        </RadzenRow>
-        <RadzenRow AlignItems="AlignItems.Center">
-            <RadzenCheckBox TValue="bool" @bind-Value="isWynajem" Change="@OnCheckboxChanged" />
-            <label>Wynajem</label>
-        </RadzenRow>
-        <RadzenRow AlignItems="AlignItems.Center">
-            <RadzenCheckBox TValue="bool" @bind-Value="isPrywatne" Change="@OnCheckboxChanged" />
-            <label>Prywatne</label>
-        </RadzenRow>
-        <RadzenRow AlignItems="AlignItems.Center">
-            <RadzenCheckBox TValue="bool" @bind-Value="isPubliczne" Change="@OnCheckboxChanged" />
-            <label>Publiczne</label>
-        </RadzenRow>
-        <RadzenRow AlignItems="AlignItems.Center">
-            <RadzenCheckBox TValue="bool" @bind-Value="isOstatnie24h" Change="@OnCheckboxChanged" />
-            <label>Ostatnie24h</label>
-        </RadzenRow>
-        <RadzenRow AlignItems="AlignItems.Center">
-            <RadzenCheckBox TValue="bool" @bind-Value="isDowolna" Change="@OnCheckboxChanged" />
-            <label>Dowolna</label>
-        </RadzenRow>
-    </RadzenStack>
-</RadzenFieldset>
-<RadzenButton ButtonType="ButtonType.Submit" Click="DeleteJobs" Icon="delete" Text="USUŃ JOBY"
-              ButtonStyle="ButtonStyle.Danger" Shade="Shade.Darker" Size="ButtonSize.Large"
-              Style="height:3.25rem; border-radius:15px;" />
+<div class="notif-page">
 
-<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" class="rz-mt-8 rz-mb-4">
-    <RadzenButton ButtonType="ButtonType.Submit" Click="SaveConfiguration" Icon="save" Text="ZAPISZ USTAWIENIA"
-                  ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Size="ButtonSize.Large"
-                  Style="height:3.25rem; border-radius:15px;" />
-</RadzenStack>
+    <!-- Header -->
+    <div class="notif-header">
+        <div class="notif-header-icon">
+            <RadzenIcon Icon="notifications_active" />
+        </div>
+        <div>
+            <h1 class="notif-title">Powiadomienia</h1>
+            <p class="notif-subtitle">Skonfiguruj automatyczne wyszukiwanie i powiadomienia</p>
+        </div>
+    </div>
+
+    <div class="notif-grid">
+
+        <!-- LEFT COLUMN -->
+        <div class="notif-col-main">
+
+            <!-- Search card -->
+            <div class="n-card">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="search" class="n-card-icon" />
+                    <span>Wyszukiwanie</span>
+                </div>
+                <div class="n-card-body">
+                    <div class="n-field">
+                        <label class="n-label">Szukany tekst</label>
+                        <RadzenTextBox @bind-Value="@searchedText" Placeholder="np. iPhone 14, Toyota Corolla..." class="n-input-full" />
+                    </div>
+                    <div class="n-field">
+                        <label class="n-label">Liczba wyników (maks.)</label>
+                        <RadzenNumeric Min="1" Max="30" @bind-Value="@requestNumbers" class="n-input-sm" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platforms card -->
+            <div class="n-card">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="language" class="n-card-icon" />
+                    <span>Platformy</span>
+                </div>
+                <div class="n-card-body">
+                    <div class="platform-grid">
+                        @foreach (var platform in availablePlatforms)
+                        {
+                            var isSelected = selectedPlatforms.Contains(platform);
+                            <div class="platform-chip @(isSelected ? "platform-chip--active" : "")"
+                                 @onclick="() => TogglePlatform(platform)">
+                                <RadzenIcon Icon="@(isSelected ? "check_circle" : "radio_button_unchecked")" class="platform-chip-icon" />
+                                @platform
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification channels card -->
+            <div class="n-card">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="send" class="n-card-icon" />
+                    <span>Kanały powiadomień</span>
+                </div>
+                <div class="n-card-body">
+                    <div class="channel-list">
+                        <div class="channel-item @(isEmailChecked ? "channel-item--active" : "")">
+                            <div class="channel-icon channel-icon--email">
+                                <RadzenIcon Icon="email" />
+                            </div>
+                            <div class="channel-info">
+                                <span class="channel-name">Email</span>
+                                <span class="channel-desc">Wyślij wyniki na email</span>
+                            </div>
+                            <RadzenCheckBox TValue="bool" @bind-Value="isEmailChecked" class="channel-toggle" />
+                        </div>
+                        <div class="channel-item @(isSMSChecked ? "channel-item--active" : "")">
+                            <div class="channel-icon channel-icon--sms">
+                                <RadzenIcon Icon="sms" />
+                            </div>
+                            <div class="channel-info">
+                                <span class="channel-name">SMS</span>
+                                <span class="channel-desc">Wyślij wiadomość SMS</span>
+                            </div>
+                            <RadzenCheckBox TValue="bool" @bind-Value="isSMSChecked" class="channel-toggle" />
+                        </div>
+                        <div class="channel-item @(isDiscordChecked ? "channel-item--active" : "")">
+                            <div class="channel-icon channel-icon--discord">
+                                <RadzenIcon Icon="forum" />
+                            </div>
+                            <div class="channel-info">
+                                <span class="channel-name">Discord</span>
+                                <span class="channel-desc">Wyślij na kanał Discord</span>
+                            </div>
+                            <RadzenCheckBox TValue="bool" @bind-Value="isDiscordChecked" class="channel-toggle" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule card -->
+            <div class="n-card">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="schedule" class="n-card-icon" />
+                    <span>Harmonogram</span>
+                </div>
+                <div class="n-card-body">
+                    <div class="schedule-option @(isSendingHourChecked ? "schedule-option--active" : "")">
+                        <div class="schedule-option-header">
+                            <div>
+                                <span class="schedule-option-title">Wyślij o konkretnej godzinie</span>
+                                <span class="schedule-option-desc">Powiadomienie zostanie wysłane raz dziennie</span>
+                            </div>
+                            <RadzenCheckBox TValue="bool" @bind-Value="isSendingHourChecked" Change="OnCheckboxHourChanged" />
+                        </div>
+                        @if (isSendingHourChecked)
+                        {
+                            <div class="schedule-picker">
+                                <RadzenDatePicker @bind-Value="@dateSendingNotification"
+                                                  ShowTime="true" TimeOnly="true" DateFormat="HH:mm"
+                                                  Style="width: 140px;" />
+                            </div>
+                        }
+                    </div>
+                    <div class="schedule-option @(isCyclicMessagingChecked ? "schedule-option--active" : "")">
+                        <div class="schedule-option-header">
+                            <div>
+                                <span class="schedule-option-title">Wysyłanie cykliczne</span>
+                                <span class="schedule-option-desc">Powtarzaj co określoną liczbę minut</span>
+                            </div>
+                            <RadzenCheckBox TValue="bool" @bind-Value="isCyclicMessagingChecked" Change="OnCheckboxCyclicChanged" />
+                        </div>
+                        @if (isCyclicMessagingChecked)
+                        {
+                            <div class="schedule-picker">
+                                <label class="n-label">Co ile minut:</label>
+                                <RadzenNumeric Min="1" Max="100" @bind-Value="@minutesAfterSendingNotification" Style="width: 100px;" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apartment filters card -->
+            <div class="n-card">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="apartment" class="n-card-icon" />
+                    <span>Filtry (Nieruchomości)</span>
+                </div>
+                <div class="n-card-body">
+                    <div class="filter-grid">
+                        <label class="filter-chip @(isSprzedaz ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isSprzedaz" @bind:after="() => OnCheckboxChanged(isSprzedaz)" hidden />
+                            Sprzedaż
+                        </label>
+                        <label class="filter-chip @(isWynajem ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isWynajem" @bind:after="() => OnCheckboxChanged(isWynajem)" hidden />
+                            Wynajem
+                        </label>
+                        <label class="filter-chip @(isPrywatne ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isPrywatne" @bind:after="() => OnCheckboxChanged(isPrywatne)" hidden />
+                            Prywatne
+                        </label>
+                        <label class="filter-chip @(isPubliczne ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isPubliczne" @bind:after="() => OnCheckboxChanged(isPubliczne)" hidden />
+                            Publiczne
+                        </label>
+                        <label class="filter-chip @(isOstatnie24h ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isOstatnie24h" @bind:after="() => OnCheckboxChanged(isOstatnie24h)" hidden />
+                            Ostatnie 24h
+                        </label>
+                        <label class="filter-chip @(isDowolna ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isDowolna" @bind:after="() => OnCheckboxChanged(isDowolna)" hidden />
+                            Dowolna
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN — summary -->
+        <div class="notif-col-side">
+            <div class="n-card n-summary">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="summarize" class="n-card-icon" />
+                    <span>Podsumowanie</span>
+                </div>
+                <div class="n-card-body">
+
+                    <div class="summary-section">
+                        <span class="summary-label">Fraza</span>
+                        <span class="summary-value">@(string.IsNullOrEmpty(searchedText) ? "—" : searchedText)</span>
+                    </div>
+
+                    <div class="summary-section">
+                        <span class="summary-label">Wyniki maks.</span>
+                        <span class="summary-value">@(requestNumbers > 0 ? requestNumbers.ToString() : "—")</span>
+                    </div>
+
+                    <div class="summary-section">
+                        <span class="summary-label">Harmonogram</span>
+                        <span class="summary-value">
+                            @if (isSendingHourChecked && dateSendingNotification.HasValue)
+                            { @($"Codziennie o {dateSendingNotification:HH:mm}") }
+                            else if (isCyclicMessagingChecked && minutesAfterSendingNotification > 0)
+                            { @($"Co {minutesAfterSendingNotification} min") }
+                            else
+                            { <span class="summary-empty">Nie ustawiono</span> }
+                        </span>
+                    </div>
+
+                    <div class="summary-section">
+                        <span class="summary-label">Kanały</span>
+                        <div class="summary-chips">
+                            @if (isEmailChecked) { <span class="s-chip s-chip--email">Email</span> }
+                            @if (isSMSChecked)   { <span class="s-chip s-chip--sms">SMS</span> }
+                            @if (isDiscordChecked) { <span class="s-chip s-chip--discord">Discord</span> }
+                            @if (!isEmailChecked && !isSMSChecked && !isDiscordChecked)
+                            { <span class="summary-empty">Brak</span> }
+                        </div>
+                    </div>
+
+                    <div class="summary-section">
+                        <span class="summary-label">Platformy</span>
+                        <div class="summary-chips">
+                            @foreach (var p in selectedPlatforms)
+                            { <span class="s-chip s-chip--platform">@p</span> }
+                            @if (!selectedPlatforms.Any())
+                            { <span class="summary-empty">Brak</span> }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="notif-actions">
+                <RadzenButton Click="SaveConfiguration" Icon="save" Text="Zapisz ustawienia"
+                              ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"
+                              class="n-btn-full" />
+                <RadzenButton Click="DeleteJobs" Icon="delete_forever" Text="Usuń zaplanowane joby"
+                              ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium"
+                              class="n-btn-full" />
+            </div>
+        </div>
+
+    </div>
+</div>
 
 @code {
     private object formData = new();
 
     private int userId;
+    private int _emailChannelId;
+    private int _smsChannelId;
+    private int _discordChannelId;
 
     // Loaded from GET /api/users/{userId}/notifications
     private List<UserNotificationSettingDto> notificationChannels = new();
@@ -179,6 +297,14 @@
     private string timeToSendingMail = string.Empty;
     private string searchedText = string.Empty;
     private int requestNumbers;
+
+    private void TogglePlatform(string platform)
+    {
+        if (selectedPlatforms.Contains(platform))
+            selectedPlatforms.Remove(platform);
+        else
+            selectedPlatforms.Add(platform);
+    }
 
     private void OnCheckboxChanged(bool value)
     {
@@ -228,17 +354,21 @@
         notificationChannels = await UserService.GetUserNotificationSettingsAsync(userId) ?? new();
         foreach (var channel in notificationChannels)
         {
-            switch (channel.ChannelName.ToLower())
+            var name = channel.ChannelName.ToLower();
+            if (name.Contains("email"))
             {
-                case "sms":
-                    isSMSChecked = channel.Enabled;
-                    break;
-                case "discord":
-                    isDiscordChecked = channel.Enabled;
-                    break;
-                case "email":
-                    isEmailChecked = channel.Enabled;
-                    break;
+                isEmailChecked = channel.Enabled;
+                _emailChannelId = channel.ChannelId;
+            }
+            else if (name.Contains("sms") || name.Contains("text"))
+            {
+                isSMSChecked = channel.Enabled;
+                _smsChannelId = channel.ChannelId;
+            }
+            else if (name.Contains("discord"))
+            {
+                isDiscordChecked = channel.Enabled;
+                _discordChannelId = channel.ChannelId;
             }
         }
 
@@ -286,17 +416,12 @@
             }
 
             // Persist notification channel settings via POST /api/users/notifications
-            foreach (var channel in notificationChannels)
-            {
-                bool enabled = channel.ChannelName.ToLower() switch
-                {
-                    "sms" => isSMSChecked,
-                    "discord" => isDiscordChecked,
-                    "email" => isEmailChecked,
-                    _ => channel.Enabled
-                };
-                await UserService.UpdateNotificationSettingAsync(userId, channel.ChannelId, enabled);
-            }
+            if (_emailChannelId > 0)
+                await UserService.UpdateNotificationSettingAsync(userId, _emailChannelId, isEmailChecked);
+            if (_smsChannelId > 0)
+                await UserService.UpdateNotificationSettingAsync(userId, _smsChannelId, isSMSChecked);
+            if (_discordChannelId > 0)
+                await UserService.UpdateNotificationSettingAsync(userId, _discordChannelId, isDiscordChecked);
 
             // Persist platform subscriptions via POST /api/users/platforms
             foreach (var sub in platformSubscriptions)

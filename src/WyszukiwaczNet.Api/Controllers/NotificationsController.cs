@@ -38,18 +38,17 @@ public class NotificationsController : ControllerBase
             if (request.UserId <= 0)
                 return BadRequest(new { message = "User ID is required." });
 
-            var jobId = $"notification_job_{request.UserId}_{DateTime.UtcNow.Ticks}";
-
+            string jobId;
             if (!string.IsNullOrEmpty(request.HourToSendMail) || request.RepeatAfterSpecifiedTime > 0)
             {
-                _notificationJob.EnqueueRecurringJob(request, jobId);
+                jobId = _notificationJob.EnqueueRecurringJob(request);
             }
             else
             {
-                _notificationJob.EnqueueJob(request);
+                jobId = _notificationJob.EnqueueJob(request);
             }
 
-            return Created($"/api/notifications/{jobId}", new { status = "OK", message = "Job successfully registered" });
+            return Created($"/api/notifications/{jobId}", new { status = "OK", jobId, message = "Job successfully registered" });
         }
         catch (Exception ex)
         {
@@ -63,10 +62,8 @@ public class NotificationsController : ControllerBase
     {
         try
         {
-            var jobId = $"notification_job_{userId}_*";
-            var deleted = _notificationJob.DeleteJob(jobId);
-
-            return Ok(new { status = "OK", success = true, message = $"Jobs deleted for user {userId}" });
+            var count = _notificationJob.DeleteJobsForUser(userId);
+            return Ok(new { status = "OK", success = true, message = $"Deleted {count} job(s) for user {userId}" });
         }
         catch (Exception ex)
         {
@@ -111,7 +108,7 @@ public class NotificationsController : ControllerBase
         try
         {
             await _emailService.SendEmailAsync(request.To, request.Subject, request.Body);
-            return Ok(new { success = true, message = "Email sent successfully!" });
+            return Ok(new { success = true, message = "Email wys�any prawid�owo!" });
         }
         catch (Exception ex)
         {

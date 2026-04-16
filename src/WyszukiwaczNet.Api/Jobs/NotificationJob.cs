@@ -1,5 +1,7 @@
 using Hangfire;
+using Hangfire.Storage;
 using WyszukiwaczNet.Api.DTOs;
+using WyszukiwaczNet.Api.Entities;
 using WyszukiwaczNet.Api.Notifications;
 using WyszukiwaczNet.Api.Services;
 
@@ -9,8 +11,8 @@ public interface INotificationJob
 {
     Task ExecuteAsync(NotificationRequest request);
     string EnqueueJob(NotificationRequest request);
-    string EnqueueRecurringJob(NotificationRequest request, string jobId);
-    bool DeleteJob(string jobId);
+    string EnqueueRecurringJob(NotificationRequest request);
+    int DeleteJobsForUser(int userId);
 }
 
 public class NotificationJob : INotificationJob
@@ -23,7 +25,7 @@ public class NotificationJob : INotificationJob
     private readonly IBackgroundJobClient _backgroundJobClient;
     private readonly ILogger<NotificationJob> _logger;
 
-    private static readonly Dictionary<string, (string CronExpression, int UserId)> ActiveJobs = new();
+    private static readonly string JobPrefix = "NotificationJob_UserId";
 
     public NotificationJob(
         IPythonScriptService pythonScriptService,
@@ -48,22 +50,22 @@ public class NotificationJob : INotificationJob
         _logger.LogInformation("Executing notification job for user {UserId}", request.UserId);
 
         var scriptsPath = _configuration.GetValue<string>("ScriptsPath") ?? "../../backend";
-        
+
         var finalPhrase = $"{request.Phrase} {request.AdditionalPhrase}".Trim();
-        
-        var totalRecords = 0;
-        
+
+        var allOffers = new List<Offer>();
+
         foreach (var website in request.Websites)
         {
             var scriptName = GetScriptName(website);
             if (string.IsNullOrEmpty(scriptName)) continue;
 
             var scriptPath = Path.Combine(scriptsPath, scriptName);
-            
+
             try
             {
-                var (count, _) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase);
-                totalRecords += count;
+                var (_, offers) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase);
+                allOffers.AddRange(offers);
             }
             catch (Exception ex)
             {
@@ -71,17 +73,17 @@ public class NotificationJob : INotificationJob
             }
         }
 
-        if (totalRecords == 0)
+        if (allOffers.Count == 0)
         {
             _logger.LogInformation("No data fetched, skipping notifications");
             return;
         }
 
-        var limit = Math.Min(request.RequestNumber, totalRecords);
+        var offersToSend = allOffers.Take(request.RequestNumber).ToList();
 
         if (request.Email)
         {
-            await _emailService.SendNotificationEmailAsync(request.UserId, limit);
+            await _emailService.SendOffersEmailAsync(request.UserId, offersToSend);
         }
 
         if (request.Sms)
@@ -89,13 +91,13 @@ public class NotificationJob : INotificationJob
             var phone = _configuration.GetValue<string>("Notification:DefaultPhone");
             if (!string.IsNullOrEmpty(phone))
             {
-                await _smsProvider.SendSmsAsync(phone, $"Found {limit} new offers!");
+                await _smsProvider.SendSmsAsync(phone, $"Found {offersToSend.Count} new offers!");
             }
         }
 
         if (request.Discord)
         {
-            await _discordProvider.SendMessageAsync($"Found {limit} new offers for: {request.Phrase}");
+            await _discordProvider.SendMessageAsync($"Found {offersToSend.Count} new offers for: {request.Phrase}");
         }
 
         _logger.LogInformation("Notification job completed for user {UserId}", request.UserId);
@@ -106,16 +108,10 @@ public class NotificationJob : INotificationJob
         return _backgroundJobClient.Enqueue(() => ExecuteAsync(request));
     }
 
-    public string EnqueueRecurringJob(NotificationRequest request, string jobId)
+    public string EnqueueRecurringJob(NotificationRequest request)
     {
+        var jobId = BuildJobId(request.UserId, request.Phrase);
         var cronExpression = GetCronExpression(request.HourToSendMail, request.RepeatAfterSpecifiedTime);
-        
-        if (ActiveJobs.ContainsKey(jobId))
-        {
-            RecurringJob.RemoveIfExists(jobId);
-        }
-
-        ActiveJobs[jobId] = (cronExpression, request.UserId);
 
         RecurringJob.AddOrUpdate<NotificationJob>(
             jobId,
@@ -129,15 +125,31 @@ public class NotificationJob : INotificationJob
         return jobId;
     }
 
-    public bool DeleteJob(string jobId)
+    public int DeleteJobsForUser(int userId)
     {
-        if (ActiveJobs.ContainsKey(jobId))
+        var prefix = $"{JobPrefix}_{userId}_";
+        var deleted = 0;
+
+        using var connection = JobStorage.Current.GetConnection();
+        var recurringJobs = connection.GetRecurringJobs();
+
+        foreach (var job in recurringJobs.Where(j => j.Id.StartsWith(prefix)))
         {
-            RecurringJob.RemoveIfExists(jobId);
-            ActiveJobs.Remove(jobId);
-            return true;
+            RecurringJob.RemoveIfExists(job.Id);
+            deleted++;
         }
-        return false;
+
+        return deleted;
+    }
+
+    private static string BuildJobId(int userId, string phrase)
+    {
+        var safePhr = new string(phrase.Take(20)
+            .Select(c => char.IsLetterOrDigit(c) ? c : '_')
+            .ToArray()).Trim('_');
+
+        var timestamp = DateTime.Now.ToString("dd_MM_yyyy_HH_mm");
+        return $"{JobPrefix}_{userId}_{safePhr}_{timestamp}";
     }
 
     private static string GetCronExpression(string? time, int? intervalMinutes)
@@ -167,8 +179,8 @@ public class NotificationJob : INotificationJob
         "olx" => "olx_scrapper.py",
         "allegro" => "allegro_scraper.py",
         "amazon" => "amazon_scrapper.py",
-        "otomoto" => "oto_moto_scrapper.py",
-        "otodom" => "oto_dom_scrapper.py",
+        "otomoto" => "otomoto_scrapper.py",
+        "otodom" => "otodom_scrapper.py",
         "autoscout" => "autoscout_scrapper.py",
         "gratka" => "gratka_scrapper.py",
         "sprzedajemy" => "sprzedajemy_scrapper.py",

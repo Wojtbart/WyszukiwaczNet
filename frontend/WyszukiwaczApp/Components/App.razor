@@ -25,7 +25,27 @@
 
 <body>
     <Routes @rendermode="InteractiveServer" />
+    <div id="app-loading-overlay">
+        <div class="app-spinner"></div>
+    </div>
     <script src="_framework/blazor.web.js"></script>
+    <script>
+        window._appReady = false;
+
+        window.appHideOverlay = function () {
+            window._appReady = true;
+            var el = document.getElementById('app-loading-overlay');
+            if (el) el.remove();
+        };
+
+        // If enhanced navigation re-inserts the overlay after we're already loaded, remove it immediately
+        new MutationObserver(function () {
+            if (window._appReady) {
+                var el = document.getElementById('app-loading-overlay');
+                if (el) el.remove();
+            }
+        }).observe(document.documentElement, { childList: true, subtree: true });
+    </script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
 </body>
 

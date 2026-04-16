@@ -46,6 +46,7 @@ builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddScoped<IPythonScriptService, PythonScriptService>();
+builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddSingleton<ISmsProvider, TwilioSmsProvider>();
