@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml.Linq;
 
 namespace WyszukiwaczNet.Api.Entities;
 
@@ -28,10 +27,9 @@ public class User
     [Column("surname")]
     public string? Surname { get; set; }
 
-    [Required]
     [MaxLength(255)]
     [Column("login")]
-    public string Login { get; set; }
+    public string? Login { get; set; }
 
     [Required]
     [MaxLength(255)]
@@ -91,7 +89,7 @@ public class UserPlatformSubscription
 
     public override string ToString()
     {
-        return Platform?.Name;
+        return Platform?.Name ?? string.Empty;
     }
 }
 
@@ -277,6 +275,34 @@ public class Notification
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+[Table("user_notification_configs")]
+public class UserNotificationConfig
+{
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("user_id")]
+    public int UserId { get; set; }
+
+    [ForeignKey("UserId")]
+    public User? User { get; set; }
+
+    [MaxLength(255)]
+    [Column("phrase")]
+    public string Phrase { get; set; } = string.Empty;
+
+    [Column("request_count")]
+    public int RequestCount { get; set; }
+
+    [MaxLength(100)]
+    [Column("schedule")]
+    public string? Schedule { get; set; }
+
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 
 [Table("background_jobs")]

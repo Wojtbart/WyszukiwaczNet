@@ -14,6 +14,11 @@ public interface IUserService
     Task<(bool Success, string? Message)> UpdatePlatformSubscriptionAsync(PlatformSubscriptionRequest request);
     Task<List<UserNotificationSettingDto>> GetUserNotificationSettingsAsync(int userId);
     Task<(bool Success, string? Message)> UpdateNotificationSettingAsync(NotificationSettingRequest request);
+    Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId);
+    Task<(bool Success, string? Message)> SaveNotificationConfigAsync(SaveNotificationConfigRequest request);
+    Task<List<NotificationFeedItemDto>> GetNotificationFeedAsync(int userId, int limit = 100);
+    Task<int> GetUnreadNotificationCountAsync(int userId);
+    Task MarkNotificationsReadAsync(int userId);
 }
 
 public class UserService : IUserService
@@ -33,20 +38,20 @@ public class UserService : IUserService
     {
         var existingUser = await _userRepository.GetByLoginAsync(request.Login);
         if (existingUser != null)
-            return (false, "Uøytkownik o tym loginie juø istnieje.");
+            return (false, "Uzytkownik o tym loginie juz istnieje.");
 
         if (!string.IsNullOrEmpty(request.Email))
         {
             existingUser = await _userRepository.GetByEmailAsync(request.Email);
             if (existingUser != null)
-                return (false, "Uøytkownik o tym adresie e-mail juø istnieje.");
+                return (false, "Uzytkownik o tym adresie email juz istnieje.");
         }
 
         if (!string.IsNullOrEmpty(request.Phone))
         {
             existingUser = await _userRepository.GetByPhoneAsync(request.Phone);
             if (existingUser != null)
-                return (false, "Uøytkownik o tym numerze telefonu juø istnieje.");
+                return (false, "Uzytkownik o tym numerze telefonu juz istnieje.");
         }
 
         var user = new User
@@ -63,7 +68,7 @@ public class UserService : IUserService
 
         await _userRepository.CreateAsync(user);
 
-        return (true, "Uøytkownik zosta≥ pomyúlnie zarejestrowany.");
+        return (true, "U≈ºytkownik zosta≈Ç pomy≈õlnie zarejestrowany.");
     }
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
@@ -71,13 +76,13 @@ public class UserService : IUserService
         var user = await _userRepository.ValidateCredentialsAsync(request.Login, request.Password);
         
         if (user == null)
-            return new LoginResponse(false, null, "Nieprawid≥owe dane logowania.");
+            return new LoginResponse(false, null, "Nieprawid≈Çowe dane logowania.");
 
         if (!user.IsActive)
-            return new LoginResponse(false, null, "Konto uøytkownika jest nieaktywne.");
+            return new LoginResponse(false, null, "Konto u≈ºytkownika jest nieaktywne.");
 
         var token = _jwtService.GenerateToken(user.Id, user.Email);
-        return new LoginResponse(true, token, "Logowanie zakoÒczone sukcesem.");
+        return new LoginResponse(true, token, "Logowanie zako≈Ñczone sukcesem.");
     }
 
     public async Task<UserResponse> GetUserByEmailAsync(string email)
@@ -85,9 +90,9 @@ public class UserService : IUserService
         var user = await _userRepository.GetByEmailAsync(email);
         
         if (user == null)
-            return new UserResponse(false, null, "Nie znaleziono uøytkownika o podanym adresie e-mail.");
+            return new UserResponse(false, null, "Nie znaleziono u≈ºytkownika o podanym adresie email.");
 
-        return new UserResponse(true, user.Id, $"Znaleziono uøytkownika z adresem e-mail: {user.Email}");
+        return new UserResponse(true, user.Id, $"Znaleziono u≈ºytkownika z adresem e-mail: {user.Email}");
     }
 
     public async Task<UserResponse> GetUserByLoginAsync(string login)
@@ -95,9 +100,9 @@ public class UserService : IUserService
         var user = await _userRepository.GetByLoginAsync(login);
 
         if (user == null)
-            return new UserResponse(false, null, "Nie znaleziono uøytkownika o podanym loginie.");
+            return new UserResponse(false, null, "Nie znaleziono u≈ºytkownika o podanym loginie.");
 
-        return new UserResponse(true, user.Id, $"Znaleziono uøytkownika z loginem: {user.Login}.");
+        return new UserResponse(true, user.Id, $"Znaleziono u≈ºytkownika z loginem: {user.Login}.");
     }
 
     public async Task<List<UserPlatformSubscriptionDto>> GetUserPlatformSubscriptionsAsync(int userId)
@@ -116,7 +121,7 @@ public class UserService : IUserService
 
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            return (false, "Uøytkownik o podanym ID nie istnieje.");
+            return (false, "U≈ºytkownik o podanym ID nie istnieje.");
 
         var platforms = await _offerRepository.GetAllPlatformsAsync();
 
@@ -127,12 +132,68 @@ public class UserService : IUserService
         else
             return (false, "Nie znaleziono platformy o podanym ID.");
 
-         return (true, "Subskrypcja platformy pomyúlnie zaktualizowana.");
+         return (true, "Subskrypcja platformy pomy≈õlnie zaktualizowana.");
     }
 
     public async Task<List<UserNotificationSettingDto>> GetUserNotificationSettingsAsync(int userId)
     {
         return await _userRepository.GetUserNotificationSettingsAsync(userId);
+    }
+
+    public async Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId)
+    {
+        var config = await _userRepository.GetNotificationConfigAsync(userId);
+        if (config == null) return null;
+        return new UserNotificationConfigDto
+        {
+            Phrase = config.Phrase,
+            RequestCount = config.RequestCount,
+            Schedule = config.Schedule
+        };
+    }
+
+    public async Task<(bool Success, string? Message)> SaveNotificationConfigAsync(SaveNotificationConfigRequest request)
+    {
+        var user = await _userRepository.GetByIdAsync(request.UserId);
+        if (user == null) return (false, "U≈ºytkownik o podanym ID nie istnieje.");
+
+        var config = new UserNotificationConfig
+        {
+            UserId = request.UserId,
+            Phrase = request.Phrase,
+            RequestCount = request.RequestCount,
+            Schedule = request.Schedule
+        };
+
+        await _userRepository.SaveNotificationConfigAsync(config);
+        return (true, "Konfiguracja powiadomie≈Ñ zapisana.");
+    }
+
+    public async Task<List<NotificationFeedItemDto>> GetNotificationFeedAsync(int userId, int limit = 100)
+    {
+        var items = await _userRepository.GetNotificationFeedAsync(userId, limit);
+        return items.Select(n => new NotificationFeedItemDto
+        {
+            Id = n.Id,
+            OfferId = n.OfferId,
+            OfferTitle = n.Offer?.Title,
+            OfferPrice = n.Offer?.Price,
+            OfferUrl = n.Offer?.Url,
+            OfferLocation = n.Offer?.Location,
+            PlatformName = n.Offer?.Platform?.Name,
+            Status = n.Status,
+            CreatedAt = n.CreatedAt
+        }).ToList();
+    }
+
+    public async Task<int> GetUnreadNotificationCountAsync(int userId)
+    {
+        return await _userRepository.GetUnreadNotificationCountAsync(userId);
+    }
+
+    public async Task MarkNotificationsReadAsync(int userId)
+    {
+        await _userRepository.MarkNotificationsReadAsync(userId);
     }
 
     public async Task<(bool Success, string? Message)> UpdateNotificationSettingAsync(NotificationSettingRequest request)
@@ -146,7 +207,7 @@ public class UserService : IUserService
 
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
-            return (false, "Uøytkownik o podanym ID nie istnieje.");
+            return (false, "UÔøΩytkownik o podanym ID nie istnieje.");
 
         var notificationChannels = await _offerRepository.GetAllNotificationChannelsAsync();
 
@@ -155,8 +216,8 @@ public class UserService : IUserService
             await _userRepository.CreateOrUpdateNotificationSettingAsync(setting);
         }
         else
-            return (false, "Nie znaleziono kana≥u o podanym ID.");
+            return (false, "Nie znaleziono kana≈Çu o podanym ID.");
         
-        return (true, "Ustawienia powiadomieÒ zosta≥y pomyúlnie zaktualizowane.");
+        return (true, "Ustawienia powiadomie≈Ñ zosta≈Çy pomy≈õlnie zaktualizowane.");
     }
 }

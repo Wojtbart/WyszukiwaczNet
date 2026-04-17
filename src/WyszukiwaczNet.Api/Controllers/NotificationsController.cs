@@ -36,7 +36,7 @@ public class NotificationsController : ControllerBase
         try
         {
             if (request.UserId <= 0)
-                return BadRequest(new { message = "User ID is required." });
+                return BadRequest(new { message = "ID użytkownika jest wymagane." });
 
             string jobId;
             if (!string.IsNullOrEmpty(request.HourToSendMail) || request.RepeatAfterSpecifiedTime > 0)
@@ -48,11 +48,11 @@ public class NotificationsController : ControllerBase
                 jobId = _notificationJob.EnqueueJob(request);
             }
 
-            return Created($"/api/notifications/{jobId}", new { status = "OK", jobId, message = "Job successfully registered" });
+            return Created($"/api/notifications/{jobId}", new { status = "OK", jobId, message = "Job zarejestrowany prawidłowo." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error scheduling notification job");
+            _logger.LogError(ex, "Błąd podczas planowania zadania powiadomień.");
             return StatusCode(500, new { message = ex.Message });
         }
     }
@@ -63,11 +63,11 @@ public class NotificationsController : ControllerBase
         try
         {
             var count = _notificationJob.DeleteJobsForUser(userId);
-            return Ok(new { status = "OK", success = true, message = $"Deleted {count} job(s) for user {userId}" });
+            return Ok(new { status = "OK", success = true, message = $"Usunięto {count} zadania dla użytkownika {userId}" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting jobs for user {UserId}", userId);
+            _logger.LogError(ex, "Błąd podczas usuwania zadań użytkownika {UserId}", userId);
             return StatusCode(500, new { message = ex.Message });
         }
     }
@@ -78,12 +78,12 @@ public class NotificationsController : ControllerBase
         try
         {
             await _smsProvider.SendSmsAsync(request.To, request.Message);
-            return Ok(new { success = true, message = "SMS sent successfully!" });
+            return Ok(new { success = true, message = "Wiadomość SMS została wysłana pomyślnie!" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending SMS");
-            return StatusCode(500, new { success = false, message = "An error occurred while sending the SMS.", error = ex.Message });
+            _logger.LogError(ex, "Wystąpił błąd podczas wysyłania wiadomości SMS");
+            return StatusCode(500, new { success = false, message = "Wystąpił błąd podczas wysyłania wiadomości SMS.", error = ex.Message });
         }
     }
 
@@ -93,12 +93,12 @@ public class NotificationsController : ControllerBase
         try
         {
             await _discordProvider.SendMessageAsync(request.Message);
-            return Ok(new { success = true, message = "Message sent to Discord successfully!" });
+            return Ok(new { success = true, message = "Wiadomość została pomyślnie wysłana na Discord!" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending Discord message");
-            return StatusCode(500, new { success = false, message = "An error occurred while sending the message.", error = ex.Message });
+            _logger.LogError(ex, "Wystąpił błąd podczas wysyłania wiadomości na Discord");
+            return StatusCode(500, new { success = false, message = "Podczas wysyłania wiadomości wystąpił błąd.", error = ex.Message });
         }
     }
 
@@ -108,12 +108,12 @@ public class NotificationsController : ControllerBase
         try
         {
             await _emailService.SendEmailAsync(request.To, request.Subject, request.Body);
-            return Ok(new { success = true, message = "Email wys�any prawid�owo!" });
+            return Ok(new { success = true, message = "Email wysłany prawidłowo!" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending email");
-            return StatusCode(500, new { success = false, message = "An error occurred while sending the email.", error = ex.Message });
+            _logger.LogError(ex, "Wystąpił błąd podczas wysyłania wiadomości e-mail");
+            return StatusCode(500, new { success = false, message = "Wystąpił błąd podczas wysyłania wiadomości e-mail.", error = ex.Message });
         }
     }
 }

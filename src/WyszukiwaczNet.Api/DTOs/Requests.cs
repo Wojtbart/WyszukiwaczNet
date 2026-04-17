@@ -4,9 +4,9 @@ public record RegisterUserRequest(
     string Email,
     string? Phone,
     string Password,
-    string Name,
-    string Surname,
-    string Login
+    string Login,
+    string Name = "",
+    string Surname = ""
 );
 
 public record LoginRequest(
@@ -90,3 +90,30 @@ public record PlatformResponse(
     string Name,
     string Type
 );
+
+public record SaveNotificationConfigRequest(
+    int UserId,
+    string Phrase,
+    int RequestCount,
+    string? Schedule
+);
+
+public class UserNotificationConfigDto
+{
+    public string Phrase { get; set; } = string.Empty;
+    public int RequestCount { get; set; }
+    public string? Schedule { get; set; }
+}
+
+public class NotificationFeedItemDto
+{
+    public int Id { get; set; }
+    public int? OfferId { get; set; }
+    public string? OfferTitle { get; set; }
+    public decimal? OfferPrice { get; set; }
+    public string? OfferUrl { get; set; }
+    public string? OfferLocation { get; set; }
+    public string? PlatformName { get; set; }
+    public string? Status { get; set; }
+    public DateTime CreatedAt { get; set; }
+}

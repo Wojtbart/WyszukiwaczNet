@@ -9,26 +9,37 @@ namespace WyszukiwaczNet.Api.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly ILogger<UsersController> _logger;
 
-    public UsersController(IUserService userService)
+    public UsersController(IUserService userService, ILogger<UsersController> logger)
     {
         _userService = userService;
+        _logger = logger;
     }
 
     [HttpPost("registerUser")]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
-        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+        try
         {
-            return BadRequest(new { success = false, message = "Wymagany jest adres e-mail i has�o." });
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+                return BadRequest(new { success = false, message = "Wymagany jest adres email i hasło." });
+
+            if (string.IsNullOrEmpty(request.Login))
+                return BadRequest(new { success = false, message = "Login jest wymagany." });
+
+            var (success, message) = await _userService.RegisterAsync(request);
+
+            if (!success)
+                return Conflict(new { success, message });
+
+            return CreatedAtAction(nameof(Register), new { success, message });
         }
-
-        var (success, message) = await _userService.RegisterAsync(request);
-
-        if (!success)
-            return Conflict(new { success, message });
-
-        return CreatedAtAction(nameof(Register), new { success, message });
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Wystąpił błąd podczas rejestracji w {Email}", request.Email);
+            return StatusCode(500, new { success = false, message = "Wystąpił błąd podczas rejestracji." });
+        }
     }
 
     [HttpPost("login")]
@@ -36,7 +47,7 @@ public class UsersController : ControllerBase
     {
         if (string.IsNullOrEmpty(request.Login) || string.IsNullOrEmpty(request.Password))
         {
-            return BadRequest(new { success = false, message = "Wymagane jest podanie loginu i has�a." });
+            return BadRequest(new { success = false, message = "Wymagane jest podanie loginu i hasła." });
         }
 
         var response = await _userService.LoginAsync(request);
@@ -71,7 +82,7 @@ public class UsersController : ControllerBase
     {
         if (request.UserId <= 0 || request.PlatformId <= 0)
         {
-            return BadRequest(new { success = false, message = "Wymagane jest podanie identyfikatora u�ytkownika i identyfikatora platformy. ." });
+            return BadRequest(new { success = false, message = "Wymagane jest podanie identyfikatora u�ytkownika i identyfikatora platformy." });
         }
 
         var (success, message) = await _userService.UpdatePlatformSubscriptionAsync(request);
@@ -89,12 +100,48 @@ public class UsersController : ControllerBase
         return Ok(new { success = true, data = settings });
     }
 
+    [HttpGet("{userId}/config")]
+    public async Task<IActionResult> GetNotificationConfig(int userId)
+    {
+        var config = await _userService.GetNotificationConfigAsync(userId);
+        return Ok(new { success = true, data = config });
+    }
+
+    [HttpPost("config")]
+    public async Task<IActionResult> SaveNotificationConfig([FromBody] SaveNotificationConfigRequest request)
+    {
+        if (request.UserId <= 0)
+            return BadRequest(new { success = false, message = "Wymagane jest podanie identyfikatora użytkownika." });
+
+        var (success, message) = await _userService.SaveNotificationConfigAsync(request);
+
+        if (!success)
+            return BadRequest(new { success, message });
+
+        return Ok(new { success, message });
+    }
+
+    [HttpGet("{userId}/feed")]
+    public async Task<IActionResult> GetNotificationFeed(int userId, [FromQuery] int limit = 100)
+    {
+        var items = await _userService.GetNotificationFeedAsync(userId, limit);
+        var unread = await _userService.GetUnreadNotificationCountAsync(userId);
+        return Ok(new { success = true, data = items, unreadCount = unread });
+    }
+
+    [HttpPost("{userId}/feed/read")]
+    public async Task<IActionResult> MarkFeedRead(int userId)
+    {
+        await _userService.MarkNotificationsReadAsync(userId);
+        return Ok(new { success = true });
+    }
+
     [HttpPost("notifications")]
     public async Task<IActionResult> UpdateNotificationSetting([FromBody] NotificationSettingRequest request)
     {
         if (request.UserId <= 0 || request.ChannelId <= 0)
         {
-            return BadRequest(new { success = false, message = "Wymagane jest podanie identyfikatora u�ytkownika i identyfikatora kana�u." });
+            return BadRequest(new { success = false, message = "Wymagane jest podanie identyfikatora u�ytkownika i identyfikatora kanału." });
         }
 
         var (success, message) = await _userService.UpdateNotificationSettingAsync(request);

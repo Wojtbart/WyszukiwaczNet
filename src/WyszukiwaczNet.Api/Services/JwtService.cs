@@ -77,7 +77,7 @@ public class JwtService : IJwtService
 
 public class JwtSettings
 {
-    public string SecretKey { get; set; } = "yourSecretKeyHereMustBeAtLeast32Characters!";
-    public string Issuer { get; set; } = "WyszukiwaczNet";
-    public string Audience { get; set; } = "WyszukiwaczNet";
+    public string SecretKey { get; set; } = string.Empty;
+    public string Issuer { get; set; } = string.Empty;
+    public string Audience { get; set; } = string.Empty;
 }

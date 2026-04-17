@@ -17,6 +17,12 @@ public interface IUserRepository
     Task<UserNotificationSetting?> GetNotificationSettingAsync(int userId, int channelId);
     Task<UserNotificationSetting> CreateOrUpdateNotificationSettingAsync(UserNotificationSetting setting);
     Task<List<UserNotificationSettingDto>> GetUserNotificationSettingsAsync(int userId);
+    Task<UserNotificationConfig?> GetNotificationConfigAsync(int userId);
+    Task<UserNotificationConfig> SaveNotificationConfigAsync(UserNotificationConfig config);
+    Task SaveNotificationFeedItemsAsync(List<Notification> items);
+    Task<List<Notification>> GetNotificationFeedAsync(int userId, int limit = 100);
+    Task<int> GetUnreadNotificationCountAsync(int userId);
+    Task MarkNotificationsReadAsync(int userId);
     Task<User?> ValidateCredentialsAsync(string login, string password);
 }
 
@@ -115,12 +121,62 @@ public class UserRepository : IUserRepository
         return existing ?? setting;
     }
 
-    //public async Task<List<UserNotificationSetting>> GetUserNotificationSettingsAsync(int userId)
-    //{
-    //    return await _context.UserNotificationSettings
-    //        .Where(uns => uns.UserId == userId)
-    //        .ToListAsync();
-    //}
+    public async Task<UserNotificationConfig?> GetNotificationConfigAsync(int userId)
+    {
+        return await _context.UserNotificationConfigs
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+    }
+
+    public async Task<UserNotificationConfig> SaveNotificationConfigAsync(UserNotificationConfig config)
+    {
+        var existing = await _context.UserNotificationConfigs
+            .FirstOrDefaultAsync(c => c.UserId == config.UserId);
+
+        if (existing != null)
+        {
+            existing.Phrase = config.Phrase;
+            existing.RequestCount = config.RequestCount;
+            existing.Schedule = config.Schedule;
+            existing.UpdatedAt = DateTime.UtcNow;
+            _context.UserNotificationConfigs.Update(existing);
+        }
+        else
+        {
+            _context.UserNotificationConfigs.Add(config);
+        }
+
+        await _context.SaveChangesAsync();
+        return existing ?? config;
+    }
+
+    public async Task SaveNotificationFeedItemsAsync(List<Notification> items)
+    {
+        _context.Notifications.AddRange(items);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Notification>> GetNotificationFeedAsync(int userId, int limit = 100)
+    {
+        return await _context.Notifications
+            .Include(n => n.Offer).ThenInclude(o => o!.Platform)
+            .Where(n => n.UserId == userId)
+            .OrderByDescending(n => n.CreatedAt)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetUnreadNotificationCountAsync(int userId)
+    {
+        return await _context.Notifications
+            .CountAsync(n => n.UserId == userId && n.Status == "new");
+    }
+
+    public async Task MarkNotificationsReadAsync(int userId)
+    {
+        await _context.Notifications
+            .Where(n => n.UserId == userId && n.Status == "new")
+            .ExecuteUpdateAsync(s => s.SetProperty(n => n.Status, "read"));
+    }
 
     public async Task<User?> ValidateCredentialsAsync(string login, string password)
     {

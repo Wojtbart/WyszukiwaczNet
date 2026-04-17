@@ -8,9 +8,17 @@ using WyszukiwaczNet.Api.Data;
 using WyszukiwaczNet.Api.Jobs;
 using WyszukiwaczNet.Api.Notifications;
 using WyszukiwaczNet.Api.Repositories;
+using WyszukiwaczNet.Api.Security;
 using WyszukiwaczNet.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var configKey = Environment.GetEnvironmentVariable("CONFIG_KEY", EnvironmentVariableTarget.User);
+var encryptedConfigPath = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "..", "configuration.xml.enc"));
+if (!string.IsNullOrEmpty(configKey) && File.Exists(encryptedConfigPath))
+{
+    builder.Configuration.AddEncryptedXmlFile(encryptedConfigPath, configKey);
+}
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -35,7 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtSettings?.Issuer,
             ValidAudience = jwtSettings?.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSettings?.SecretKey ?? "defaultSecretKey"))
+                Encoding.UTF8.GetBytes(jwtSettings?.SecretKey ?? string.Empty))
         };
     });
 

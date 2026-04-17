@@ -1,6 +1,5 @@
 using MimeKit;
 using MailKit.Net.Smtp;
-using MailKit.Security;
 using WyszukiwaczNet.Api.Entities;
 using WyszukiwaczNet.Api.Repositories;
 
@@ -37,12 +36,12 @@ public class EmailService : IEmailService
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null || string.IsNullOrEmpty(user.Email))
         {
-            _logger.LogWarning("Cannot send email: user {UserId} not found or has no email", userId);
+            _logger.LogWarning("Nie można wysłać wiadomości e-mail: nie znaleziono użytkownika {UserId} lub nie ma on adresu e-mail", userId);
             return;
         }
 
-        var subject = "New Offers Found!";
-        var body = $"Found {offerCount} new offers matching your search criteria.";
+        var subject = "Znaleziono nowe oferty!";
+        var body = $"Znaleziono {offerCount} nowych ofert spełniających Twoje kryteria wyszukiwania.";
         await SendEmailAsync(user.Email, subject, body);
     }
 
@@ -51,22 +50,13 @@ public class EmailService : IEmailService
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null || string.IsNullOrEmpty(user.Email))
         {
-            _logger.LogWarning("Cannot send email: user {UserId} not found or has no email", userId);
+            _logger.LogWarning("Nie można wysłać wiadomości e-mail: nie znaleziono użytkownika {UserId} lub nie ma on adresu e-mail", userId);
             return;
         }
 
         var html = _templateService.BuildOffersHtml(offers);
         await SendEmailAsync(user.Email, "Oferty Sprzedażowe", html);
     }
-
-    //public async Task SendEmailAsync(string to, string subject, string body)
-    //{
-    //    _logger.LogInformation("Sending email to {To}: {Subject}", to, subject);
-        
-    //    await Task.CompletedTask;
-        
-    //    _logger.LogInformation("Email sent successfully");
-    //}
 
     public async Task SendEmailAsync(string to, string subject, string html)
     {
@@ -79,7 +69,7 @@ public class EmailService : IEmailService
         var senderPassword= _configuration.GetValue<string>("EmailSettings:Password");
 
 
-        message.From.Add(new MailboxAddress("Offers", senderMail));
+        message.From.Add(new MailboxAddress("Offers", senderMail ?? string.Empty));
         message.To.Add(MailboxAddress.Parse(to));
         message.Subject = subject;
 
@@ -96,6 +86,6 @@ public class EmailService : IEmailService
         await client.SendAsync(message);
         await client.DisconnectAsync(true);
 
-        _logger.LogInformation("Email sent to {Email}", to);
+         _logger.LogInformation("Wiadomość e-mail wysłana do {Email}", to);
     }
 }

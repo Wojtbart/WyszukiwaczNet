@@ -17,6 +17,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<OfferHistory> OfferHistories => Set<OfferHistory>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
+    public DbSet<UserNotificationConfig> UserNotificationConfigs => Set<UserNotificationConfig>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

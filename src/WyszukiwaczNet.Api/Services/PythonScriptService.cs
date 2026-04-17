@@ -10,7 +10,7 @@ namespace WyszukiwaczNet.Api.Services;
 
 public interface IPythonScriptService
 {
-    Task<(int RecordsCount, List<Offer> Output)> ExecuteScraperAsync(string scriptPath, string phrase, CancellationToken cancellationToken = default);
+    Task<(int RecordsCount, List<Offer> Output)> ExecuteScraperAsync(string scriptPath, string phrase, string platformName, int limit = 100, CancellationToken cancellationToken = default);
 }
 
 public class PythonScriptService : IPythonScriptService
@@ -27,8 +27,10 @@ public class PythonScriptService : IPythonScriptService
     }
 
     public async Task<(int RecordsCount, List<Offer> Output)> ExecuteScraperAsync(
-        string scriptPath, 
+        string scriptPath,
         string phrase,
+        string platformName,
+        int limit = 100,
         CancellationToken cancellationToken = default)
     {
         var startInfo = new ProcessStartInfo
@@ -60,8 +62,9 @@ public class PythonScriptService : IPythonScriptService
                 errorBuilder.AppendLine(e.Data);
         };
 
-        _logger.LogInformation("Starting Python script: {Script} with phrase: {Phrase}", scriptPath, phrase);
+        _logger.LogInformation("Uruchomiono skrypt w jêzyku Python: {Script} za pomoc¹ frazy: {Phrase}", scriptPath, phrase);
 
+        var startTime = DateTime.UtcNow;
         process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
@@ -71,23 +74,27 @@ public class PythonScriptService : IPythonScriptService
         if (!completed)
         {
             process.Kill(true);
-            _logger.LogError("Python script timed out: {Script}", scriptPath);
-            throw new TimeoutException($"Script execution timed out: {scriptPath}");
+            _logger.LogError("Przekroczono limit czasu skryptu w jêzyku Python: {Script}", scriptPath);
+            throw new TimeoutException($"Wykonywanie skryptu przekroczy³o limit czasu: {scriptPath}");
         }
 
         var output = outputBuilder.ToString();
         var error = errorBuilder.ToString();
 
         if (!string.IsNullOrEmpty(error))
-            _logger.LogWarning("Script stderr: {Error}", error);
+            _logger.LogWarning("SKrypt stderr: {Error}", error);
 
         var recordsCount = ParseRecordsCount(output);
 
-        _logger.LogInformation("Script {Script} completed with {Count} records", scriptPath, recordsCount);
+        _logger.LogInformation("Skrypt {Script} zakoñczono, uzyskuj¹c {Count} rekordów", scriptPath, recordsCount);
 
         if(recordsCount != 0)
         {
-            offers = await _offerRepository.GetRecentOffersAsync(recordsCount);
+            var platform = await _offerRepository.GetPlatformByNameAsync(platformName);
+            if (platform != null)
+                offers = await _offerRepository.GetNewOffersByPlatformAsync(platform.Id, startTime, limit);
+            else
+                offers = await _offerRepository.GetRecentOffersAsync(limit);
 
             var response = offers.Select(o => new OfferResponse(
                 o.Id,

@@ -7,8 +7,8 @@ namespace WyszukiwaczNet.Api.Repositories;
 public interface IOfferRepository
 {
     Task<List<Offer>> GetOffersByPlatformAsync(int platformId, int limit = 50);
+    Task<List<Offer>> GetNewOffersByPlatformAsync(int platformId, DateTime since, int limit = 100);
     Task<List<Offer>> GetRecentOffersAsync(int limit = 100);
-    //Task<List<OfferDto>> GetRecentOffersForShowAsync(int count);
     Task<Offer?> GetOfferByIdAsync(int id);
     Task<List<Platform>> GetAllPlatformsAsync();
     Task<Platform?> GetPlatformByNameAsync(string name);
@@ -31,6 +31,17 @@ public class OfferRepository : IOfferRepository
             .Include(o => o.VehicleDetail)
             .Include(o => o.Platform)
             .Where(o => o.PlatformId == platformId && o.Status == "active")
+            .OrderByDescending(o => o.CreatedAt)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<List<Offer>> GetNewOffersByPlatformAsync(int platformId, DateTime since, int limit = 100)
+    {
+        return await _context.Offers
+            .Include(o => o.VehicleDetail)
+            .Include(o => o.Platform)
+            .Where(o => o.PlatformId == platformId && o.Status == "active" && o.CreatedAt >= since)
             .OrderByDescending(o => o.CreatedAt)
             .Take(limit)
             .ToListAsync();

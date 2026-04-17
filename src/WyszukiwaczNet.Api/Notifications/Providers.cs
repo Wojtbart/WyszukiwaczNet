@@ -38,11 +38,11 @@ public class TwilioSmsProvider : ISmsProvider
                 from: new Twilio.Types.PhoneNumber(_fromNumber),
                 body: message
             );
-            _logger.LogInformation("SMS sent to {To}", to);
+            _logger.LogInformation("SMS wys³any do {To}", to);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send SMS to {To}", to);
+            _logger.LogError(ex, "Nie uda³o siê wys³aæ wiadomoœci SMS do {To}", to);
             throw;
         }
     }
@@ -72,11 +72,11 @@ public class DiscordWebhookProvider : IDiscordProvider
             };
 
             await _httpClient.PostAsJsonAsync(_webhookUrl, payload);
-            _logger.LogInformation("Discord message sent");
+            _logger.LogInformation("Wys³ano wiadomoœæ na Discord");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send Discord message");
+            _logger.LogError(ex, "Nie uda³o siê wys³aæ wiadomoœci na Discord");
             throw;
         }
     }

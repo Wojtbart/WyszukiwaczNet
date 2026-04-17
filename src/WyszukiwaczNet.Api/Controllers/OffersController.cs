@@ -89,9 +89,17 @@ public class OffersController : ControllerBase
     public async Task<IActionResult> GetPlatforms()
     {
         var platforms = await _offerRepository.GetAllPlatformsAsync();
-        
+
         var response = platforms.Select(p => new PlatformResponse(p.Id, p.Name, p.Type));
 
+        return Ok(new { success = true, data = response });
+    }
+
+    [HttpGet("channels")]
+    public async Task<IActionResult> GetChannels()
+    {
+        var channels = await _offerRepository.GetAllNotificationChannelsAsync();
+        var response = channels.Select(c => new { c.Id, c.Name });
         return Ok(new { success = true, data = response });
     }
 

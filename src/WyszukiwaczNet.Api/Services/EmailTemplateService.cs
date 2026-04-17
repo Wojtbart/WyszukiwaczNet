@@ -2,7 +2,6 @@ using System.Text;
 using WyszukiwaczNet.Api.Entities;
 
 namespace WyszukiwaczNet.Api.Services;
-
 public interface IEmailTemplateService
 {
     string BuildOffersHtml(List<Offer> offers);
@@ -274,12 +273,39 @@ public class EmailTemplateService : IEmailTemplateService
     {
         if (IsVehiclePlatform(platformName))
         {
+            if (platformName.Equals("AutoScout", StringComparison.OrdinalIgnoreCase))
+            {
+                sb.Append("""
+                    <tr>
+                      <th>Tytuł</th>
+                      <th>Cena</th>
+                      <th>Przebieg</th>
+                      <th>Lokalizacja</th>
+                      <th>Link</th>
+                    </tr>
+                    """);
+            }
+            else
+            {
+                sb.Append("""
+                    <tr>
+                      <th>Tytuł</th>
+                      <th>Cena</th>
+                      <th>Rok prod.</th>
+                      <th>Przebieg</th>
+                      <th>Lokalizacja</th>
+                      <th>Link</th>
+                    </tr>
+                    """);
+            }
+        }
+        else if (platformName.Equals("OLX", StringComparison.OrdinalIgnoreCase)
+              || platformName.Equals("Sprzedajemy", StringComparison.OrdinalIgnoreCase))
+        {
             sb.Append("""
                 <tr>
                   <th>Tytuł</th>
                   <th>Cena</th>
-                  <th>Rok prod.</th>
-                  <th>Przebieg</th>
                   <th>Lokalizacja</th>
                   <th>Link</th>
                 </tr>
@@ -304,13 +330,28 @@ public class EmailTemplateService : IEmailTemplateService
     {
         if (IsVehiclePlatform(platformName))
         {
+            bool isAutoScout = platformName.Equals("AutoScout", StringComparison.OrdinalIgnoreCase);
             foreach (var offer in offers)
             {
                 sb.Append("<tr>");
                 sb.Append($"<td class=\"cell-title\">{HtmlEncode(offer.Title)}</td>");
                 sb.Append($"<td class=\"cell-price\">{FormatPrice(offer.Price, offer.Currency)}</td>");
-                sb.Append($"<td>{Val(offer.VehicleDetail?.ProductionYear?.ToString())}</td>");
+                if (!isAutoScout)
+                    sb.Append($"<td>{Val(offer.VehicleDetail?.ProductionYear?.ToString())}</td>");
                 sb.Append($"<td>{Val(offer.VehicleDetail?.Mileage is int m ? $"{m:N0} km" : null)}</td>");
+                sb.Append($"<td>{Val(offer.Location)}</td>");
+                sb.Append($"<td>{Link(offer.Url, color)}</td>");
+                sb.Append("</tr>");
+            }
+        }
+        else if (platformName.Equals("OLX", StringComparison.OrdinalIgnoreCase)
+              || platformName.Equals("Sprzedajemy", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (var offer in offers)
+            {
+                sb.Append("<tr>");
+                sb.Append($"<td class=\"cell-title\">{HtmlEncode(offer.Title)}</td>");
+                sb.Append($"<td class=\"cell-price\">{FormatPrice(offer.Price, offer.Currency)}</td>");
                 sb.Append($"<td>{Val(offer.Location)}</td>");
                 sb.Append($"<td>{Link(offer.Url, color)}</td>");
                 sb.Append("</tr>");
@@ -346,7 +387,7 @@ public class EmailTemplateService : IEmailTemplateService
 
     private static string FormatPrice(decimal? price, string? currency) =>
         price.HasValue
-            ? HtmlEncode($"{price:N2} {currency ?? "PLN"}")
+            ? HtmlEncode($"{price:N0} {currency ?? "PLN"}")
             : "<span class=\"cell-muted\">—</span>";
 
     private static string Link(string? url, string color) =>

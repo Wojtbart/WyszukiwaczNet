@@ -398,3 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 *.ini
+configuration.xml
+config.ini
