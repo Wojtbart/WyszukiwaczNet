@@ -51,9 +51,9 @@ public class NotificationJob : INotificationJob
 
     public async Task ExecuteAsync(NotificationRequest request)
     {
-        _logger.LogInformation("Wykonywanie zadania powiadomieñ dla u¿ytkownika {UserId}", request.UserId);
+        _logger.LogInformation("Wykonywanie zadania powiadomien dla uzytkownika {UserId}", request.UserId);
 
-        var scriptsPath = _configuration.GetValue<string>("ScriptsPath") ?? "../../backend";
+        var scriptsPath = _configuration.GetValue<string>("ScriptsPath") ?? "../../scripts";
 
         var finalPhrase = $"{request.Phrase} {request.AdditionalPhrase}".Trim();
 
@@ -73,13 +73,13 @@ public class NotificationJob : INotificationJob
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Nie uda³o siê wykonaæ skryptu dla {Website}", website);
+                _logger.LogError(ex, "Nie udalo sie wykonac skryptu dla {Website}", website);
             }
         }
 
         if (allOffers.Count == 0)
         {
-            _logger.LogInformation("Nie pobrano ¿adnych danych, pomijam powiadomienie");
+            _logger.LogInformation("Nie pobrano zadnych danych, pomijam powiadomienie");
             return;
         }
 
@@ -116,7 +116,7 @@ public class NotificationJob : INotificationJob
         if (feedItems.Count > 0)
             await _userRepository.SaveNotificationFeedItemsAsync(feedItems);
 
-        _logger.LogInformation("Zadanie powiadomienia dla u¿ytkownika zosta³o zakoñczone {UserId}", request.UserId);
+        _logger.LogInformation("Zadanie powiadomienia dla uzytkownika zostalo zakonczone {UserId}", request.UserId);
     }
 
     public string EnqueueJob(NotificationRequest request)

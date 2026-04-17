@@ -27,20 +27,20 @@ public class DataController : ControllerBase
     {
         if (request.Websites == null || !request.Websites.Any())
         {
-            return BadRequest(new { success = false, message = "'Websites' mus byæ tablic¹." });
+            return BadRequest(new { success = false, message = "'Websites' mus byc tablica." });
         }
 
         if (string.IsNullOrEmpty(request.Phrase))
         {
-            return BadRequest(new { success = false, message = "'Phrase' jest wymagana i nie mo¿e byæ pusta." });
+            return BadRequest(new { success = false, message = "'Phrase' jest wymagana i nie moze byc pusta." });
         }
 
         if (request.RequestNumber <= 0)
         {
-            return BadRequest(new { success = false, message = "'RequestNumber' jest wymagana i nie mo¿e byæ mniejszy ni¿ 0." });
+            return BadRequest(new { success = false, message = "'RequestNumber' jest wymagana i nie moze byc mniejszy niz 0." });
         }
 
-        var scriptsPath = _configuration.GetValue<string>("ScriptsPath") ?? "../../backend";
+        var scriptsPath = _configuration.GetValue<string>("ScriptsPath") ?? "../../scripts";
         var finalPhrase = $"{request.Phrase} {request.AdditionalPhrase}".Trim();
 
         var results = new Dictionary<string, object>();
@@ -64,13 +64,13 @@ public class DataController : ControllerBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "b³ad wykonywania skryptu dla {Website}", website);
+                _logger.LogError(ex, "Blad wykonywania skryptu dla {Website}", website);
                 string key = website[0].ToString().ToUpper() + website.Substring(1);
                 results[$"{key}Data"] = new { error = ex.Message };
             }
         }
 
-        return Created("/api/data/getData", new { success = true, message = "Dane przetworzone prawid³owo!", data = results });
+        return Created("/api/data/getData", new { success = true, message = "Dane przetworzone prawidlowo!", data = results });
     }
 
     private static string? GetScriptName(string website) => website.ToLower() switch
