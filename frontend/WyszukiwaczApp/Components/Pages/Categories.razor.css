@@ -1,0 +1,11 @@
+.categories-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.categories-container h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
