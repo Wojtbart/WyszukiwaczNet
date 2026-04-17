@@ -2,6 +2,7 @@
 @layout MainLayout
 @using WyszukiwaczAppDTO
 @using WyszukiwaczApp
+@using System.ComponentModel.DataAnnotations
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 
@@ -20,7 +21,7 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         padding: 2.5rem;
         width: 100%;
-        max-width: 480px;
+        max-width: 680px;
     }
     
     .register-header {
@@ -156,23 +157,46 @@
 
         <EditForm Model="@registerModel" OnValidSubmit="OnRegister">
             <DataAnnotationsValidator />
-            
+
             <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Imię</label>
+                    <InputText id="name" @bind-Value="registerModel.Name" class="form-control" placeholder="Imię" />
+                </div>
+
+                <div class="form-group">
+                    <label for="surname">Nazwisko</label>
+                    <InputText id="surname" @bind-Value="registerModel.Surname" class="form-control" placeholder="Nazwisko" />
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="login">Login *</label>
+                    <InputText id="login" @bind-Value="registerModel.Login" class="form-control" placeholder="Nazwa użytkownika" />
+                    <ValidationMessage For="@(() => registerModel.Login)" />
+                </div>
+
                 <div class="form-group full-width">
                     <label for="email">Email *</label>
                     <InputText id="email" @bind-Value="registerModel.Email" class="form-control" placeholder="twoj@email.pl" />
                     <ValidationMessage For="@(() => registerModel.Email)" />
                 </div>
 
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="phone">Telefon</label>
-                    <InputText id="phone" @bind-Value="registerModel.Phone" class="form-control" placeholder="+48 123 456 789" />
+                    <InputText id="phone" @bind-Value="registerModel.Phone" class="form-control" placeholder="+48123456789" />
+                    <ValidationMessage For="@(() => registerModel.Phone)" />
                 </div>
 
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="password">Hasło *</label>
                     <InputText id="password" @bind-Value="registerModel.Password" type="password" class="form-control" placeholder="Min. 6 znaków" />
                     <ValidationMessage For="@(() => registerModel.Password)" />
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="repeatPassword">Powtórz hasło *</label>
+                    <InputText id="repeatPassword" @bind-Value="registerModel.RepeatPassword" type="password" class="form-control" placeholder="Powtórz hasło" />
+                    <ValidationMessage For="@(() => registerModel.RepeatPassword)" />
                 </div>
             </div>
 
@@ -193,7 +217,7 @@
     private string? errorMessage;
     private string? successMessage;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Globals.IsLogged = false;
     }
@@ -211,7 +235,10 @@
             {
                 Email = registerModel.Email,
                 Phone = registerModel.Phone,
-                Password = registerModel.Password
+                Password = registerModel.Password,
+                Login = registerModel.Login,
+                Name = registerModel.Name ?? string.Empty,
+                Surname = registerModel.Surname ?? string.Empty
             };
 
             var result = await UserService.RegisterAsync(request);
@@ -227,9 +254,9 @@
                 errorMessage = result?.Message ?? "Rejestracja nie powiodła się";
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            errorMessage = $"Wystąpił błąd: {ex.Message}";
+            errorMessage = "Wystąpił błąd podczas rejestracji.";
         }
         finally
         {
@@ -240,8 +267,26 @@
 
     class RegisterModel
     {
+        public string? Name { get; set; }
+        public string? Surname { get; set; }
+
+        [Required(ErrorMessage = "Login jest wymagany")]
+        [MinLength(3, ErrorMessage = "Login musi mieć min. 3 znaki")]
+        public string Login { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email jest wymagany")]
+        [EmailAddress(ErrorMessage = "Nieprawidłowy format email")]
         public string Email { get; set; } = string.Empty;
+
+        [RegularExpression(@"^(\+\d{2})?\d{9}$", ErrorMessage = "Telefon musi mieć 9 cyfr lub format +48XXXXXXXXX")]
         public string? Phone { get; set; }
+
+        [Required(ErrorMessage = "Hasło jest wymagane")]
+        [MinLength(6, ErrorMessage = "Hasło musi mieć min. 6 znaków")]
         public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Powtórz hasło")]
+        [Compare(nameof(Password), ErrorMessage = "Hasła nie są identyczne")]
+        public string RepeatPassword { get; set; } = string.Empty;
     }
 }

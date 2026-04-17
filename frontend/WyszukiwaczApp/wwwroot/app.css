@@ -50,6 +50,16 @@ h1:focus {
     border-color: #929292;
 }
 
+a.link:hover {
+    text-decoration: none !important;
+}
+
+a.link:visited,
+a.link:active {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
 tr.rz-data-row:nth-child(even) {
     background-color: #ebeef2 !important;
 }

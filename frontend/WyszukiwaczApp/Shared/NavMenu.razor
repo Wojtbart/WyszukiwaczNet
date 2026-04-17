@@ -1,6 +1,8 @@
 @inject NavigationManager Navigation
 @inject ILocalStorageService LocalStorage
+@inject UserService UserService
 @using WyszukiwaczApp
+@implements IDisposable
 
 <style>
     .nav-menu {
@@ -89,6 +91,21 @@
         background: rgba(255, 255, 255, 0.15);
         color: white;
     }
+
+    .nav-badge {
+        margin-left: auto;
+        background: #ff4757;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+    }
 </style>
 
 <div class="nav-menu d-flex flex-column">
@@ -115,7 +132,17 @@
                 Kategorie
             </NavLink>
         </li>
-        
+        <li>
+            <NavLink href="/powiadomienia" class="nav-link">
+                <span class="nav-link-icon">🔔</span>
+                Powiadomienia
+                @if (unreadCount > 0)
+                {
+                    <span class="nav-badge">@unreadCount</span>
+                }
+            </NavLink>
+        </li>
+
         <div class="nav-divider"></div>
         
         <li>
@@ -168,11 +195,40 @@
 </div>
 
 @code {
+    private int unreadCount;
+    private Timer? _timer;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _timer = new Timer(async _ =>
+            {
+                if (Globals.IsLogged && Globals.UserId.HasValue)
+                {
+                    var result = await UserService.GetNotificationFeedAsync(Globals.UserId.Value, 1);
+                    var newCount = result?.UnreadCount ?? 0;
+                    if (newCount != unreadCount)
+                    {
+                        unreadCount = newCount;
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+        }
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+
     private async Task Logout()
     {
         Globals.IsLogged = false;
         Globals.Login = string.Empty;
         Globals.AuthToken = null;
+        _timer?.Dispose();
         await LocalStorage.RemoveItemAsync("authToken");
         Navigation.NavigateTo("/login", forceLoad: true);
     }

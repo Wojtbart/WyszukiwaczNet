@@ -266,10 +266,10 @@
     private int _smsChannelId;
     private int _discordChannelId;
 
-    // Loaded from GET /api/users/{userId}/notifications
     private List<UserNotificationSettingDto> notificationChannels = new();
-    // Loaded from GET /api/users/{userId}/platforms
     private List<UserPlatformSubscriptionDto> platformSubscriptions = new();
+    private List<NotificationChannel> allChannels = new();
+    private List<PlatformResponse> allPlatforms = new();
 
     private bool isSMSChecked = false;
     private bool isDiscordChecked = false;
@@ -350,35 +350,55 @@
 
         userId = userInfo.user_id;
 
-        // Load notification channel settings via GET /api/users/{userId}/notifications
+        allChannels = await UserService.GetAllChannelsAsync() ?? new();
+        allPlatforms = await UserService.GetAllPlatformsAsync() ?? new();
+
+        foreach (var channel in allChannels)
+        {
+            var name = channel.Name.ToLower();
+            if (name.Contains("email")) _emailChannelId = channel.Id;
+            else if (name.Contains("sms") || name.Contains("text")) _smsChannelId = channel.Id;
+            else if (name.Contains("discord")) _discordChannelId = channel.Id;
+        }
+
         notificationChannels = await UserService.GetUserNotificationSettingsAsync(userId) ?? new();
         foreach (var channel in notificationChannels)
         {
             var name = channel.ChannelName.ToLower();
-            if (name.Contains("email"))
-            {
-                isEmailChecked = channel.Enabled;
-                _emailChannelId = channel.ChannelId;
-            }
-            else if (name.Contains("sms") || name.Contains("text"))
-            {
-                isSMSChecked = channel.Enabled;
-                _smsChannelId = channel.ChannelId;
-            }
-            else if (name.Contains("discord"))
-            {
-                isDiscordChecked = channel.Enabled;
-                _discordChannelId = channel.ChannelId;
-            }
+            if (name.Contains("email")) isEmailChecked = channel.Enabled;
+            else if (name.Contains("sms") || name.Contains("text")) isSMSChecked = channel.Enabled;
+            else if (name.Contains("discord")) isDiscordChecked = channel.Enabled;
         }
 
-        // Load platform subscriptions via GET /api/users/{userId}/platforms
         platformSubscriptions = await UserService.GetUserPlatformSubscriptionsAsync(userId) ?? new();
         selectedPlatforms = platformSubscriptions
             .Where(p => p.Enabled)
             .Select(p => availablePlatforms.FirstOrDefault(a => a.Equals(p.PlatformName, StringComparison.OrdinalIgnoreCase)) ?? p.PlatformName)
             .Where(name => !string.IsNullOrEmpty(name))
             .ToList();
+
+        var savedConfig = await UserService.GetNotificationConfigAsync(userId);
+        if (savedConfig != null)
+        {
+            searchedText = savedConfig.Phrase;
+            requestNumbers = savedConfig.RequestCount;
+
+            if (!string.IsNullOrEmpty(savedConfig.Schedule))
+            {
+                if (savedConfig.Schedule.StartsWith("Co ") && savedConfig.Schedule.EndsWith(" min")
+                    && int.TryParse(savedConfig.Schedule[3..^4], out var mins))
+                {
+                    isCyclicMessagingChecked = true;
+                    minutesAfterSendingNotification = mins;
+                }
+                else if (savedConfig.Schedule.StartsWith("Codziennie o ")
+                    && DateTime.TryParse(savedConfig.Schedule[13..], out var dt))
+                {
+                    isSendingHourChecked = true;
+                    dateSendingNotification = dt;
+                }
+            }
+        }
     }
 
     private async Task SaveConfiguration()
@@ -415,7 +435,6 @@
                 return;
             }
 
-            // Persist notification channel settings via POST /api/users/notifications
             if (_emailChannelId > 0)
                 await UserService.UpdateNotificationSettingAsync(userId, _emailChannelId, isEmailChecked);
             if (_smsChannelId > 0)
@@ -423,14 +442,26 @@
             if (_discordChannelId > 0)
                 await UserService.UpdateNotificationSettingAsync(userId, _discordChannelId, isDiscordChecked);
 
-            // Persist platform subscriptions via POST /api/users/platforms
-            foreach (var sub in platformSubscriptions)
+            foreach (var platform in allPlatforms)
             {
-                bool enabled = selectedPlatforms.Any(p => p.Equals(sub.PlatformName, StringComparison.OrdinalIgnoreCase));
-                await UserService.UpdatePlatformSubscriptionAsync(userId, sub.PlatformId, enabled);
+                bool enabled = selectedPlatforms.Any(p => p.Equals(platform.Name, StringComparison.OrdinalIgnoreCase));
+                await UserService.UpdatePlatformSubscriptionAsync(userId, platform.Id, enabled);
             }
 
-            // Schedule cron job via POST /api/notifications/cronJob
+            var scheduleString = isSendingHourChecked && dateSendingNotification.HasValue
+                ? $"Codziennie o {dateSendingNotification:HH:mm}"
+                : isCyclicMessagingChecked && minutesAfterSendingNotification > 0
+                    ? $"Co {minutesAfterSendingNotification} min"
+                    : null;
+
+            await UserService.SaveNotificationConfigAsync(new SaveNotificationConfigRequest
+            {
+                UserId = userId,
+                Phrase = searchedText,
+                RequestCount = requestNumbers,
+                Schedule = scheduleString
+            });
+
             var request = new NotificationRequest
             {
                 UserId = userId,

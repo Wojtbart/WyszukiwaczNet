@@ -63,21 +63,6 @@
 
 <RadzenText TextStyle="TextStyle.H4" Text="HISTORIA" Style="color:red; margin-bottom:20px;" />
 
-@* <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
-    <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
-    <RadzenLabel Text="Olx" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
-    <RadzenCheckBox @bind-Value=@setOlxGrid Name="CheckBox1" />
-</RadzenButton>
-<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
-    <RadzenImage Path="images/amazon.png" Style="width: 4rem;height:2rem;" AlternateText="Amazon" />
-    <RadzenLabel Text="Amazon" Component="CheckBox2" Style="margin:0.3rem; vertical-align: middle;" />
-    <RadzenCheckBox @bind-Value=@setAmazonGrid Name="CheckBox2" />
-</RadzenButton> *@
-
-
-
-
-
 <RadzenDataGrid Data="@historyData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;" LoadData="@LoadData"
                 AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true" Count="@count"
                 FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="5" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
@@ -87,7 +72,6 @@
         <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
     </EmptyTemplate>
     <HeaderTemplate>
-        @* <RadzenImage Path="images/olx.png" Style="width: 4rem; height:4rem;" AlternateText="Olx" /> *@
         <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">HISTORIA</h3>
     </HeaderTemplate>
 

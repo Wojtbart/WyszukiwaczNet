@@ -41,7 +41,7 @@ public class UserService
                 return new LoginResponse
                 {
                     Success = false,
-                    Message = $"Login failed: {response.StatusCode}"
+                    Message = "Niepoprawne dane logowania"
                 };
             }
 
@@ -57,7 +57,7 @@ public class UserService
         }
     }
 
-    public async Task<LoginResponse?> RegisterAsync(string email, string? phone, string password)
+    public async Task<LoginResponse?> RegisterAsync(string email, string? phone, string password, string login = "")
     {
         try
         {
@@ -65,7 +65,8 @@ public class UserService
             {
                 Email = email,
                 Phone = phone,
-                Password = password
+                Password = password,
+                Login = login
             };
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -75,33 +76,56 @@ public class UserService
 
             if (!response.IsSuccessStatusCode)
             {
-                return new LoginResponse
-                {
-                    Success = false,
-                    Message = $"Registration failed: {response.StatusCode}"
-                };
+                var errResult = JsonConvert.DeserializeObject<dynamic>(responseContent);
+                string errMsg = errResult?.message?.ToString() ?? "Rejestracja nie powiodła się";
+                return new LoginResponse { Success = false, Message = errMsg };
             }
 
             var result = JsonConvert.DeserializeObject<dynamic>(responseContent);
             return new LoginResponse
             {
                 Success = result?.success ?? true,
-                Message = result?.message?.ToString() ?? "Registration successful"
+                Message = result?.message?.ToString() ?? "Rejestracja przebiegła pomyślnie"
             };
         }
-        catch (Exception ex)
+        catch
         {
             return new LoginResponse
             {
                 Success = false,
-                Message = ex.Message
+                Message = "Rejestracja nie powiodła się"
             };
         }
     }
 
     public async Task<LoginResponse?> RegisterAsync(RegisterUserRequest request)
     {
-        return await RegisterAsync(request.Email, request.Phone, request.Password);
+        try
+        {
+            var json = JsonConvert.SerializeObject(request);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync("users/registerUser", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errResult = JsonConvert.DeserializeObject<dynamic>(responseContent);
+                string errMsg = errResult?.message?.ToString() ?? "Rejestracja nie powiodła się";
+                return new LoginResponse { Success = false, Message = errMsg };
+            }
+
+            var result = JsonConvert.DeserializeObject<dynamic>(responseContent);
+            return new LoginResponse
+            {
+                Success = result?.success ?? true,
+                Message = result?.message?.ToString() ?? "Rejestracja zakończona pomyślnie"
+            };
+        }
+        catch
+        {
+            return new LoginResponse { Success = false, Message = "Rejestracja nie powiodła się" };
+        }
     }
 
     public async Task<UserResponse?> GetUserAsync(int userId)
@@ -184,6 +208,78 @@ public class UserService
         {
             return false;
         }
+    }
+
+    public async Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"users/{userId}/config");
+            var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) return null;
+            var result = JsonConvert.DeserializeObject<ApiResponse<UserNotificationConfigDto>>(content);
+            return result?.Data;
+        }
+        catch { return null; }
+    }
+
+    public async Task<bool> SaveNotificationConfigAsync(SaveNotificationConfigRequest request)
+    {
+        try
+        {
+            var json = JsonConvert.SerializeObject(request);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("users/config", content);
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+
+    public async Task<List<NotificationChannel>?> GetAllChannelsAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync("offers/channels");
+            var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) return null;
+            var result = JsonConvert.DeserializeObject<ApiResponse<List<NotificationChannel>>>(content);
+            return result?.Data;
+        }
+        catch { return null; }
+    }
+
+    public async Task<List<PlatformResponse>?> GetAllPlatformsAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync("offers/platforms");
+            var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) return null;
+            var result = JsonConvert.DeserializeObject<ApiResponse<List<PlatformResponse>>>(content);
+            return result?.Data;
+        }
+        catch { return null; }
+    }
+
+    public async Task<NotificationFeedResponse?> GetNotificationFeedAsync(int userId, int limit = 100)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"users/{userId}/feed?limit={limit}");
+            var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) return null;
+            return JsonConvert.DeserializeObject<NotificationFeedResponse>(content);
+        }
+        catch { return null; }
+    }
+
+    public async Task MarkNotificationsReadAsync(int userId)
+    {
+        try
+        {
+            await _httpClient.PostAsync($"users/{userId}/feed/read", null);
+        }
+        catch { }
     }
 
     public async Task<bool> UpdateNotificationSettingAsync(int userId, int channelId, bool enabled)

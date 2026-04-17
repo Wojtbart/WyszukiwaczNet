@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Layout\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\WyszukiwaczAppDTO\WyszukiwaczAppDTO.csproj" />
   </ItemGroup>
 	<ItemGroup>

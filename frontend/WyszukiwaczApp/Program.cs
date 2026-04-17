@@ -1,7 +1,6 @@
 using Blazored.LocalStorage;
 using Blazored.Toast;
 using Radzen;
-using WyszukiwaczApp;
 using WyszukiwaczApp.Components;
 using WyszukiwaczApp.Other;
 using WyszukiwaczApp.Services;

@@ -23,13 +23,13 @@ public class DataProxy
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-                return new ApiResponse<UserConfigurationData> { Success = false, Message = "Failed to get configuration" };
+                return new ApiResponse<UserConfigurationData> { Success = false, Message = "Nie uda³o siê pobraæ konfiguracji" };
 
             return new ApiResponse<UserConfigurationData> { Success = true, Data = JsonConvert.DeserializeObject<UserConfigurationData>(content) };
         }
         catch
         {
-            return new ApiResponse<UserConfigurationData> { Success = false, Message = "Error getting configuration" };
+            return new ApiResponse<UserConfigurationData> { Success = false, Message = "yst¹pi³ b³¹d podczas pobierania konfiguracji" };
         }
     }
 
@@ -45,7 +45,7 @@ public class DataProxy
         }
         catch
         {
-            return new ApiResponse<object> { Success = false, Message = "Error saving configuration" };
+            return new ApiResponse<object> { Success = false, Message = "Wyst¹pi³ b³¹d podczas zapisywania konfiguracji" };
         }
     }
 

@@ -23,7 +23,7 @@ public class NotificationProxy
         }
         catch
         {
-            return new ApiResponse<object> { Success = false, Message = "Error scheduling job" };
+            return new ApiResponse<object> { Success = false, Message = "B³¹d podczas planowania zadania" };
         }
     }
 
@@ -38,13 +38,13 @@ public class NotificationProxy
 
             if (response.IsSuccessStatusCode)
             {
-                return new DeleteJobResult { success = true, message = "Jobs deleted successfully" };
+                return new DeleteJobResult { success = true, message = "Zadania zosta³y pomyœlnie usuniête" };
             }
-            return new DeleteJobResult { success = false, message = "Failed to delete jobs" };
+            return new DeleteJobResult { success = false, message = "Nie uda³o siê usun¹æ zadañ" };
         }
         catch
         {
-            return new DeleteJobResult { success = false, message = "Error deleting jobs" };
+            return new DeleteJobResult { success = false, message = "B³¹d podczas usuwania zadañ" };
         }
     }
 

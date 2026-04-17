@@ -5,6 +5,9 @@ public class RegisterUserRequest
     public string Email { get; set; } = string.Empty;
     public string? Phone { get; set; }
     public string Password { get; set; } = string.Empty;
+    public string Login { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Surname { get; set; } = string.Empty;
 }
 
 public class LoginRequest
@@ -138,4 +141,39 @@ public class NotificationChannel
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
+}
+
+public class UserNotificationConfigDto
+{
+    public string Phrase { get; set; } = string.Empty;
+    public int RequestCount { get; set; }
+    public string? Schedule { get; set; }
+}
+
+public class SaveNotificationConfigRequest
+{
+    public int UserId { get; set; }
+    public string Phrase { get; set; } = string.Empty;
+    public int RequestCount { get; set; }
+    public string? Schedule { get; set; }
+}
+
+public class NotificationFeedItemDto
+{
+    public int Id { get; set; }
+    public int? OfferId { get; set; }
+    public string? OfferTitle { get; set; }
+    public decimal? OfferPrice { get; set; }
+    public string? OfferUrl { get; set; }
+    public string? OfferLocation { get; set; }
+    public string? PlatformName { get; set; }
+    public string? Status { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+public class NotificationFeedResponse
+{
+    public bool Success { get; set; }
+    public List<NotificationFeedItemDto>? Data { get; set; }
+    public int UnreadCount { get; set; }
 }

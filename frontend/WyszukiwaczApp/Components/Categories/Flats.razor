@@ -319,11 +319,11 @@
         }
     }
 
-    private string notificationMode;
+    private string? notificationMode;
     private List<string> notificationModes = new() { "godzina", "cykliczne" };
 
     // Jednorazowo o godzinie
-    private string notificationHour;
+    private string? notificationHour;
 
     // Cykliczne co X minut
     private int? notificationInterval;
@@ -347,9 +347,6 @@
             await DialogService.Alert("Podaj poprawną liczbę minut.");
             return;
         }
-
-        // Tu dodasz swoją logikę wysyłania do backendu:
-        // await DataProxy.SetNotification(...)
 
         await DialogService.Alert("Powiadomienie zostało ustawione.");
     }

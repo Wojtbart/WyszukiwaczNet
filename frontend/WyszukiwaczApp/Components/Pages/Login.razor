@@ -20,7 +20,7 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         padding: 2.5rem;
         width: 100%;
-        max-width: 620px;
+        max-width: 680px;
     }
     
     .login-header {
@@ -132,11 +132,16 @@
 
             <div class="form-group">
                 <label for="password">Hasło</label>
-                <InputText id="password" @bind-Value="loginModel.Password" type="password" class="form-control" placeholder="Wprowadź hasło" />
+                <InputText id="password" @bind-Value="loginModel.Password" type="password" class="form-control" placeholder="Wprowadź hasło" @onkeydown="HandlePasswordKeyDown" />
                 <ValidationMessage For="@(() => loginModel.Password)" />
             </div>
 
-            <button type="submit" class="btn-login" disabled="@isLoading">
+            <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem;">
+                <input type="checkbox" id="rememberMe" @bind="rememberMe" style="width:16px;height:16px;cursor:pointer;" />
+                <label for="rememberMe" style="margin:0;cursor:pointer;font-weight:400;">Zapamiętaj dane logowania</label>
+            </div>
+
+            <button type="submit" class="btn-login" disabled="@(isLoading || string.IsNullOrEmpty(loginModel.Password))">
                 @(isLoading ? "Logowanie..." : "Zaloguj się")
             </button>
         </EditForm>
@@ -150,11 +155,32 @@
 @code {
     private LoginModel loginModel = new();
     private bool isLoading = false;
+    private bool rememberMe = false;
     private string? errorMessage;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Globals.IsLogged = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var savedLogin    = await LocalStorage.GetItemAsync<string>("rememberedLogin");
+        var savedPassword = await LocalStorage.GetItemAsync<string>("rememberedPassword");
+        if (!string.IsNullOrEmpty(savedLogin))
+        {
+            loginModel.Login    = savedLogin;
+            loginModel.Password = savedPassword ?? string.Empty;
+            rememberMe = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandlePasswordKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrEmpty(loginModel.Password))
+            await OnLogin();
     }
 
     private async Task OnLogin()
@@ -175,6 +201,17 @@
                 
                 await LocalStorage.SetItemAsync("authToken", result.Token);
                 await LocalStorage.SetItemAsync("login", loginModel.Login);
+
+                if (rememberMe)
+                {
+                    await LocalStorage.SetItemAsync("rememberedLogin", loginModel.Login);
+                    await LocalStorage.SetItemAsync("rememberedPassword", loginModel.Password);
+                }
+                else
+                {
+                    await LocalStorage.RemoveItemAsync("rememberedLogin");
+                    await LocalStorage.RemoveItemAsync("rememberedPassword");
+                }
                 
                 NavigationManager.NavigateTo("/");
             }
@@ -183,9 +220,9 @@
                 errorMessage = result?.Message ?? "Nieprawidłowy login lub hasło";
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            errorMessage = $"Wystąpił błąd: {ex.Message}";
+            errorMessage = "Niepoprawne dane logowania";
         }
         finally
         {

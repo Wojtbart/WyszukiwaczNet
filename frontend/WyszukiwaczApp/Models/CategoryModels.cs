@@ -1,5 +1,4 @@
 namespace WyszukiwaczApp.Models;
-
 public class ScrapedItem
 {
     public string? Title { get; set; }
@@ -12,7 +11,6 @@ public class ScrapedItem
     public string? SellerName { get; set; }
     public string? State { get; set; }
     public VehicleDetail? VehicleDetail { get; set; }
-    // Amazon-specific
     public string? OriginalPrice { get; set; }
     public string? PromoPrice { get; set; }
     public string? FreeDelivery { get; set; }
@@ -20,7 +18,6 @@ public class ScrapedItem
     public string? Rating { get; set; }
     public string? RatingInStars { get; set; }
     public string? CommentsNumber { get; set; }
-    // OtoDom-specific
     public string? Area { get; set; }
     public string? Rooms { get; set; }
 }
