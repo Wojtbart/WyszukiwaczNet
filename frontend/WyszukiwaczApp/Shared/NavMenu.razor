@@ -202,6 +202,8 @@
     {
         if (firstRender)
         {
+            Globals.NotificationsChanged += OnNotificationsChanged;
+
             _timer = new Timer(async _ =>
             {
                 if (Globals.IsLogged && Globals.UserId.HasValue)
@@ -218,8 +220,19 @@
         }
     }
 
+    private async void OnNotificationsChanged()
+    {
+        if (Globals.IsLogged && Globals.UserId.HasValue)
+        {
+            var result = await UserService.GetNotificationFeedAsync(Globals.UserId.Value, 1);
+            unreadCount = result?.UnreadCount ?? 0;
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
     public void Dispose()
     {
+        Globals.NotificationsChanged -= OnNotificationsChanged;
         _timer?.Dispose();
     }
 

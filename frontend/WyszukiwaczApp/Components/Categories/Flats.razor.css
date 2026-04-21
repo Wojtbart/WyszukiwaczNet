@@ -50,3 +50,17 @@
         margin-bottom: 20px;
         box-shadow: 0 0 50px #ccc;
     }
+
+    .link,
+    .link:visited,
+    .link:focus,
+    .link:active,
+    .link:hover {
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+    .link:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }

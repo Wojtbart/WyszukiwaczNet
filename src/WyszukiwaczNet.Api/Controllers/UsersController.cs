@@ -136,6 +136,13 @@ public class UsersController : ControllerBase
         return Ok(new { success = true });
     }
 
+    [HttpPost("{userId}/feed/{notificationId}/read")]
+    public async Task<IActionResult> MarkSingleRead(int userId, int notificationId)
+    {
+        await _userService.MarkSingleNotificationReadAsync(notificationId);
+        return Ok(new { success = true });
+    }
+
     [HttpPost("notifications")]
     public async Task<IActionResult> UpdateNotificationSetting([FromBody] NotificationSettingRequest request)
     {

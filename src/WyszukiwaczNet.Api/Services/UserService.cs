@@ -19,6 +19,7 @@ public interface IUserService
     Task<List<NotificationFeedItemDto>> GetNotificationFeedAsync(int userId, int limit = 100);
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
+    Task MarkSingleNotificationReadAsync(int notificationId);
 }
 
 public class UserService : IUserService
@@ -194,6 +195,11 @@ public class UserService : IUserService
     public async Task MarkNotificationsReadAsync(int userId)
     {
         await _userRepository.MarkNotificationsReadAsync(userId);
+    }
+
+    public async Task MarkSingleNotificationReadAsync(int notificationId)
+    {
+        await _userRepository.MarkSingleNotificationReadAsync(notificationId);
     }
 
     public async Task<(bool Success, string? Message)> UpdateNotificationSettingAsync(NotificationSettingRequest request)

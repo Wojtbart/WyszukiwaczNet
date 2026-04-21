@@ -8,10 +8,10 @@ public class NotificationProxy
 {
     private readonly HttpClient _httpClient;
 
-    public NotificationProxy(HttpClient httpClient)
+    public NotificationProxy(HttpClient httpClient, ApiConfig apiConfig)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5012/api/");
+        _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
     }
 
     public async Task<ApiResponse<object>?> setCronJob(NotificationRequest request)
@@ -23,7 +23,22 @@ public class NotificationProxy
         }
         catch
         {
-            return new ApiResponse<object> { Success = false, Message = "B³¹d podczas planowania zadania" };
+            return new ApiResponse<object> { Success = false, Message = "Blad podczas planowania zadania" };
+        }
+    }
+
+    public async Task<UserJobsResponse?> GetJobsForUser(int userId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"notifications/jobsForUser/{userId}");
+            if (!response.IsSuccessStatusCode) return null;
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<UserJobsResponse>(content);
+        }
+        catch
+        {
+            return null;
         }
     }
 
@@ -38,13 +53,13 @@ public class NotificationProxy
 
             if (response.IsSuccessStatusCode)
             {
-                return new DeleteJobResult { success = true, message = "Zadania zosta³y pomyœlnie usuniête" };
+                return new DeleteJobResult { success = true, message = "Zadania zostaly pomyslnie usuniete" };
             }
-            return new DeleteJobResult { success = false, message = "Nie uda³o siê usun¹æ zadañ" };
+            return new DeleteJobResult { success = false, message = "Nie udalo sie usunac zadan" };
         }
         catch
         {
-            return new DeleteJobResult { success = false, message = "B³¹d podczas usuwania zadañ" };
+            return new DeleteJobResult { success = false, message = "Blad podczas usuwania zadan" };
         }
     }
 

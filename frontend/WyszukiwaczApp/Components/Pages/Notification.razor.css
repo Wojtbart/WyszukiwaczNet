@@ -360,3 +360,48 @@
     justify-content: center !important;
     border-radius: 12px !important;
 }
+
+/* ── Active jobs ─────────────────────────────────────────── */
+.job-item {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.job-item:last-child {
+    border-bottom: none;
+}
+
+.job-phrase {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.job-cron {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-family: monospace;
+}
+
+.job-next {
+    font-size: 0.75rem;
+    color: #374151;
+}
+
+.job-state {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+}
+
+.job-state--ok  { background: #dcfce7; color: #15803d; }
+.job-state--err { background: #fee2e2; color: #b91c1c; }

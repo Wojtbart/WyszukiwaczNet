@@ -8,10 +8,10 @@ public class LoginProxy
 {
     private readonly HttpClient _httpClient;
 
-    public LoginProxy(HttpClient httpClient)
+    public LoginProxy(HttpClient httpClient, ApiConfig apiConfig)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5012/api/");
+        _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
     }
 
     public async Task<UserInfo?> GetUser(string username)

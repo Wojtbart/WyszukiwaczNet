@@ -117,3 +117,13 @@ public class NotificationFeedItemDto
     public string? Status { get; set; }
     public DateTime CreatedAt { get; set; }
 }
+
+public class UserJobDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Phrase { get; set; } = string.Empty;
+    public string Cron { get; set; } = string.Empty;
+    public DateTime? NextExecution { get; set; }
+    public DateTime? LastExecution { get; set; }
+    public string? LastState { get; set; }
+}

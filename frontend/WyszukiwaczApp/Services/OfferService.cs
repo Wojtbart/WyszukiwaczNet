@@ -8,10 +8,10 @@ public class OfferService
 {
     private readonly HttpClient _httpClient;
 
-    public OfferService(HttpClient httpClient)
+    public OfferService(HttpClient httpClient, ApiConfig apiConfig)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5012/api/");
+        _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
     }
 
     public async Task<List<OfferResponse>?> GetOffersByPlatformAsync(string platform)

@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using WyszukiwaczApp;
 using Blazored.Toast;
 using Radzen;
 using WyszukiwaczApp.Components;
@@ -7,6 +8,11 @@ using WyszukiwaczApp.Services;
 using WyszukiwaczApp.Proxies;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton(new ApiConfig
+{
+    BaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5012/api/"
+});
 
 builder.Services.AddRadzenComponents();
 

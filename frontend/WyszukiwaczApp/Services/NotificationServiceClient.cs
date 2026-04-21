@@ -8,10 +8,10 @@ public class NotificationServiceClient
 {
     private readonly HttpClient _httpClient;
 
-    public NotificationServiceClient(HttpClient httpClient)
+    public NotificationServiceClient(HttpClient httpClient, ApiConfig apiConfig)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5012/api/");
+        _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
     }
 
     public async Task<bool> ScheduleNotificationJobAsync(NotificationRequest request)

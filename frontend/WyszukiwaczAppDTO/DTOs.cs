@@ -177,3 +177,19 @@ public class NotificationFeedResponse
     public List<NotificationFeedItemDto>? Data { get; set; }
     public int UnreadCount { get; set; }
 }
+
+public class UserJobDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Phrase { get; set; } = string.Empty;
+    public string Cron { get; set; } = string.Empty;
+    public DateTime? NextExecution { get; set; }
+    public DateTime? LastExecution { get; set; }
+    public string? LastState { get; set; }
+}
+
+public class UserJobsResponse
+{
+    public bool Success { get; set; }
+    public List<UserJobDto>? Data { get; set; }
+}

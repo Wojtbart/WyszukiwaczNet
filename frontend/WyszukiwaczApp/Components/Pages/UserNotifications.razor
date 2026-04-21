@@ -2,8 +2,11 @@
 @layout MainLayout
 @using WyszukiwaczAppDTO
 @using WyszukiwaczApp
+@using WyszukiwaczApp.Proxies
 @inject UserService UserService
+@inject LoginProxy LoginProxy
 @inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <style>
     .feed-header {
@@ -142,7 +145,7 @@ else
     <div class="feed-list">
         @foreach (var item in items)
         {
-            <div class="feed-item @(item.Status == "new" ? "unread" : "")">
+            <div class="feed-item @(item.Status == "new" ? "unread" : "")" @onclick="() => MarkItemRead(item)">
                 @if (!string.IsNullOrEmpty(item.PlatformName))
                 {
                     <span class="feed-item-platform">@item.PlatformName</span>
@@ -174,13 +177,30 @@ else
     private List<NotificationFeedItemDto>? items;
     private int unreadCount;
     private bool isLoading = true;
+    private int userId;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!Globals.IsLogged || Globals.UserId == null)
+        if (!firstRender) return;
+
+        if (!Globals.IsLogged)
         {
             NavigationManager.NavigateTo("/login");
             return;
+        }
+
+        if (Globals.UserId.HasValue)
+        {
+            userId = Globals.UserId.Value;
+        }
+        else
+        {
+            var login = await LocalStorage.GetItemAsync<string>("login") ?? string.Empty;
+            if (string.IsNullOrEmpty(login)) { NavigationManager.NavigateTo("/login"); return; }
+            var userInfo = await LoginProxy.GetUser(login);
+            if (userInfo == null || userInfo.user_id <= 0) { NavigationManager.NavigateTo("/login"); return; }
+            userId = userInfo.user_id;
+            Globals.UserId = userId;
         }
 
         await LoadFeed();
@@ -189,17 +209,29 @@ else
     private async Task LoadFeed()
     {
         isLoading = true;
-        var result = await UserService.GetNotificationFeedAsync(Globals.UserId!.Value);
+        StateHasChanged();
+        var result = await UserService.GetNotificationFeedAsync(userId);
         items = result?.Data ?? new();
         unreadCount = result?.UnreadCount ?? 0;
         isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task MarkItemRead(NotificationFeedItemDto item)
+    {
+        if (item.Status != "new") return;
+        item.Status = "read";
+        unreadCount = Math.Max(0, unreadCount - 1);
+        Globals.NotifyNotificationsChanged();
+        await UserService.MarkNotificationReadAsync(userId, item.Id);
     }
 
     private async Task MarkAllRead()
     {
-        await UserService.MarkNotificationsReadAsync(Globals.UserId!.Value);
+        await UserService.MarkNotificationsReadAsync(userId);
         unreadCount = 0;
         if (items != null)
             foreach (var i in items) i.Status = "read";
+        Globals.NotifyNotificationsChanged();
     }
 }

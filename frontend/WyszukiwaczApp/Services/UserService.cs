@@ -9,10 +9,10 @@ public class UserService
 {
     private readonly HttpClient _httpClient;
 
-    public UserService(HttpClient httpClient)
+    public UserService(HttpClient httpClient, ApiConfig apiConfig)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5012/api/");
+        _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
     }
 
     public void SetAuthToken(string token)
@@ -278,6 +278,15 @@ public class UserService
         try
         {
             await _httpClient.PostAsync($"users/{userId}/feed/read", null);
+        }
+        catch { }
+    }
+
+    public async Task MarkNotificationReadAsync(int userId, int notificationId)
+    {
+        try
+        {
+            await _httpClient.PostAsync($"users/{userId}/feed/{notificationId}/read", null);
         }
         catch { }
     }

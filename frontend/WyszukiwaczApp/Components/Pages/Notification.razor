@@ -253,6 +253,47 @@
                               ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium"
                               class="n-btn-full" />
             </div>
+
+            <!-- Active jobs card -->
+            <div class="n-card" style="margin-top: 1rem;">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="work_history" class="n-card-icon" />
+                    <span>Aktywne zadania</span>
+                    <RadzenButton Click="LoadJobs" Icon="refresh" ButtonStyle="ButtonStyle.Light"
+                                  Size="ButtonSize.Small" style="margin-left:auto;" />
+                </div>
+                <div class="n-card-body">
+                    @if (userJobs == null)
+                    {
+                        <span style="color:#888;font-size:0.85rem;">Ładowanie...</span>
+                    }
+                    else if (!userJobs.Any())
+                    {
+                        <span style="color:#888;font-size:0.85rem;">Brak aktywnych zadań.</span>
+                    }
+                    else
+                    {
+                        @foreach (var job in userJobs)
+                        {
+                            <div class="job-item">
+                                <div class="job-phrase">@(string.IsNullOrWhiteSpace(job.Phrase) ? job.Id : job.Phrase)</div>
+                                <div class="job-meta">
+                                    <span class="job-cron" title="Cron">⏱ @job.Cron</span>
+                                    @if (job.NextExecution.HasValue)
+                                    {
+                                        <span class="job-next">→ @job.NextExecution.Value.ToLocalTime().ToString("dd.MM HH:mm")</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(job.LastState))
+                                    {
+                                        var stateClass = job.LastState == "Succeeded" ? "job-state--ok" : "job-state--err";
+                                        <span class="job-state @stateClass">@job.LastState</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
         </div>
 
     </div>
@@ -260,6 +301,7 @@
 
 @code {
     private object formData = new();
+    private List<UserJobDto>? userJobs;
 
     private int userId;
     private int _emailChannelId;
@@ -377,6 +419,8 @@
             .Where(name => !string.IsNullOrEmpty(name))
             .ToList();
 
+        await LoadJobs();
+
         var savedConfig = await UserService.GetNotificationConfigAsync(userId);
         if (savedConfig != null)
         {
@@ -399,6 +443,14 @@
                 }
             }
         }
+    }
+
+    private async Task LoadJobs()
+    {
+        if (userId <= 0) return;
+        var result = await NotificationProxy.GetJobsForUser(userId);
+        userJobs = result?.Data ?? new();
+        StateHasChanged();
     }
 
     private async Task SaveConfiguration()

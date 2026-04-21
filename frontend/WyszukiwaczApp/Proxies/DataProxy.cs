@@ -9,10 +9,10 @@ public class DataProxy
 {
     private readonly HttpClient _httpClient;
 
-    public DataProxy(HttpClient httpClient)
+    public DataProxy(HttpClient httpClient, ApiConfig apiConfig)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:5012/api/");
+        _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
     }
 
     public async Task<ApiResponse<UserConfigurationData>?> GetUserConfiguration(string username)
@@ -23,13 +23,13 @@ public class DataProxy
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-                return new ApiResponse<UserConfigurationData> { Success = false, Message = "Nie uda³o siê pobraæ konfiguracji" };
+                return new ApiResponse<UserConfigurationData> { Success = false, Message = "Nie udaï¿½o siï¿½ pobraï¿½ konfiguracji" };
 
             return new ApiResponse<UserConfigurationData> { Success = true, Data = JsonConvert.DeserializeObject<UserConfigurationData>(content) };
         }
         catch
         {
-            return new ApiResponse<UserConfigurationData> { Success = false, Message = "yst¹pi³ b³¹d podczas pobierania konfiguracji" };
+            return new ApiResponse<UserConfigurationData> { Success = false, Message = "ystï¿½piï¿½ bï¿½ï¿½d podczas pobierania konfiguracji" };
         }
     }
 
@@ -45,7 +45,7 @@ public class DataProxy
         }
         catch
         {
-            return new ApiResponse<object> { Success = false, Message = "Wyst¹pi³ b³¹d podczas zapisywania konfiguracji" };
+            return new ApiResponse<object> { Success = false, Message = "Wystï¿½piï¿½ bï¿½ï¿½d podczas zapisywania konfiguracji" };
         }
     }
 

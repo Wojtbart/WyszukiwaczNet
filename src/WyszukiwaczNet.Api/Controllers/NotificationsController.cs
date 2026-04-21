@@ -57,6 +57,21 @@ public class NotificationsController : ControllerBase
         }
     }
 
+    [HttpGet("jobsForUser/{userId}")]
+    public IActionResult GetJobsForUser(int userId)
+    {
+        try
+        {
+            var jobs = _notificationJob.GetJobsForUser(userId);
+            return Ok(new { success = true, data = jobs });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd podczas pobierania zadań użytkownika {UserId}", userId);
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
     [HttpPost("deleteJobsForUser")]
     public IActionResult DeleteJobsForUser([FromBody] int userId)
     {

@@ -23,6 +23,7 @@ public interface IUserRepository
     Task<List<Notification>> GetNotificationFeedAsync(int userId, int limit = 100);
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
+    Task MarkSingleNotificationReadAsync(int notificationId);
     Task<User?> ValidateCredentialsAsync(string login, string password);
 }
 
@@ -175,6 +176,13 @@ public class UserRepository : IUserRepository
     {
         await _context.Notifications
             .Where(n => n.UserId == userId && n.Status == "new")
+            .ExecuteUpdateAsync(s => s.SetProperty(n => n.Status, "read"));
+    }
+
+    public async Task MarkSingleNotificationReadAsync(int notificationId)
+    {
+        await _context.Notifications
+            .Where(n => n.Id == notificationId && n.Status == "new")
             .ExecuteUpdateAsync(s => s.SetProperty(n => n.Status, "read"));
     }
 

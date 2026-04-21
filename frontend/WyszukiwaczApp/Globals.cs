@@ -6,5 +6,9 @@ namespace WyszukiwaczApp
         public static string Login { get; set; } = string.Empty;
         public static int? UserId { get; set; }
         public static string? AuthToken { get; set; }
+
+        public static event Action? NotificationsChanged;
+
+        public static void NotifyNotificationsChanged() => NotificationsChanged?.Invoke();
     }
 }

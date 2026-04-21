@@ -14,6 +14,7 @@ public interface INotificationJob
     string EnqueueJob(NotificationRequest request);
     string EnqueueRecurringJob(NotificationRequest request);
     int DeleteJobsForUser(int userId);
+    List<UserJobDto> GetJobsForUser(int userId);
 }
 
 public class NotificationJob : INotificationJob
@@ -156,6 +157,36 @@ public class NotificationJob : INotificationJob
         }
 
         return deleted;
+    }
+
+    public List<UserJobDto> GetJobsForUser(int userId)
+    {
+        var prefix = $"{JobPrefix}_{userId}_";
+
+        using var connection = JobStorage.Current.GetConnection();
+        var recurringJobs = connection.GetRecurringJobs();
+
+        return recurringJobs
+            .Where(j => j.Id.StartsWith(prefix))
+            .Select(j =>
+            {
+                var afterPrefix = j.Id.Length > prefix.Length ? j.Id[prefix.Length..] : string.Empty;
+                var parts = afterPrefix.Split('_');
+                var phrase = parts.Length > 5
+                    ? string.Join(" ", parts[..^5]).Replace("_", " ").Trim()
+                    : afterPrefix;
+
+                return new UserJobDto
+                {
+                    Id = j.Id,
+                    Phrase = phrase,
+                    Cron = j.Cron,
+                    NextExecution = j.NextExecution,
+                    LastExecution = j.LastExecution,
+                    LastState = j.LastJobState
+                };
+            })
+            .ToList();
     }
 
     private static string BuildJobId(int userId, string phrase)
