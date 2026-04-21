@@ -1,6 +1,5 @@
 using Blazored.LocalStorage;
 using WyszukiwaczApp;
-using Blazored.Toast;
 using Radzen;
 using WyszukiwaczApp.Components;
 using WyszukiwaczApp.Other;
@@ -20,7 +19,6 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddHttpClient();
-builder.Services.AddBlazoredToast();
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<ApiClient>();

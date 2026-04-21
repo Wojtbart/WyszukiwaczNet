@@ -49,7 +49,6 @@ public class NotificationProxy
             var json = JsonConvert.SerializeObject(model.user_id);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("notifications/deleteJobsForUser", content);
-            var responseContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {

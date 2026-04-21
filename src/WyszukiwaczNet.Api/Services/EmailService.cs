@@ -69,7 +69,7 @@ public class EmailService : IEmailService
         var senderPassword= _configuration.GetValue<string>("EmailSettings:Password");
 
 
-        message.From.Add(new MailboxAddress("Offers", senderMail ?? string.Empty));
+        message.From.Add(new MailboxAddress("Oferty sprzedażowe", senderMail ?? string.Empty));
         message.To.Add(MailboxAddress.Parse(to));
         message.Subject = subject;
 

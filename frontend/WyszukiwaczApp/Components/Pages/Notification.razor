@@ -549,7 +549,7 @@
         var result = await NotificationProxy.DeleteJobs(new DeleteJobModel { user_id = userId });
 
         if (result.success)
-            NotificationService.Notify(NotificationSeverity.Success, result.message);
+            NotificationService.Notify(NotificationSeverity.Success, result.message ?? "Sucess");
         else
             NotificationService.Notify(NotificationSeverity.Error, result.message ?? "Błąd podczas usuwania jobów.");
     }
