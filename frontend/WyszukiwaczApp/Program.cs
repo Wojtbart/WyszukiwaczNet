@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using WyszukiwaczApp;
+using WyszukiwaczApp.Proxies;
 using Radzen;
 using WyszukiwaczApp.Components;
 using WyszukiwaczApp.Other;
@@ -18,8 +19,10 @@ builder.Services.AddRadzenComponents();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddTransient<AuthTokenHandler>();
+builder.Services.AddHttpClient(string.Empty)
+    .AddHttpMessageHandler<AuthTokenHandler>();
 
 builder.Services.AddScoped<ApiClient>();
 builder.Services.AddScoped<UserService>();

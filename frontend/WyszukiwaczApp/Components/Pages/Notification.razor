@@ -395,15 +395,25 @@
         StateHasChanged();
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        string username = await LocalStorage.GetItemAsync<string>("login") ?? string.Empty;
-        if (string.IsNullOrEmpty(username)) return;
+        if (!firstRender) return;
 
-        var userInfo = await LoginProxy.GetUser(username);
-        if (userInfo == null || userInfo.user_id <= 0) return;
+        if (!Globals.IsLogged) { Navigation.NavigateTo("/login"); return; }
 
-        userId = userInfo.user_id;
+        if (Globals.UserId.HasValue)
+        {
+            userId = Globals.UserId.Value;
+        }
+        else
+        {
+            var login = await LocalStorage.GetItemAsync<string>("login") ?? string.Empty;
+            if (string.IsNullOrEmpty(login)) { Navigation.NavigateTo("/login"); return; }
+            var userInfo = await LoginProxy.GetUser(login);
+            if (userInfo == null || userInfo.user_id <= 0) { Navigation.NavigateTo("/login"); return; }
+            userId = userInfo.user_id;
+            Globals.UserId = userId;
+        }
 
         allChannels = await UserService.GetAllChannelsAsync() ?? new();
         allPlatforms = await UserService.GetAllPlatformsAsync() ?? new();
@@ -458,6 +468,8 @@
                 }
             }
         }
+
+        StateHasChanged();
     }
 
     private async Task LoadJobs()

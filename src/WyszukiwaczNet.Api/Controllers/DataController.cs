@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WyszukiwaczNet.Api.DTOs;
 using WyszukiwaczNet.Api.Services;
@@ -5,6 +6,7 @@ using WyszukiwaczNet.Api.Services;
 namespace WyszukiwaczNet.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class DataController : ControllerBase
 {

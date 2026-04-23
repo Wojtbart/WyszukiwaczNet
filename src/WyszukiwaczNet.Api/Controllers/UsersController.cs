@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WyszukiwaczNet.Api.DTOs;
 using WyszukiwaczNet.Api.Services;
@@ -5,6 +6,7 @@ using WyszukiwaczNet.Api.Services;
 namespace WyszukiwaczNet.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
@@ -17,6 +19,7 @@ public class UsersController : ControllerBase
         _logger = logger;
     }
 
+    [AllowAnonymous]
     [HttpPost("registerUser")]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
@@ -42,6 +45,7 @@ public class UsersController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {

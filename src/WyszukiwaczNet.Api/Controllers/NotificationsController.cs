@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WyszukiwaczNet.Api.DTOs;
 using WyszukiwaczNet.Api.Jobs;
@@ -7,6 +8,7 @@ using WyszukiwaczNet.Api.Services;
 namespace WyszukiwaczNet.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class NotificationsController : ControllerBase
 {
