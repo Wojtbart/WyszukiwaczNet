@@ -109,7 +109,7 @@ def get_data_and_insert(cnx, phrase):
     platform_id = get_platform_id(cnx, "sprzedajemy")
 
     final_phrase = "/".join(phrase).lower()
-    URL = f"https://sprzedajemy.pl/motoryzacja/samochody-osobowe/{final_phrase}"
+    URL = f"https://sprzedajemy.pl/motoryzacja/samochody-osobowe/{final_phrase}?offset=0&sort=inp_srt_date_d" #bierzemy najnowsze oferty
 
     response = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(response.content, "html.parser")

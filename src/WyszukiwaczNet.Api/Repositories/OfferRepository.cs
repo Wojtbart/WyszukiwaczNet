@@ -31,20 +31,22 @@ public class OfferRepository : IOfferRepository
             .Include(o => o.VehicleDetail)
             .Include(o => o.Platform)
             .Where(o => o.PlatformId == platformId && o.Status == "active")
-            .OrderByDescending(o => o.CreatedAt)
+            .OrderBy(o => o.CreatedAt)
             .Take(limit)
             .ToListAsync();
     }
 
     public async Task<List<Offer>> GetNewOffersByPlatformAsync(int platformId, DateTime since, int limit = 100)
     {
-        return await _context.Offers
+        var offers = await _context.Offers
             .Include(o => o.VehicleDetail)
             .Include(o => o.Platform)
             .Where(o => o.PlatformId == platformId && o.Status == "active" && o.CreatedAt >= since)
-            .OrderByDescending(o => o.CreatedAt)
+            .OrderBy(o => o.CreatedAt)
             .Take(limit)
             .ToListAsync();
+
+        return offers;
     }
 
     public async Task<List<Offer>> GetRecentOffersAsync(int limit = 100)
@@ -53,7 +55,7 @@ public class OfferRepository : IOfferRepository
             .Include(o => o.VehicleDetail)
             .Include(o => o.Platform)
             .Where(o => o.Status == "active")
-            .OrderByDescending(o => o.CreatedAt)
+            .OrderBy(o => o.CreatedAt)
             .Take(limit)
             .ToListAsync();
     }

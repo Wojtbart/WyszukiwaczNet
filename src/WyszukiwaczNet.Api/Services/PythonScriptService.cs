@@ -90,7 +90,7 @@ public class PythonScriptService : IPythonScriptService
 
         if(recordsCount != 0)
         {
-            var platform = await _offerRepository.GetPlatformByNameAsync(platformName);
+            var platform = await _offerRepository.GetPlatformByNameAsync(platformName.ToLower());
             if (platform != null)
                 offers = await _offerRepository.GetNewOffersByPlatformAsync(platform.Id, startTime, limit);
             else

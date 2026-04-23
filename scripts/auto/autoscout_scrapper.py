@@ -132,21 +132,13 @@ def get_data_and_insert(cnx, phrase):
     if not listings:
         print("Nothing found")
         return
-    print (listings)
     articles = listings.find_all("article")
 
     for listing in articles:
         # =====================
         # LINK
         # =====================
-        #link_tag = listing.find("a", href=True)
-        #link_tag = listing.select_one('a[class*="overlay_anchor"]')
-        #print (listing)
-        first_child = listing.contents
-        for el in first_child:
-            #print(el)
-            if el.name == "a" and el.has_attr("href"):
-                print(el["href"])
+        #AKTUALNIE JEST TUTAJ PROBLEM Z WYCIAGNIECIEM LINKU< GDY SCRAPUJĘ STRONE
         link_tag = listing.find("a", recursive=False)
         if not link_tag:
             continue

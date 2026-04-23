@@ -100,11 +100,11 @@
     <RadzenLabel Text="Gratka" Component="CheckBox4" Style="margin:0.3rem; vertical-align: middle;" />
     <RadzenCheckBox @bind-Value=@setGratkaGrid Name="CheckBox4" />
 </RadzenButton>
-<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+@* <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
     <RadzenImage Path="images/autoscout.png" Style="width: 2rem;height:2rem;" AlternateText="Autoscout" />
     <RadzenLabel Text="Autoscout" Component="CheckBox3" Style="margin:0.3rem; vertical-align: middle;" />
     <RadzenCheckBox @bind-Value=@setAutoscoutGrid Name="CheckBox3" />
-</RadzenButton>
+</RadzenButton> *@
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
     <RadzenImage Path="images/autocentrum.png" Style="width: 2rem;height:2rem;" AlternateText="Autocentrum" />
     <RadzenLabel Text="Autocentrum" Component="CheckBox5" Style="margin:0.3rem; vertical-align: middle;" />
@@ -281,7 +281,7 @@
     </RadzenDataGrid>
 }
 
-@if (setAutoscoutGrid)
+@* @if (setAutoscoutGrid)
 {
 
     <RadzenDataGrid Data="@autoscoutData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
@@ -336,7 +336,7 @@
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
-}
+} *@
 
 @if (setGratkaGrid)
 {

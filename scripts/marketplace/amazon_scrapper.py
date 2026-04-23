@@ -67,7 +67,8 @@ def get_data_and_insert(cnx, phrase):
     global COUNTER
 
     final_phrase = "+".join(phrase)
-    URL = f"https://www.amazon.pl/s?k={final_phrase}"
+    URL = f"https://www.amazon.pl/s?k={final_phrase}&s=date-desc-rank"
+    print(URL)
 
     page = requests.get(URL, headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",

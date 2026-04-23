@@ -110,7 +110,7 @@ def get_data_and_insert(cnx, phrase):
     platform_id = get_platform_id(cnx, "gratka")
 
     final_phrase = "/".join(phrase).lower()
-    URL = f"https://gratka.pl/motoryzacja/osobowe/{final_phrase}"
+    URL = f"https://gratka.pl/motoryzacja/osobowe/{final_phrase}?sort=newest"
 
     page = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(page.content, "html.parser")

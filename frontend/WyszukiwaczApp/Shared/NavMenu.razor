@@ -112,28 +112,28 @@
     <div class="nav-brand">
         🔍 Wyszukiwacz
     </div>
-    
+
     <ul class="nav-links">
         <li>
-            <NavLink href="/" class="nav-link" Match="NavLinkMatch.All">
+            <NavLink href="/" class="nav-link" Match="NavLinkMatch.All" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">🏠</span>
                 Strona główna
             </NavLink>
         </li>
         <li>
-            <NavLink href="/offers" class="nav-link">
+            <NavLink href="/offers" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">📋</span>
                 Oferty
             </NavLink>
         </li>
         <li>
-            <NavLink href="/categories" class="nav-link">
+            <NavLink href="/categories" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">📁</span>
                 Kategorie
             </NavLink>
         </li>
         <li>
-            <NavLink href="/powiadomienia" class="nav-link">
+            <NavLink href="/powiadomienia" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">🔔</span>
                 Powiadomienia
                 @if (unreadCount > 0)
@@ -144,32 +144,32 @@
         </li>
 
         <div class="nav-divider"></div>
-        
+
         <li>
-            <NavLink href="/notification" class="nav-link">
+            <NavLink href="/notification" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">🔔</span>
                 Ustawienia powiadomień
             </NavLink>
         </li>
-        <li>
-            <NavLink href="/history" class="nav-link">
+        @* <li>
+            <NavLink href="/history" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">📜</span>
                 Historia
             </NavLink>
-        </li>
-        
+        </li> *@
+
         <div class="nav-divider"></div>
-        
+
         @if (!Globals.IsLogged)
         {
             <li>
-                <NavLink href="/login" class="nav-link">
+                <NavLink href="/login" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                     <span class="nav-link-icon">🔑</span>
                     Logowanie
                 </NavLink>
             </li>
             <li>
-                <NavLink href="/register" class="nav-link">
+                <NavLink href="/register" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                     <span class="nav-link-icon">📝</span>
                     Rejestracja
                 </NavLink>
@@ -195,6 +195,8 @@
 </div>
 
 @code {
+    [Parameter] public EventCallback OnLinkClicked { get; set; }
+
     private int unreadCount;
     private Timer? _timer;
 

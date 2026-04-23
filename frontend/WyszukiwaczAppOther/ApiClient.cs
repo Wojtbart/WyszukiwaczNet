@@ -16,7 +16,7 @@ public class ApiClient
     {
         _navigationManager = navigationManager;
 
-        var baseAddress = configuration?["apiAddress"] ?? "http://localhost:5012/api/";
+        var baseAddress = configuration?["ApiBaseUrl"] ?? "http://localhost:5012/api/";
         
         if (!baseAddress.EndsWith("/"))
             baseAddress += "/";
@@ -79,7 +79,7 @@ public class ApiClient
 
             if (!responseMessage.IsSuccessStatusCode)
             {
-                Console.WriteLine($"API Error: {responseMessage.StatusCode} - {responseContent}");
+                Console.WriteLine($"B³¹d API: {responseMessage.StatusCode} - {responseContent}");
                 return new ApiResponse<T>
                 {
                     Success = false,
@@ -91,7 +91,7 @@ public class ApiClient
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Request Exception: {ex.Message}");
+            Console.WriteLine($"Request wyj¹tek: {ex.Message}");
             return new ApiResponse<T>
             {
                 Success = false,

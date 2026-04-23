@@ -33,7 +33,7 @@ public class OfferService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"GetOffersByPlatformAsync error: {ex.Message}");
+            Console.WriteLine($"B³¹d funkcji GetOffersByPlatformAsync: {ex.Message}");
             return null;
         }
     }

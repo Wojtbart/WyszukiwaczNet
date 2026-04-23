@@ -81,31 +81,43 @@ def generate_otodom_url(transaction_type, city):
 def scrape_otodom(cnx, phrase):
     global COUNTER
 
-    params = {
-        "by": "DEFAULT",
-        "direction": "DESC",
-        "viewType": "listing"
-    }
-
     transaction_type = "wynajem"
+    is_prywatne = False
+    is_publiczne = False
+    is_ostatnie24h = False
 
     for elem in phrase:
-
         if elem == "sprzedaz":
             transaction_type = "sprzedaz"
-
-        if elem == "wynajem":
+        elif elem == "wynajem":
             transaction_type = "wynajem"
-
-        if elem == "ostatnie24h":
-            params["daysSinceCreated"] = "1"
-
         if elem == "prywatne":
+            is_prywatne = True
+        if elem == "publiczne":
+            is_publiczne = True
+        if elem == "ostatnie24h":
+            is_ostatnie24h = True
+
+    params = {}
+
+    if is_ostatnie24h:
+        params["daysSinceCreated"] = "1"
+
+    if transaction_type == "wynajem":
+        if is_prywatne:
             params["extras"] = "[IS_PRIVATE_OWNER]"
+    else:  # sprzedaz
+        if is_prywatne:
+            params["ownerTypeSingleSelect"] = "PRIVATE"
+        elif is_publiczne:
+            params["ownerTypeSingleSelect"] = "ALL"
+
+    params["by"] = "LATEST"
+    params["direction"] = "DESC"
 
     BASE_URL = generate_otodom_url(transaction_type, phrase[0])
-
     final_url = BASE_URL + "?" + urllib.parse.urlencode(params)
+    print(final_url)
 
     headers = {
         "User-Agent": "Mozilla/5.0",

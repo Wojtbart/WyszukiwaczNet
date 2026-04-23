@@ -96,7 +96,8 @@ def get_data_and_insert(cnx, phrase):
     global COUNTER
 
     final_phrase = "-".join(phrase).lower()
-    URL = f"https://www.olx.pl/oferty/q-{final_phrase}/"
+    URL = f"https://www.olx.pl/motoryzacja/q-{final_phrase}/?search%5Border%5D=created_at%3Adesc" # bierzemy najnowsze oferty
+    print(URL)
 
     page = requests.get(URL, headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",

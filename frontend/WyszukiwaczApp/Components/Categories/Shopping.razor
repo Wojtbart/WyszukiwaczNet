@@ -118,7 +118,7 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
-                <Template Context="context">@((int?)context.Price)</Template>
+                <Template Context="context">@(context.Price?.ToString("0.##"))</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="AdditionalInfo" Title="Dodatkowe informacje" TextAlign="TextAlign.Left" />
         </Columns>
@@ -155,7 +155,7 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
-                <Template Context="context">@((int?)context.Price)</Template>
+                <Template Context="context">@(context.Price?.ToString("0.##"))</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
                 <Template Context="context">

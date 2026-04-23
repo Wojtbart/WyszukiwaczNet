@@ -107,7 +107,7 @@ def get_data_and_insert(cnx, phrase):
 
     # (URL building zostaje prawie bez zmian)
     final_phrase = "/".join(phrase[:2]).lower()
-    URL = f"https://www.otomoto.pl/osobowe/{final_phrase}"
+    URL = f"https://www.otomoto.pl/osobowe/{final_phrase}?search%5Border%5D=created_at_first%3Adesc" #bierzemy najnowsze oferty
 
     page = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(page.content, "html.parser")

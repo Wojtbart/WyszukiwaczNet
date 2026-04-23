@@ -8,9 +8,14 @@
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
     <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+        <PageTitle>404 – Nie znaleziono</PageTitle>
+        <LayoutView Layout="@typeof(Shared.MainLayout)">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;gap:1rem;">
+                <div style="font-size:6rem;line-height:1;">🔍</div>
+                <h1 style="font-size:3rem;font-weight:700;color:#667eea;margin:0;">404</h1>
+                <p style="font-size:1.2rem;color:#555;">Tej strony nie ma. Sprawdź adres URL.</p>
+                <a href="/" style="margin-top:1rem;padding:0.6rem 1.5rem;background:#667eea;color:white;border-radius:8px;text-decoration:none;font-weight:500;">Wróć do strony głównej</a>
+            </div>
         </LayoutView>
     </NotFound>
 </Router>
@@ -42,12 +47,10 @@
                     Navigation.NavigateTo("register", forceLoad: false);
                 }
             }
-
-            Console.WriteLine("Navigation check completed");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error during navigation: " + ex.Message);
+            Console.WriteLine("Błąd podczas nawigacji: " + ex.Message);
         }
 
         await Task.CompletedTask;

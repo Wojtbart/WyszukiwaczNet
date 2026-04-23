@@ -98,7 +98,7 @@ def get_data_and_insert(cnx, phrase):
     global COUNTER
 
     final_phrase = "/".join(phrase).lower()
-    URL = f"https://www.autocentrum.pl/ogloszenia/{final_phrase}"
+    URL = f"https://www.autocentrum.pl/ogloszenia/{final_phrase}/?order=date-desc" # szukamy po dacie dodania od najnowszego
 
     page = requests.get(URL, headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
