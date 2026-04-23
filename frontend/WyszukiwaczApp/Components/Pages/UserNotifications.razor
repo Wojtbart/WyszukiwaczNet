@@ -183,25 +183,17 @@ else
     {
         if (!firstRender) return;
 
-        if (!Globals.IsLogged)
-        {
-            NavigationManager.NavigateTo("/login");
-            return;
-        }
+        var login = await LocalStorage.GetItemAsync<string>("login") ?? string.Empty;
+        var token = await LocalStorage.GetItemAsync<string>("authToken") ?? string.Empty;
+        if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(token)) { NavigationManager.NavigateTo("/login"); return; }
 
-        if (Globals.UserId.HasValue)
-        {
-            userId = Globals.UserId.Value;
-        }
-        else
-        {
-            var login = await LocalStorage.GetItemAsync<string>("login") ?? string.Empty;
-            if (string.IsNullOrEmpty(login)) { NavigationManager.NavigateTo("/login"); return; }
-            var userInfo = await LoginProxy.GetUser(login);
-            if (userInfo == null || userInfo.user_id <= 0) { NavigationManager.NavigateTo("/login"); return; }
-            userId = userInfo.user_id;
-            Globals.UserId = userId;
-        }
+        Globals.IsLogged = true;
+        Globals.AuthToken = token;
+
+        var userInfo = await LoginProxy.GetUser(login);
+        if (userInfo == null || userInfo.user_id <= 0) { NavigationManager.NavigateTo("/login"); return; }
+        userId = userInfo.user_id;
+        Globals.UserId = userId;
 
         await LoadFeed();
     }

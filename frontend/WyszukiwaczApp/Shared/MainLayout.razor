@@ -152,7 +152,14 @@ else
             Globals.IsLogged = true;
             Globals.AuthToken = token;
             Globals.Login = login ?? string.Empty;
-            StateHasChanged();
         }
+        else
+        {
+            Globals.IsLogged = false;
+            Globals.AuthToken = null;
+            Globals.Login = string.Empty;
+            Globals.UserId = null;
+        }
+        StateHasChanged();
     }
 }
