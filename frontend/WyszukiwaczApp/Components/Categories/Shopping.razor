@@ -191,6 +191,11 @@
             await DialogService.Alert("Wypełnij pole \"Szukany tekst\"");
             return;
         }
+        if (!Globals.IsPhraseValid(searchedText))
+        {
+            await DialogService.Alert("Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik.");
+            return;
+        }
 
         isLoading = true;
 

@@ -33,10 +33,15 @@ public class PythonScriptService : IPythonScriptService
         int limit = 100,
         CancellationToken cancellationToken = default)
     {
+        if (!IsPhraseValid(phrase))
+        {
+            _logger.LogWarning("Odrzucono niebezpieczna fraze: {Phrase}", phrase);
+            throw new ArgumentException("Fraza zawiera niedozwolone znaki.");
+        }
+
         var startInfo = new ProcessStartInfo
         {
             FileName = _pythonPath,
-            Arguments = $"\"{scriptPath}\" \"{phrase}\"",
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -44,6 +49,8 @@ public class PythonScriptService : IPythonScriptService
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
         };
+        startInfo.ArgumentList.Add(scriptPath);
+        startInfo.ArgumentList.Add(phrase);
 
         using var process = new Process { StartInfo = startInfo };
         var offers = new List<Offer>();
@@ -62,7 +69,7 @@ public class PythonScriptService : IPythonScriptService
                 errorBuilder.AppendLine(e.Data);
         };
 
-        _logger.LogInformation("Uruchomiono skrypt w jêzyku Python: {Script} za pomoc¹ frazy: {Phrase}", scriptPath, phrase);
+        _logger.LogInformation("Uruchomiono skrypt w jezyku Python: {Script} za pomocï¿½ frazy: {Phrase}", scriptPath, phrase);
 
         var startTime = DateTime.UtcNow;
         process.Start();
@@ -74,8 +81,8 @@ public class PythonScriptService : IPythonScriptService
         if (!completed)
         {
             process.Kill(true);
-            _logger.LogError("Przekroczono limit czasu skryptu w jêzyku Python: {Script}", scriptPath);
-            throw new TimeoutException($"Wykonywanie skryptu przekroczy³o limit czasu: {scriptPath}");
+            _logger.LogError("Przekroczono limit czasu skryptu w jezyku Python: {Script}", scriptPath);
+            throw new TimeoutException($"Wykonywanie skryptu przekroczylo limit czasu: {scriptPath}");
         }
 
         var output = outputBuilder.ToString();
@@ -86,7 +93,7 @@ public class PythonScriptService : IPythonScriptService
 
         var recordsCount = ParseRecordsCount(output);
 
-        _logger.LogInformation("Skrypt {Script} zakoñczono, uzyskuj¹c {Count} rekordów", scriptPath, recordsCount);
+        _logger.LogInformation("Skrypt {Script} zakobczono, uzyskujac {Count} rekordow", scriptPath, recordsCount);
 
         if(recordsCount != 0)
         {
@@ -123,6 +130,13 @@ public class PythonScriptService : IPythonScriptService
         }
 
         return (recordsCount, offers);
+    }
+
+    private static bool IsPhraseValid(string phrase)
+    {
+        if (string.IsNullOrWhiteSpace(phrase) || phrase.Length > 200)
+            return false;
+        return Regex.IsMatch(phrase, @"^[\p{L}\p{N}\s\-]+$");
     }
 
     private static int ParseRecordsCount(string output)

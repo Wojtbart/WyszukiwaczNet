@@ -516,6 +516,11 @@
             await DialogService.Alert("Wypełnij pole Marka lub Model.");
             return;
         }
+        if (!Globals.IsPhraseValid(SearchPhrase))
+        {
+            await DialogService.Alert("Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik.");
+            return;
+        }
 
         isLoading = true;
 

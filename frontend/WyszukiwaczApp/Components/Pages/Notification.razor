@@ -487,6 +487,11 @@
                 NotificationService.Notify(NotificationSeverity.Error, "Błąd: Nie podano szukanego tekstu.");
                 return;
             }
+            if (!Globals.IsPhraseValid(searchedText))
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Błąd: Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik.");
+                return;
+            }
             if (!selectedPlatforms.Any())
             {
                 NotificationService.Notify(NotificationSeverity.Error, "Błąd: Nie wybrano platformy do pobrania danych.");

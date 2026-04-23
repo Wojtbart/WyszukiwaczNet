@@ -229,7 +229,12 @@
 
         if (string.IsNullOrWhiteSpace(textBoxValue))
         {
-            await DialogService.Alert("Wypełnij pole „Szukane miasto”.");
+            await DialogService.Alert("Wypełnij pole Szukane miasto.");
+            return;
+        }
+        if (!Globals.IsPhraseValid(textBoxValue))
+        {
+            await DialogService.Alert("Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik.");
             return;
         }
 

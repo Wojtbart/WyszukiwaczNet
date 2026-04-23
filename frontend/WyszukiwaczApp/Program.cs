@@ -46,4 +46,10 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.MapFallback(context =>
+{
+    context.Response.Redirect("/404");
+    return Task.CompletedTask;
+});
+
 app.Run();
