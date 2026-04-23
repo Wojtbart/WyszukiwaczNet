@@ -105,6 +105,16 @@
                             </div>
                             <RadzenCheckBox TValue="bool" @bind-Value="isDiscordChecked" class="channel-toggle" />
                         </div>
+                        <div class="channel-item @(isInAppChecked ? "channel-item--active" : "")">
+                            <div class="channel-icon channel-icon--inapp">
+                                <RadzenIcon Icon="notifications" />
+                            </div>
+                            <div class="channel-info">
+                                <span class="channel-name">Tylko w aplikacji</span>
+                                <span class="channel-desc">Powiadomienia widoczne tylko w aplikacji</span>
+                            </div>
+                            <RadzenCheckBox TValue="bool" @bind-Value="isInAppChecked" class="channel-toggle" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -227,7 +237,8 @@
                             @if (isEmailChecked) { <span class="s-chip s-chip--email">Email</span> }
                             @if (isSMSChecked)   { <span class="s-chip s-chip--sms">SMS</span> }
                             @if (isDiscordChecked) { <span class="s-chip s-chip--discord">Discord</span> }
-                            @if (!isEmailChecked && !isSMSChecked && !isDiscordChecked)
+                            @if (isInAppChecked) { <span class="s-chip s-chip--inapp">W aplikacji</span> }
+                            @if (!isEmailChecked && !isSMSChecked && !isDiscordChecked && !isInAppChecked)
                             { <span class="summary-empty">Brak</span> }
                         </div>
                     </div>
@@ -307,6 +318,7 @@
     private int _emailChannelId;
     private int _smsChannelId;
     private int _discordChannelId;
+    private int _inAppChannelId;
 
     private List<UserNotificationSettingDto> notificationChannels = new();
     private List<UserPlatformSubscriptionDto> platformSubscriptions = new();
@@ -316,6 +328,7 @@
     private bool isSMSChecked = false;
     private bool isDiscordChecked = false;
     private bool isEmailChecked = false;
+    private bool isInAppChecked = false;
 
     private bool setSendingHourPreview = true;
     private bool repeatRequestAfterTimePreview = true;
@@ -401,6 +414,7 @@
             if (name.Contains("email")) _emailChannelId = channel.Id;
             else if (name.Contains("sms") || name.Contains("text")) _smsChannelId = channel.Id;
             else if (name.Contains("discord")) _discordChannelId = channel.Id;
+            else if (name.Contains("inapp") || name.Contains("app")) _inAppChannelId = channel.Id;
         }
 
         notificationChannels = await UserService.GetUserNotificationSettingsAsync(userId) ?? new();
@@ -410,6 +424,7 @@
             if (name.Contains("email")) isEmailChecked = channel.Enabled;
             else if (name.Contains("sms") || name.Contains("text")) isSMSChecked = channel.Enabled;
             else if (name.Contains("discord")) isDiscordChecked = channel.Enabled;
+            else if (name.Contains("inapp") || name.Contains("app")) isInAppChecked = channel.Enabled;
         }
 
         platformSubscriptions = await UserService.GetUserPlatformSubscriptionsAsync(userId) ?? new();
@@ -493,6 +508,8 @@
                 await UserService.UpdateNotificationSettingAsync(userId, _smsChannelId, isSMSChecked);
             if (_discordChannelId > 0)
                 await UserService.UpdateNotificationSettingAsync(userId, _discordChannelId, isDiscordChecked);
+            if (_inAppChannelId > 0)
+                await UserService.UpdateNotificationSettingAsync(userId, _inAppChannelId, isInAppChecked);
 
             foreach (var platform in allPlatforms)
             {
@@ -525,6 +542,7 @@
                 Email = isEmailChecked,
                 Sms = isSMSChecked,
                 Discord = isDiscordChecked,
+                InApp = isInAppChecked,
                 Websites = selectedPlatforms.Select(p => p.ToLower()).ToList()
             };
 

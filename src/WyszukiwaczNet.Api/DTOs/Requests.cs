@@ -55,7 +55,8 @@ public record NotificationRequest(
     int? RepeatAfterSpecifiedTime,
     bool Email,
     bool Sms,
-    bool Discord
+    bool Discord,
+    bool InApp
 );
 
 public record OfferResponse(

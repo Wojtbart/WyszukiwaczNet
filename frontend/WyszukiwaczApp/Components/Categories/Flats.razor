@@ -97,6 +97,7 @@
             <RadzenColumn Size="12" SizeMD="4">
                 <RadzenLabel Text="Co ile minut wysłać powiadomienie?" />
                 <RadzenNumeric @bind-Value="notificationInterval"
+                               InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })"
                                Min="1"
                                Placeholder="np. 15"
                                Style="width:100%;" />

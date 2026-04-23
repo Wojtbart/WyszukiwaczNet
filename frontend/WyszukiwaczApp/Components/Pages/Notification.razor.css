@@ -186,6 +186,7 @@
 .channel-icon--email   { background: #007bff; }
 .channel-icon--sms     { background: #22c55e; }
 .channel-icon--discord { background: #7c3aed; }
+.channel-icon--inapp   { background: #f59e0b; }
 
 .channel-info {
     display: flex;
@@ -346,6 +347,7 @@
 .s-chip--email    { background: #dbeafe; color: #1d4ed8; }
 .s-chip--sms      { background: #dcfce7; color: #15803d; }
 .s-chip--discord  { background: #ede9fe; color: #6d28d9; }
+.s-chip--inapp    { background: #fef3c7; color: #b45309; }
 .s-chip--platform { background: #f0f9ff; color: #0369a1; }
 
 /* ── Action buttons ──────────────────────────────────────── */

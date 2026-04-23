@@ -109,7 +109,7 @@ public class NotificationJob : INotificationJob
         {
             UserId = request.UserId,
             OfferId = o.Id,
-            Channel = request.Email ? "email" : request.Sms ? "sms" : "discord",
+            Channel = request.Email ? "email" : request.Sms ? "sms" : request.Discord ? "discord" : "inapp",
             Status = "new",
             CreatedAt = DateTime.UtcNow
         }).ToList();

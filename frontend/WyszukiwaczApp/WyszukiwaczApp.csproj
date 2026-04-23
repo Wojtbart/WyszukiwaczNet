@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.9" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="Radzen.Blazor" Version="10.3.0" />
+    <PackageReference Include="Radzen.Blazor" Version="4.30.0" />
     <PackageReference Include="System.Formats.Asn1" Version="10.0.7" />
   </ItemGroup>
 
