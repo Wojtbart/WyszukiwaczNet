@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /register
+Allow: /login
+
+Disallow: /cars
+Disallow: /flats
+Disallow: /shopping
+Disallow: /offers
+Disallow: /categories
+Disallow: /notification
+Disallow: /powiadomienia
+Disallow: /history
+
+Sitemap: https://wyszukiwacz.pl/sitemap.xml

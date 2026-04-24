@@ -1,237 +1,921 @@
 @page "/"
+@layout PublicLayout
 @inject NavigationManager Navigation
 
-<PageTitle>Strona główna - Wyszukiwacz</PageTitle>
+<PageTitle>Wyszukiwacz – Agregator Ogłoszeń: Auta, Mieszkania, Zakupy | Alerty i Powiadomienia</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="Wyszukiwacz to polski agregator ogłoszeń. Szukaj aut na Otomoto i OLX, mieszkań na Otodom, produktów na Amazon – wszystko w jednym miejscu. Ustaw alert i bądź pierwszy przy nowych ofertach." />
+    <meta name="keywords" content="agregator ogłoszeń, wyszukiwarka ogłoszeń, alerty ogłoszeń, powiadomienia otomoto, alert OLX, otodom alert, wyszukiwarka samochodów używanych, mieszkania Polska, monitoring cen amazon" />
+    <meta property="og:title" content="Wyszukiwacz – Agregator Ogłoszeń dla Polski" />
+    <meta property="og:description" content="Szukaj aut, mieszkań i produktów na Otomoto, OLX, Otodom, Amazon i dziesiątkach innych portali jednocześnie. Ustaw alert i nigdy nie przegap okazji." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Wyszukiwacz" />
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@graph": [
+        {
+          "@@type": "WebSite",
+          "name": "Wyszukiwacz",
+          "description": "Polski agregator ogłoszeń – samochody, mieszkania, zakupy. Alerty o nowych ofertach z Otomoto, OLX, Otodom i Amazon.",
+          "inLanguage": "pl-PL",
+          "potentialAction": {
+            "@@type": "SearchAction",
+            "target": {
+              "@@type": "EntryPoint",
+              "urlTemplate": "/cars?phrase={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@@type": "SoftwareApplication",
+          "name": "Wyszukiwacz",
+          "applicationCategory": "SearchApplication",
+          "operatingSystem": "Web",
+          "description": "Agregator ogłoszeń i alertów dla Polski. Przeszukuj OLX, Otomoto, Otodom, Amazon i wiele innych portali w jednym miejscu.",
+          "offers": {
+            "@@type": "Offer",
+            "price": "0",
+            "priceCurrency": "PLN"
+          }
+        },
+        {
+          "@@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@@type": "Question",
+              "name": "Jak działa Wyszukiwacz?",
+              "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Wyszukiwacz automatycznie przeszukuje dziesiątki polskich portali ogłoszeniowych jednocześnie. Wpisujesz frazę, wybierasz kategorię i filtry – a my zbieramy dla Ciebie wyniki z OLX, Otomoto, Otodom, Amazon i wielu innych."
+              }
+            },
+            {
+              "@@type": "Question",
+              "name": "Które portale ogłoszeniowe są obsługiwane?",
+              "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Obsługujemy największe polskie portale ogłoszeniowe: samochody – Otomoto, OLX, Gratka, Sprzedajemy, AutoScout24, Autocentrum; nieruchomości – Otodom; zakupy – Amazon i inne serwisy e-commerce."
+              }
+            },
+            {
+              "@@type": "Question",
+              "name": "Jak ustawić alert na nowe ogłoszenia?",
+              "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Po zalogowaniu przejdź do sekcji Powiadomienia, wpisz frazę i wybierz kategorię. Gdy pojawi się nowe ogłoszenie pasujące do Twoich kryteriów, natychmiast otrzymasz powiadomienie w aplikacji."
+              }
+            },
+            {
+              "@@type": "Question",
+              "name": "Czy Wyszukiwacz jest bezpłatny?",
+              "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Tak, rejestracja i korzystanie z Wyszukiwacza jest całkowicie bezpłatne. Możesz przeszukiwać ogłoszenia i ustawiać alerty bez żadnych opłat."
+              }
+            },
+            {
+              "@@type": "Question",
+              "name": "Czy mogę szukać na Otomoto i OLX jednocześnie?",
+              "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Tak! To główna zaleta Wyszukiwacza. Jedno zapytanie przeszukuje równolegle Otomoto, OLX, Gratka i inne portale motoryzacyjne, pokazując wyniki w jednym widoku."
+              }
+            },
+            {
+              "@@type": "Question",
+              "name": "Jak szybko dostaję powiadomienie o nowym ogłoszeniu?",
+              "acceptedAnswer": {
+                "@@type": "Answer",
+                "text": "Powiadomienia są wysyłane na bieżąco gdy tylko system wykryje nowe ogłoszenie pasujące do Twojego alertu. Dzięki temu możesz reagować jako jeden z pierwszych."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+</HeadContent>
 
 <style>
-    .home-container {
-        padding: 2rem;
-        max-width: 1200px;
+    /* ===== HERO ===== */
+    .lp-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        padding: 5rem 1.5rem 6rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .lp-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+    }
+
+    .lp-hero-inner {
+        position: relative;
+        max-width: 780px;
         margin: 0 auto;
     }
-    
-    .hero-section {
-        text-align: center;
-        padding: 3rem 1rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 20px;
-        color: white;
-        margin-bottom: 2rem;
-    }
-    
-    .hero-section h1 {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        font-weight: 700;
-    }
-    
-    .hero-section p {
-        font-size: 1.2rem;
-        opacity: 0.9;
-        max-width: 600px;
-        margin: 0 auto 1.5rem;
-    }
-    
-    .btn-primary {
+
+    .lp-hero-badge {
         display: inline-block;
-        padding: 1rem 2rem;
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        padding: 0.35rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.3px;
+    }
+
+    .lp-hero h1 {
+        font-size: clamp(2rem, 5vw, 3.2rem);
+        font-weight: 800;
+        line-height: 1.15;
+        margin: 0 0 1.2rem;
+        letter-spacing: -1px;
+    }
+
+    .lp-hero-sub {
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        opacity: 0.88;
+        line-height: 1.65;
+        max-width: 600px;
+        margin: 0 auto 2.5rem;
+    }
+
+    .lp-hero-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-hero-primary {
+        display: inline-block;
+        padding: 0.9rem 2.2rem;
         background: white;
         color: #667eea;
         border-radius: 50px;
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 1rem;
         transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
-    
-    .btn-primary:hover {
+
+    .btn-hero-primary:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.25);
     }
-    
-    .features-section {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+
+    .btn-hero-secondary {
+        display: inline-block;
+        padding: 0.9rem 2.2rem;
+        background: transparent;
+        color: white;
+        border: 2px solid rgba(255,255,255,0.6);
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s;
     }
-    
-    .feature-card {
+
+    .btn-hero-secondary:hover {
+        background: rgba(255,255,255,0.15);
+        border-color: white;
+    }
+
+    /* ===== PLATFORMS ===== */
+    .lp-platforms {
         background: white;
-        padding: 1.5rem;
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        padding: 2.5rem 1.5rem;
         text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
+        border-bottom: 1px solid #f0f0f0;
     }
-    
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+
+    .lp-platforms p {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #aaa;
+        font-weight: 600;
+        margin: 0 0 1.5rem;
     }
-    
-    .feature-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
+
+    .platforms-logos {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem 2.5rem;
+        max-width: 900px;
+        margin: 0 auto;
     }
-    
-    .feature-card h3 {
-        color: #333;
-        margin-bottom: 0.5rem;
+
+    .platform-logo-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #888;
+        font-weight: 700;
+        font-size: 1rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
     }
-    
-    .feature-card p {
+
+    .platform-logo-item:hover {
+        opacity: 1;
+    }
+
+    .platform-logo-item img {
+        height: 28px;
+        width: auto;
+        object-fit: contain;
+        filter: grayscale(100%);
+        transition: filter 0.2s;
+    }
+
+    .platform-logo-item:hover img {
+        filter: grayscale(0%);
+    }
+
+    /* ===== STATS ===== */
+    .lp-stats {
+        background: #f8f9ff;
+        padding: 3rem 1.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .stat-item strong {
+        display: block;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.1;
+        margin-bottom: 0.4rem;
+    }
+
+    .stat-item span {
+        color: #555;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .lp-how {
+        padding: 5rem 1.5rem;
+        background: white;
+    }
+
+    .section-header {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto 3.5rem;
+    }
+
+    .section-header h2 {
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+        font-weight: 800;
+        color: #1a1a2e;
+        margin: 0 0 0.75rem;
+        letter-spacing: -0.5px;
+    }
+
+    .section-header p {
+        color: #666;
+        font-size: 1.05rem;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .steps-grid::before {
+        content: '';
+        position: absolute;
+        top: 2.5rem;
+        left: calc(16.66% + 1rem);
+        right: calc(16.66% + 1rem);
+        height: 2px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        opacity: 0.25;
+    }
+
+    .step-card {
+        text-align: center;
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    .step-number {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 1.6rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.2rem;
+        box-shadow: 0 6px 20px rgba(102,126,234,0.3);
+    }
+
+    .step-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 0.5rem;
+    }
+
+    .step-card p {
         color: #666;
         font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0;
     }
-    
-    .categories-section {
-        margin-bottom: 2rem;
+
+    /* ===== FEATURES ===== */
+    .lp-features {
+        padding: 5rem 1.5rem;
+        background: #f8f9ff;
     }
-    
-    .categories-section h2 {
-        text-align: center;
-        margin-bottom: 1.5rem;
-        color: #333;
-    }
-    
-    .category-grid {
+
+    .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+        max-width: 1100px;
+        margin: 0 auto;
     }
-    
-    .category-card {
+
+    .feature-card {
         background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        text-align: center;
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all 0.2s;
-        text-decoration: none;
-        color: #333;
-    }
-    
-    .category-card:hover {
-        border-color: #667eea;
-        transform: translateY(-3px);
-    }
-    
-    .category-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .recent-offers {
-        margin-top: 2rem;
-    }
-    
-    .recent-offers h2 {
-        text-align: center;
-        margin-bottom: 1.5rem;
-        color: #333;
-    }
-    
-    .offers-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1rem;
-    }
-    
-    .offer-card {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         transition: transform 0.2s, box-shadow 0.2s;
     }
-    
-    .offer-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.1);
     }
-    
-    .offer-image {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        background: #f5f5f5;
+
+    .feature-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea15, #764ba215);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
     }
-    
-    .offer-content {
-        padding: 1rem;
-    }
-    
-    .offer-title {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.5rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    
-    .offer-price {
-        color: #667eea;
-        font-size: 1.25rem;
+
+    .feature-card h3 {
+        font-size: 1.05rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
+        color: #1a1a2e;
+        margin: 0 0 0.5rem;
     }
-    
-    .offer-location {
-        color: #888;
-        font-size: 0.85rem;
+
+    .feature-card p {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    /* ===== CATEGORIES ===== */
+    .lp-categories {
+        padding: 5rem 1.5rem;
+        background: white;
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .category-card-lp {
+        border-radius: 20px;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: block;
+        background: white;
+        border: 1px solid #f0f0f0;
+    }
+
+    .category-card-lp:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(102,126,234,0.2);
+        border-color: #667eea40;
+    }
+
+    .category-card-header {
+        padding: 2rem 1.75rem 1.5rem;
+        background: linear-gradient(135deg, #667eea0a, #764ba20a);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid #f0f0f5;
+    }
+
+    .category-emoji {
+        font-size: 2.5rem;
+        line-height: 1;
+    }
+
+    .category-card-header h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 0.2rem;
+    }
+
+    .category-card-header span {
+        font-size: 0.8rem;
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .category-card-body {
+        padding: 1.25rem 1.75rem;
+    }
+
+    .category-card-body p {
+        color: #555;
+        font-size: 0.9rem;
+        line-height: 1.65;
+        margin: 0 0 1rem;
+    }
+
+    .category-portals {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .portal-tag {
+        background: #f0ecff;
+        color: #764ba2;
+        border-radius: 20px;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* ===== FAQ ===== */
+    .lp-faq {
+        padding: 5rem 1.5rem;
+        background: #f8f9ff;
+    }
+
+    .faq-list {
+        max-width: 780px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .faq-item {
+        background: white;
+        border-radius: 0;
+        overflow: hidden;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .faq-item:first-child {
+        border-radius: 16px 16px 0 0;
+    }
+
+    .faq-item:last-child {
+        border-radius: 0 0 16px 16px;
+        border-bottom: none;
+    }
+
+    .faq-question {
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 1.25rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a2e;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        transition: background 0.15s;
+    }
+
+    .faq-question:hover {
+        background: #f8f9ff;
+    }
+
+    .faq-chevron {
+        font-size: 0.75rem;
+        color: #667eea;
+        transition: transform 0.25s;
+        flex-shrink: 0;
+    }
+
+    .faq-chevron.open {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        padding: 0 1.5rem 1.25rem;
+        color: #555;
+        font-size: 0.95rem;
+        line-height: 1.7;
+        display: none;
+    }
+
+    .faq-answer.open {
+        display: block;
+    }
+
+    /* ===== CTA ===== */
+    .lp-cta {
+        padding: 6rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        text-align: center;
+        color: white;
+    }
+
+    .lp-cta h2 {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 800;
+        margin: 0 0 1rem;
+        letter-spacing: -0.5px;
+    }
+
+    .lp-cta p {
+        font-size: 1.1rem;
+        opacity: 0.85;
+        margin: 0 auto 2.5rem;
+        max-width: 500px;
+        line-height: 1.65;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @@media (max-width: 900px) {
+        .steps-grid {
+            grid-template-columns: 1fr;
+            max-width: 400px;
+        }
+        .steps-grid::before { display: none; }
+        .categories-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .lp-hero {
+            padding: 3.5rem 1.25rem 4.5rem;
+        }
+        .stats-grid {
+            grid-template-columns: 1fr;
+            max-width: 300px;
+        }
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
-<div class="home-container">
-    <div class="hero-section">
-        <h1>Witaj w Wyszukiwacz!</h1>
-        <p>Twje centrum do wyszukiwania ofert z wielu serwisów. Znajdź samochody, mieszkania i nie tylko.</p>
-        <a href="/categories" class="btn-primary">Przeglądaj kategorie</a>
+<!-- HERO -->
+<section class="lp-hero" aria-label="Główne hasło">
+    <div class="lp-hero-inner">
+        <div class="lp-hero-badge">Bezpłatny agregator ogłoszeń dla Polski</div>
+        <h1>Jeden portal.<br />Wszystkie ogłoszenia.</h1>
+        <p class="lp-hero-sub">
+            Szukaj aut, mieszkań i produktów na OLX, Otomoto, Otodom, Amazon i dziesiątkach innych serwisów
+            – wszystko w jednym miejscu. Ustaw alert i nigdy nie przegap okazji.
+        </p>
+        <div class="lp-hero-actions">
+            <a href="/register" class="btn-hero-primary">Zarejestruj się bezpłatnie</a>
+            <a href="/login" class="btn-hero-secondary">Mam już konto</a>
+        </div>
+    </div>
+</section>
+
+<!-- PLATFORM LOGOS -->
+<section class="lp-platforms" aria-label="Obsługiwane portale">
+    <p>Przeszukujemy dla Ciebie</p>
+    <div class="platforms-logos" role="list">
+        <div class="platform-logo-item" role="listitem">
+            <img src="/images/otomoto.gif" alt="Otomoto" loading="lazy" />
+        </div>
+        <div class="platform-logo-item" role="listitem">
+            <img src="/images/olx.png" alt="OLX" loading="lazy" />
+        </div>
+        <div class="platform-logo-item" role="listitem">
+            <img src="/images/otoDom.png" alt="Otodom" loading="lazy" />
+        </div>
+        <div class="platform-logo-item" role="listitem">
+            <img src="/images/amazon.png" alt="Amazon" loading="lazy" />
+        </div>
+        <div class="platform-logo-item" role="listitem">
+            <img src="/images/gratka.png" alt="Gratka" loading="lazy" />
+        </div>
+        <div class="platform-logo-item" role="listitem">
+            <img src="/images/sprzedajemy.jpg" alt="Sprzedajemy.pl" loading="lazy" />
+        </div>
+        <div class="platform-logo-item" role="listitem">
+            <img src="/images/autocentrum.png" alt="Autocentrum" loading="lazy" />
+        </div>
+        <div class="platform-logo-item" role="listitem">
+            <img src="/images/autoscout.png" alt="AutoScout24" loading="lazy" />
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<section class="lp-stats" aria-label="Kluczowe informacje">
+    <div class="stats-grid">
+        <div class="stat-item">
+            <strong>8+</strong>
+            <span>portali ogłoszeniowych<br />w jednym miejscu</span>
+        </div>
+        <div class="stat-item">
+            <strong>3</strong>
+            <span>kategorie: auta,<br />mieszkania, zakupy</span>
+        </div>
+        <div class="stat-item">
+            <strong>0 zł</strong>
+            <span>całkowicie<br />bezpłatny dostęp</span>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="lp-how" aria-labelledby="how-heading">
+    <div class="section-header">
+        <h2 id="how-heading">Jak to działa?</h2>
+        <p>Trzy kroki dzielą Cię od znalezienia idealnej oferty. Koniec z ręcznym przeglądaniem dziesiątek stron.</p>
+    </div>
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="step-number" aria-hidden="true">1</div>
+            <h3>Wybierz kategorię i wpisz frazę</h3>
+            <p>Szukasz samochodu, mieszkania czy konkretnego produktu? Wybierz kategorię, wpisz czego szukasz i ustaw filtry.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number" aria-hidden="true">2</div>
+            <h3>Ustaw alert jednorazowo</h3>
+            <p>Zdefiniuj swoje kryterium jako alert. System będzie automatycznie monitorował dziesiątki portali bez Twojego udziału.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number" aria-hidden="true">3</div>
+            <h3>Otrzymuj powiadomienia</h3>
+            <p>Gdy pojawi się nowe ogłoszenie pasujące do Twojego alertu, natychmiast dostajesz powiadomienie w aplikacji. Bądź pierwszy.</p>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="lp-features" aria-labelledby="features-heading">
+    <div class="section-header">
+        <h2 id="features-heading">Co oferuje Wyszukiwacz?</h2>
+        <p>Wszystkie narzędzia do skutecznego szukania ogłoszeń w jednym miejscu.</p>
+    </div>
+    <div class="features-grid">
+        <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🔍</div>
+            <h3>Wyszukiwanie równoległe</h3>
+            <p>Jedno zapytanie przeszukuje jednocześnie wszystkie obsługiwane portale. Nie musisz wchodzić na każdą stronę osobno.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🔔</div>
+            <h3>Alerty i powiadomienia</h3>
+            <p>Ustaw alert na dowolną frazę i kategorię. Gdy pojawi się nowe pasujące ogłoszenie, natychmiast zobaczy je w sekcji powiadomień.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">⚡</div>
+            <h3>Błyskawiczne wyniki</h3>
+            <p>Wyniki z wielu portali zbierane są w czasie rzeczywistym i prezentowane w przejrzystym, zunifikowanym widoku.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">📋</div>
+            <h3>Przejrzysty widok ofert</h3>
+            <p>Porównuj oferty z różnych portali obok siebie – cena, lokalizacja, data dodania – w jednym spójnym interfejsie.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🎯</div>
+            <h3>Filtry i kategorie</h3>
+            <p>Samochody, mieszkania, zakupy – każda kategoria ma dedykowane filtry dopasowane do specyfiki danego rynku.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🛡️</div>
+            <h3>Bezpieczne konto</h3>
+            <p>Twoje dane i ustawienia alertów są bezpiecznie przechowywane na serwerze i dostępne po zalogowaniu z każdego urządzenia.</p>
+        </article>
+    </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="lp-categories" aria-labelledby="categories-heading">
+    <div class="section-header">
+        <h2 id="categories-heading">Kategorie ogłoszeń</h2>
+        <p>Trzy główne rynki objęte przez Wyszukiwacz – każdy z osobnym zestawem portali i filtrów.</p>
+    </div>
+    <div class="categories-grid">
+        <a href="/cars" class="category-card-lp" aria-label="Kategoria: Samochody – otwórz wyszukiwarkę aut">
+            <div class="category-card-header">
+                <span class="category-emoji" aria-hidden="true">🚗</span>
+                <div>
+                    <h3>Samochody używane</h3>
+                    <span>6 portali motoryzacyjnych</span>
+                </div>
+            </div>
+            <div class="category-card-body">
+                <p>Szukaj aut używanych i nowych na największych polskich portalach motoryzacyjnych jednocześnie. Porównuj ceny i filtry w jednym miejscu.</p>
+                <div class="category-portals" aria-label="Obsługiwane portale">
+                    <span class="portal-tag">Otomoto</span>
+                    <span class="portal-tag">OLX</span>
+                    <span class="portal-tag">Gratka</span>
+                    <span class="portal-tag">Sprzedajemy</span>
+                    <span class="portal-tag">Autocentrum</span>
+                    <span class="portal-tag">AutoScout24</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="/flats" class="category-card-lp" aria-label="Kategoria: Mieszkania – otwórz wyszukiwarkę nieruchomości">
+            <div class="category-card-header">
+                <span class="category-emoji" aria-hidden="true">🏠</span>
+                <div>
+                    <h3>Mieszkania i domy</h3>
+                    <span>Największe portale nieruchomości</span>
+                </div>
+            </div>
+            <div class="category-card-body">
+                <p>Przeglądaj oferty mieszkań, domów i działek na kupno lub wynajem. Filtruj po mieście, cenie i metrażu – wyniki z Otodom i innych portali.</p>
+                <div class="category-portals" aria-label="Obsługiwane portale">
+                    <span class="portal-tag">Otodom</span>
+                    <span class="portal-tag">OLX</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="/shopping" class="category-card-lp" aria-label="Kategoria: Zakupy – otwórz wyszukiwarkę produktów">
+            <div class="category-card-header">
+                <span class="category-emoji" aria-hidden="true">🛒</span>
+                <div>
+                    <h3>Zakupy online</h3>
+                    <span>Produkty i monitoring cen</span>
+                </div>
+            </div>
+            <div class="category-card-body">
+                <p>Wyszukuj produkty na Amazon i innych platformach zakupowych. Śledź ceny i dostaj alert gdy produkt potanieje lub pojawi się nowa oferta.</p>
+                <div class="category-portals" aria-label="Obsługiwane portale">
+                    <span class="portal-tag">Amazon</span>
+                </div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="lp-faq" aria-labelledby="faq-heading">
+    <div class="section-header">
+        <h2 id="faq-heading">Najczęstsze pytania</h2>
+        <p>Wszystko co musisz wiedzieć przed pierwszym logowaniem.</p>
     </div>
 
-    <div class="features-section">
-        <div class="feature-card">
-            <div class="feature-icon">🔍</div>
-            <h3>Wyszukiwanie</h3>
-            <p>Przeszukuj oferty z wielu serwisów jednocześnie</p>
+    <div class="faq-list" role="list">
+        <div class="faq-item" role="listitem">
+            <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                <span>Jak działa Wyszukiwacz?</span>
+                <span class="faq-chevron" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="faq-answer" role="region">
+                Wyszukiwacz automatycznie przeszukuje dziesiątki polskich portali ogłoszeniowych jednocześnie. Wpisujesz frazę, wybierasz kategorię i filtry – a my zbieramy dla Ciebie wyniki z OLX, Otomoto, Otodom, Amazon i wielu innych. Zamiast odwiedzać każdy portal osobno, widzisz wszystkie wyniki w jednym miejscu.
+            </div>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon">🔔</div>
-            <h3>Powiadomienia</h3>
-            <p>Otrzymuj powiadomienia o nowych ofertach</p>
-        </div>
-        @* <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3>Historia</h3>
-            <p>Przeglądaj historię wyszukiwań</p>
-        </div> *@
-    </div>
 
-    <div class="categories-section">
-        <h2>Kategorie</h2>
-        <div class="category-grid">
-            <a href="/cars" class="category-card">
-                <div class="category-icon">🚗</div>
-                <div>Samochody</div>
-            </a>
-            <a href="/flats" class="category-card">
-                <div class="category-icon">🏠</div>
-                <div>Mieszkania</div>
-            </a>
-            <a href="/shopping" class="category-card">
-                <div class="category-icon">🛒</div>
-                <div>Zakupy</div>
-            </a>
-            <a href="/offers/recent" class="category-card">
-                <div class="category-icon">📋</div>
-                <div>Wszystkie oferty</div>
-            </a>
+        <div class="faq-item" role="listitem">
+            <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                <span>Które portale ogłoszeniowe są obsługiwane?</span>
+                <span class="faq-chevron" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="faq-answer" role="region">
+                Obsługujemy największe polskie portale ogłoszeniowe: <strong>samochody</strong> – Otomoto, OLX, Gratka, Sprzedajemy, AutoScout24, Autocentrum; <strong>nieruchomości</strong> – Otodom i OLX; <strong>zakupy</strong> – Amazon. Lista portali jest regularnie rozszerzana.
+            </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+            <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                <span>Jak ustawić alert na nowe ogłoszenia?</span>
+                <span class="faq-chevron" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="faq-answer" role="region">
+                Po zalogowaniu przejdź do sekcji <strong>Powiadomienia</strong> w menu bocznym. Wpisz frazę której szukasz, wybierz kategorię i portal. Od tej chwili system automatycznie monitoruje portale i powiadamia Cię gdy pojawi się nowe pasujące ogłoszenie.
+            </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+            <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                <span>Czy Wyszukiwacz jest bezpłatny?</span>
+                <span class="faq-chevron" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="faq-answer" role="region">
+                Tak, rejestracja i korzystanie z Wyszukiwacza jest całkowicie bezpłatne. Możesz przeszukiwać ogłoszenia na wszystkich obsługiwanych portalach i ustawiać nieograniczoną liczbę alertów bez żadnych opłat.
+            </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+            <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                <span>Czy mogę szukać na Otomoto i OLX jednocześnie?</span>
+                <span class="faq-chevron" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="faq-answer" role="region">
+                Tak – to właśnie główna zaleta Wyszukiwacza. Jedno zapytanie w kategorii Samochody przeszukuje równolegle Otomoto, OLX, Gratka i inne portale motoryzacyjne, pokazując wyniki w jednym zunifikowanym widoku.
+            </div>
+        </div>
+
+        <div class="faq-item" role="listitem">
+            <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false">
+                <span>Jak szybko dostanę powiadomienie o nowym ogłoszeniu?</span>
+                <span class="faq-chevron" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="faq-answer" role="region">
+                Powiadomienia są generowane na bieżąco gdy tylko system wykryje nowe ogłoszenie pasujące do Twojego alertu. Dzięki temu możesz reagować jako jeden z pierwszych zainteresowanych – co jest kluczowe zwłaszcza w popularnych kategoriach takich jak mieszkania czy samochody.
+            </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="lp-cta" aria-labelledby="cta-heading">
+    <h2 id="cta-heading">Zacznij szukać bezpłatnie</h2>
+    <p>Dołącz i nigdy więcej nie przegap dobrej oferty. Rejestracja zajmuje 30 sekund.</p>
+    <div class="lp-hero-actions">
+        <a href="/register" class="btn-hero-primary">Zarejestruj się teraz</a>
+        <a href="/login" class="btn-hero-secondary">Już mam konto</a>
+    </div>
+</section>
+
+<script>
+    function toggleFaq(btn) {
+        var answer = btn.nextElementSibling;
+        var chevron = btn.querySelector('.faq-chevron');
+        var isOpen = answer.classList.contains('open');
+        answer.classList.toggle('open', !isOpen);
+        chevron.classList.toggle('open', !isOpen);
+        btn.setAttribute('aria-expanded', String(!isOpen));
+    }
+</script>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        if (Globals.IsLogged)
+            Navigation.NavigateTo("/categories");
+    }
 }
