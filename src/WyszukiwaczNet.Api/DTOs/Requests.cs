@@ -96,7 +96,14 @@ public record SaveNotificationConfigRequest(
     int UserId,
     string Phrase,
     int RequestCount,
-    string? Schedule
+    string? Schedule,
+    string? Category
+);
+
+public record SetConfigEnabledRequest(
+    int UserId,
+    string? Category,
+    bool Enabled
 );
 
 public class UserNotificationConfigDto
@@ -104,6 +111,8 @@ public class UserNotificationConfigDto
     public string Phrase { get; set; } = string.Empty;
     public int RequestCount { get; set; }
     public string? Schedule { get; set; }
+    public string? Category { get; set; }
+    public bool Enabled { get; set; }
 }
 
 public class NotificationFeedItemDto

@@ -17,8 +17,10 @@ public interface IUserRepository
     Task<UserNotificationSetting?> GetNotificationSettingAsync(int userId, int channelId);
     Task<UserNotificationSetting> CreateOrUpdateNotificationSettingAsync(UserNotificationSetting setting);
     Task<List<UserNotificationSettingDto>> GetUserNotificationSettingsAsync(int userId);
-    Task<UserNotificationConfig?> GetNotificationConfigAsync(int userId);
+    Task<UserNotificationConfig?> GetNotificationConfigAsync(int userId, string? category = null);
+    Task<List<UserNotificationConfig>> GetAllNotificationConfigsAsync(int userId);
     Task<UserNotificationConfig> SaveNotificationConfigAsync(UserNotificationConfig config);
+    Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled);
     Task SaveNotificationFeedItemsAsync(List<Notification> items);
     Task<List<Notification>> GetNotificationFeedAsync(int userId, int limit = 100);
     Task<int> GetUnreadNotificationCountAsync(int userId);
@@ -122,22 +124,30 @@ public class UserRepository : IUserRepository
         return existing ?? setting;
     }
 
-    public async Task<UserNotificationConfig?> GetNotificationConfigAsync(int userId)
+    public async Task<UserNotificationConfig?> GetNotificationConfigAsync(int userId, string? category = null)
     {
         return await _context.UserNotificationConfigs
-            .FirstOrDefaultAsync(c => c.UserId == userId);
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Category == category);
+    }
+
+    public async Task<List<UserNotificationConfig>> GetAllNotificationConfigsAsync(int userId)
+    {
+        return await _context.UserNotificationConfigs
+            .Where(c => c.UserId == userId)
+            .ToListAsync();
     }
 
     public async Task<UserNotificationConfig> SaveNotificationConfigAsync(UserNotificationConfig config)
     {
         var existing = await _context.UserNotificationConfigs
-            .FirstOrDefaultAsync(c => c.UserId == config.UserId);
+            .FirstOrDefaultAsync(c => c.UserId == config.UserId && c.Category == config.Category);
 
         if (existing != null)
         {
             existing.Phrase = config.Phrase;
             existing.RequestCount = config.RequestCount;
             existing.Schedule = config.Schedule;
+            existing.Enabled = config.Enabled;
             existing.UpdatedAt = DateTime.UtcNow;
             _context.UserNotificationConfigs.Update(existing);
         }
@@ -148,6 +158,18 @@ public class UserRepository : IUserRepository
 
         await _context.SaveChangesAsync();
         return existing ?? config;
+    }
+
+    public async Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled)
+    {
+        var existing = await _context.UserNotificationConfigs
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.Category == category);
+        if (existing == null) return false;
+        existing.Enabled = enabled;
+        existing.UpdatedAt = DateTime.UtcNow;
+        _context.UserNotificationConfigs.Update(existing);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task SaveNotificationFeedItemsAsync(List<Notification> items)

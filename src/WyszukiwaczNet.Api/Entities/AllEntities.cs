@@ -301,6 +301,13 @@ public class UserNotificationConfig
     [Column("schedule")]
     public string? Schedule { get; set; }
 
+    [MaxLength(50)]
+    [Column("category")]
+    public string? Category { get; set; }
+
+    [Column("enabled")]
+    public bool Enabled { get; set; } = true;
+
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

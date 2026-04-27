@@ -28,6 +28,44 @@
         <!-- LEFT COLUMN -->
         <div class="notif-col-main">
 
+            <!-- Category selector card -->
+            <div class="n-card">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="category" class="n-card-icon" />
+                    <span>Kategoria</span>
+                </div>
+                <div class="n-card-body">
+                    <div class="cat-selector">
+                        <div class="cat-btn @(_selectedCategory == "Motoryzacja" ? "cat-btn--active" : "")"
+                             @onclick='async () => await SelectCategory("Motoryzacja")'>
+                            <span class="cat-btn-emoji">🚗</span>
+                            <span>Motoryzacja</span>
+                            <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Motoryzacja") ? "cat-status--on" : "cat-status--off")">
+                                @(_categoryEnabled.GetValueOrDefault("Motoryzacja") ? "aktywne" : "nieaktywne")
+                            </span>
+                        </div>
+                        <div class="cat-btn @(_selectedCategory == "Nieruchomości" ? "cat-btn--active" : "")"
+                             @onclick='async () => await SelectCategory("Nieruchomości")'>
+                            <span class="cat-btn-emoji">🏠</span>
+                            <span>Nieruchomości</span>
+                            <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Nieruchomości") ? "cat-status--on" : "cat-status--off")">
+                                @(_categoryEnabled.GetValueOrDefault("Nieruchomości") ? "aktywne" : "nieaktywne")
+                            </span>
+                        </div>
+                        <div class="cat-btn @(_selectedCategory == "Zakupy" ? "cat-btn--active" : "")"
+                             @onclick='async () => await SelectCategory("Zakupy")'>
+                            <span class="cat-btn-emoji">🛒</span>
+                            <span>Zakupy</span>
+                            <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Zakupy") ? "cat-status--on" : "cat-status--off")">
+                                @(_categoryEnabled.GetValueOrDefault("Zakupy") ? "aktywne" : "nieaktywne")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(_selectedCategory))
+            {
             <!-- Search card -->
             <div class="n-card">
                 <div class="n-card-header">
@@ -37,7 +75,7 @@
                 <div class="n-card-body">
                     <div class="n-field">
                         <label class="n-label">Szukany tekst</label>
-                        <RadzenTextBox @bind-Value="@searchedText" Placeholder="np. iPhone 14, Toyota Corolla..." class="n-input-full" />
+                        <RadzenTextBox @bind-Value="@searchedText" Placeholder="@SearchPlaceholder" class="n-input-full" />
                     </div>
                     <div class="n-field">
                         <label class="n-label">Liczba wyników (maks.)</label>
@@ -50,11 +88,11 @@
             <div class="n-card">
                 <div class="n-card-header">
                     <RadzenIcon Icon="language" class="n-card-icon" />
-                    <span>Platformy</span>
+                    <span>Platformy – @_selectedCategory</span>
                 </div>
                 <div class="n-card-body">
                     <div class="platform-grid">
-                        @foreach (var platform in availablePlatforms)
+                        @foreach (var platform in ActivePlatforms)
                         {
                             var isSelected = selectedPlatforms.Contains(platform);
                             <div class="platform-chip @(isSelected ? "platform-chip--active" : "")"
@@ -66,6 +104,7 @@
                     </div>
                 </div>
             </div>
+            }
 
             <!-- Notification channels card -->
             <div class="n-card">
@@ -162,6 +201,8 @@
                 </div>
             </div>
 
+            @if (_selectedCategory == "Nieruchomości")
+            {
             <!-- Apartment filters card -->
             <div class="n-card">
                 <div class="n-card-header">
@@ -197,6 +238,7 @@
                     </div>
                 </div>
             </div>
+            }
 
         </div>
 
@@ -208,6 +250,11 @@
                     <span>Podsumowanie</span>
                 </div>
                 <div class="n-card-body">
+
+                    <div class="summary-section">
+                        <span class="summary-label">Kategoria</span>
+                        <span class="summary-value">@(string.IsNullOrEmpty(_selectedCategory) ? "—" : _selectedCategory)</span>
+                    </div>
 
                     <div class="summary-section">
                         <span class="summary-label">Fraza</span>
@@ -345,8 +392,83 @@
 
     private string additional_phrase = string.Empty;
 
-    private List<string> availablePlatforms = new() { "Olx", "Amazon", "OtoMoto", "OtoDom", "Autoscout", "Gratka", "Sprzedajemy", "Autocentrum" };
+    private string _selectedCategory = string.Empty;
+    private Dictionary<string, bool> _categoryEnabled = new();
+    private List<string> _carPlatforms  = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum" };
+    private List<string> _flatPlatforms = new() { "OtoDom" };
+    private List<string> _shopPlatforms = new() { "Amazon", "Olx" };
+    private List<string> availablePlatforms => _carPlatforms.Concat(_flatPlatforms).Concat(_shopPlatforms).ToList();
+    private List<string> ActivePlatforms => _selectedCategory switch
+    {
+        "Motoryzacja"   => _carPlatforms,
+        "Nieruchomości" => _flatPlatforms,
+        "Zakupy"        => _shopPlatforms,
+        _               => new()
+    };
+    private string SearchPlaceholder => _selectedCategory switch
+    {
+        "Motoryzacja"   => "np. Toyota Corolla, BMW 3...",
+        "Nieruchomości" => "np. Warszawa, Kraków...",
+        "Zakupy"        => "np. iPhone 14, karta graficzna...",
+        _               => "Wpisz szukany tekst..."
+    };
     private List<string> selectedPlatforms = new();
+
+    private async Task SelectCategory(string cat)
+    {
+        if (_selectedCategory == cat) return;
+        _selectedCategory = cat;
+
+        // Reset form fields
+        searchedText = string.Empty;
+        requestNumbers = 0;
+        isSendingHourChecked = false;
+        isCyclicMessagingChecked = false;
+        dateSendingNotification = null;
+        minutesAfterSendingNotification = 0;
+        isSprzedaz = isWynajem = isPrywatne = isPubliczne = isOstatnie24h = isDowolna = false;
+        additional_phrase = string.Empty;
+
+        // Re-filter platforms from loaded subscriptions for new category
+        selectedPlatforms = platformSubscriptions
+            .Where(p => p.Enabled)
+            .Select(p => ActivePlatforms.FirstOrDefault(a => a.Equals(p.PlatformName, StringComparison.OrdinalIgnoreCase)))
+            .Where(name => !string.IsNullOrEmpty(name))
+            .ToList()!;
+
+        // Load saved config for new category
+        if (userId > 0)
+            await ApplyConfigForCategory();
+    }
+
+    private async Task LoadAllCategoryStatuses()
+    {
+        var allConfigs = await UserService.GetAllNotificationConfigsAsync(userId) ?? new();
+        _categoryEnabled = allConfigs
+            .Where(c => c.Category != null)
+            .ToDictionary(c => c.Category!, c => c.Enabled);
+    }
+
+    private async Task ApplyConfigForCategory()
+    {
+        var savedConfig = await UserService.GetNotificationConfigAsync(userId, _selectedCategory);
+        if (savedConfig == null) return;
+        searchedText = savedConfig.Phrase;
+        requestNumbers = savedConfig.RequestCount;
+        if (string.IsNullOrEmpty(savedConfig.Schedule)) return;
+        if (savedConfig.Schedule.StartsWith("Co ") && savedConfig.Schedule.EndsWith(" min")
+            && int.TryParse(savedConfig.Schedule[3..^4], out var mins))
+        {
+            isCyclicMessagingChecked = true;
+            minutesAfterSendingNotification = mins;
+        }
+        else if (savedConfig.Schedule.StartsWith("Codziennie o ")
+            && DateTime.TryParse(savedConfig.Schedule[13..], out var dt))
+        {
+            isSendingHourChecked = true;
+            dateSendingNotification = dt;
+        }
+    }
 
     private DateTime? dateSendingNotification = null;
     private string timeToSendingMail = string.Empty;
@@ -440,30 +562,23 @@
             .Where(name => !string.IsNullOrEmpty(name))
             .ToList();
 
+        // Auto-detect category from loaded platforms so user doesn't have to click
+        if (selectedPlatforms.Any(p => _carPlatforms.Any(c => c.Equals(p, StringComparison.OrdinalIgnoreCase))))
+            _selectedCategory = "Motoryzacja";
+        else if (selectedPlatforms.Any(p => _flatPlatforms.Any(f => f.Equals(p, StringComparison.OrdinalIgnoreCase))))
+            _selectedCategory = "Nieruchomości";
+        else if (selectedPlatforms.Any(p => _shopPlatforms.Any(s => s.Equals(p, StringComparison.OrdinalIgnoreCase))))
+            _selectedCategory = "Zakupy";
+
+        // Keep only platforms belonging to detected category
+        if (!string.IsNullOrEmpty(_selectedCategory))
+            selectedPlatforms = selectedPlatforms
+                .Where(p => ActivePlatforms.Any(a => a.Equals(p, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
         await LoadJobs();
-
-        var savedConfig = await UserService.GetNotificationConfigAsync(userId);
-        if (savedConfig != null)
-        {
-            searchedText = savedConfig.Phrase;
-            requestNumbers = savedConfig.RequestCount;
-
-            if (!string.IsNullOrEmpty(savedConfig.Schedule))
-            {
-                if (savedConfig.Schedule.StartsWith("Co ") && savedConfig.Schedule.EndsWith(" min")
-                    && int.TryParse(savedConfig.Schedule[3..^4], out var mins))
-                {
-                    isCyclicMessagingChecked = true;
-                    minutesAfterSendingNotification = mins;
-                }
-                else if (savedConfig.Schedule.StartsWith("Codziennie o ")
-                    && DateTime.TryParse(savedConfig.Schedule[13..], out var dt))
-                {
-                    isSendingHourChecked = true;
-                    dateSendingNotification = dt;
-                }
-            }
-        }
+        await LoadAllCategoryStatuses();
+        await ApplyConfigForCategory();
 
         StateHasChanged();
     }
@@ -483,6 +598,11 @@
             if (userId <= 0)
             {
                 NotificationService.Notify(NotificationSeverity.Error, "Błąd: Nie można uzyskać identyfikatora użytkownika.");
+                return;
+            }
+            if (string.IsNullOrEmpty(_selectedCategory))
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Błąd: Wybierz kategorię (Motoryzacja / Nieruchomości / Zakupy).");
                 return;
             }
             if (requestNumbers <= 0)
@@ -526,8 +646,11 @@
 
             foreach (var platform in allPlatforms)
             {
-                bool enabled = selectedPlatforms.Any(p => p.Equals(platform.Name, StringComparison.OrdinalIgnoreCase));
-                await UserService.UpdatePlatformSubscriptionAsync(userId, platform.Id, enabled);
+                if (!ActivePlatforms.Any(cp => cp.Equals(platform.Name, StringComparison.OrdinalIgnoreCase)))
+                    continue;
+                if (!selectedPlatforms.Any(p => p.Equals(platform.Name, StringComparison.OrdinalIgnoreCase)))
+                    continue; // don't disable — only enable selected
+                await UserService.UpdatePlatformSubscriptionAsync(userId, platform.Id, true);
             }
 
             var scheduleString = isSendingHourChecked && dateSendingNotification.HasValue
@@ -541,7 +664,8 @@
                 UserId = userId,
                 Phrase = searchedText,
                 RequestCount = requestNumbers,
-                Schedule = scheduleString
+                Schedule = scheduleString,
+                Category = _selectedCategory
             });
 
             var request = new NotificationRequest
@@ -560,6 +684,8 @@
             };
 
             await NotificationProxy.setCronJob(request);
+            await UserService.SetNotificationConfigEnabledAsync(userId, _selectedCategory, true);
+            _categoryEnabled[_selectedCategory] = true;
 
             NotificationService.Notify(NotificationSeverity.Info, "Zmiany zapisano.");
         }
@@ -580,7 +706,11 @@
         var result = await NotificationProxy.DeleteJobs(new DeleteJobModel { user_id = userId });
 
         if (result.success)
-            NotificationService.Notify(NotificationSeverity.Success, result.message ?? "Sucess");
+        {
+            await UserService.SetNotificationConfigEnabledAsync(userId, _selectedCategory, false);
+            _categoryEnabled[_selectedCategory] = false;
+            NotificationService.Notify(NotificationSeverity.Success, result.message ?? "Sukces");
+        }
         else
             NotificationService.Notify(NotificationSeverity.Error, result.message ?? "Błąd podczas usuwania jobów.");
     }

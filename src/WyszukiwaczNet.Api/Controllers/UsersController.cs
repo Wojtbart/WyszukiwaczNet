@@ -105,10 +105,24 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{userId}/config")]
-    public async Task<IActionResult> GetNotificationConfig(int userId)
+    public async Task<IActionResult> GetNotificationConfig(int userId, [FromQuery] string? category = null)
     {
-        var config = await _userService.GetNotificationConfigAsync(userId);
+        var config = await _userService.GetNotificationConfigAsync(userId, category);
         return Ok(new { success = true, data = config });
+    }
+
+    [HttpGet("{userId}/configs")]
+    public async Task<IActionResult> GetAllNotificationConfigs(int userId)
+    {
+        var configs = await _userService.GetAllNotificationConfigsAsync(userId);
+        return Ok(new { success = true, data = configs });
+    }
+
+    [HttpPatch("config/enabled")]
+    public async Task<IActionResult> SetNotificationConfigEnabled([FromBody] SetConfigEnabledRequest request)
+    {
+        var result = await _userService.SetNotificationConfigEnabledAsync(request.UserId, request.Category, request.Enabled);
+        return Ok(new { success = result });
     }
 
     [HttpPost("config")]

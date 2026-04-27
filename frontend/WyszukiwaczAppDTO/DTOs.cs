@@ -149,6 +149,8 @@ public class UserNotificationConfigDto
     public string Phrase { get; set; } = string.Empty;
     public int RequestCount { get; set; }
     public string? Schedule { get; set; }
+    public string? Category { get; set; }
+    public bool Enabled { get; set; }
 }
 
 public class SaveNotificationConfigRequest
@@ -157,6 +159,14 @@ public class SaveNotificationConfigRequest
     public string Phrase { get; set; } = string.Empty;
     public int RequestCount { get; set; }
     public string? Schedule { get; set; }
+    public string? Category { get; set; }
+}
+
+public class SetConfigEnabledRequest
+{
+    public int UserId { get; set; }
+    public string? Category { get; set; }
+    public bool Enabled { get; set; }
 }
 
 public class NotificationFeedItemDto

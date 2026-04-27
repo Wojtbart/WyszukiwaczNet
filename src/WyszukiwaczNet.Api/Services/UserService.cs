@@ -14,8 +14,10 @@ public interface IUserService
     Task<(bool Success, string? Message)> UpdatePlatformSubscriptionAsync(PlatformSubscriptionRequest request);
     Task<List<UserNotificationSettingDto>> GetUserNotificationSettingsAsync(int userId);
     Task<(bool Success, string? Message)> UpdateNotificationSettingAsync(NotificationSettingRequest request);
-    Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId);
+    Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId, string? category = null);
+    Task<List<UserNotificationConfigDto>> GetAllNotificationConfigsAsync(int userId);
     Task<(bool Success, string? Message)> SaveNotificationConfigAsync(SaveNotificationConfigRequest request);
+    Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled);
     Task<List<NotificationFeedItemDto>> GetNotificationFeedAsync(int userId, int limit = 100);
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
@@ -141,16 +143,31 @@ public class UserService : IUserService
         return await _userRepository.GetUserNotificationSettingsAsync(userId);
     }
 
-    public async Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId)
+    public async Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId, string? category = null)
     {
-        var config = await _userRepository.GetNotificationConfigAsync(userId);
+        var config = await _userRepository.GetNotificationConfigAsync(userId, category);
         if (config == null) return null;
         return new UserNotificationConfigDto
         {
             Phrase = config.Phrase,
             RequestCount = config.RequestCount,
-            Schedule = config.Schedule
+            Schedule = config.Schedule,
+            Category = config.Category,
+            Enabled = config.Enabled
         };
+    }
+
+    public async Task<List<UserNotificationConfigDto>> GetAllNotificationConfigsAsync(int userId)
+    {
+        var configs = await _userRepository.GetAllNotificationConfigsAsync(userId);
+        return configs.Select(c => new UserNotificationConfigDto
+        {
+            Phrase = c.Phrase,
+            RequestCount = c.RequestCount,
+            Schedule = c.Schedule,
+            Category = c.Category,
+            Enabled = c.Enabled
+        }).ToList();
     }
 
     public async Task<(bool Success, string? Message)> SaveNotificationConfigAsync(SaveNotificationConfigRequest request)
@@ -163,11 +180,18 @@ public class UserService : IUserService
             UserId = request.UserId,
             Phrase = request.Phrase,
             RequestCount = request.RequestCount,
-            Schedule = request.Schedule
+            Schedule = request.Schedule,
+            Category = request.Category,
+            Enabled = true
         };
 
         await _userRepository.SaveNotificationConfigAsync(config);
         return (true, "Konfiguracja powiadomień zapisana.");
+    }
+
+    public async Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled)
+    {
+        return await _userRepository.SetNotificationConfigEnabledAsync(userId, category, enabled);
     }
 
     public async Task<List<NotificationFeedItemDto>> GetNotificationFeedAsync(int userId, int limit = 100)

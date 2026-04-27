@@ -210,11 +210,14 @@ public class UserService
         }
     }
 
-    public async Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId)
+    public async Task<UserNotificationConfigDto?> GetNotificationConfigAsync(int userId, string? category = null)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"users/{userId}/config");
+            var url = string.IsNullOrEmpty(category)
+                ? $"users/{userId}/config"
+                : $"users/{userId}/config?category={Uri.EscapeDataString(category)}";
+            var response = await _httpClient.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             var result = JsonConvert.DeserializeObject<ApiResponse<UserNotificationConfigDto>>(content);
@@ -230,6 +233,31 @@ public class UserService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("users/config", content);
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+
+    public async Task<List<UserNotificationConfigDto>?> GetAllNotificationConfigsAsync(int userId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"users/{userId}/configs");
+            var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) return null;
+            var result = JsonConvert.DeserializeObject<ApiResponse<List<UserNotificationConfigDto>>>(content);
+            return result?.Data;
+        }
+        catch { return null; }
+    }
+
+    public async Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled)
+    {
+        try
+        {
+            var json = JsonConvert.SerializeObject(new SetConfigEnabledRequest { UserId = userId, Category = category, Enabled = enabled });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PatchAsync("users/config/enabled", content);
             return response.IsSuccessStatusCode;
         }
         catch { return false; }

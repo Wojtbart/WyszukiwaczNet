@@ -63,57 +63,6 @@
     <RadzenCheckBox @bind-Value=@setOtoDomGrid Name="CheckBox2" />
 </RadzenButton>
 
-<RadzenCard Style="margin-top:30px; padding:20px; box-shadow:0 0 10px #ddd; border-radius:12px;">
-    <RadzenText Text="Ustawienia powiadomień"
-                TextStyle="TextStyle.H4"
-                Style="margin-bottom:15px; color:#7c3998;" />
-
-    <RadzenRow Gap="20px">
-
-        <!-- Wybór trybu -->
-        <RadzenColumn Size="12" SizeMD="4">
-            <RadzenLabel Text="Tryb powiadomień" />
-            <RadzenDropDown @bind-Value="notificationMode"
-                            Data="notificationModes"
-                            Placeholder="Wybierz tryb"
-                            Style="width:100%;" />
-        </RadzenColumn>
-
-        <!-- Godzina wysłania - widoczne tylko w trybie godzinowym -->
-        @if (notificationMode == "godzina")
-        {
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenLabel Text="Godzina powiadomienia" />
-                <RadzenTextBox @bind-Value="notificationHour"
-                               Placeholder="HH:MM"
-                               Type="time"
-                               Style="width:100%;" />
-            </RadzenColumn>
-        }
-
-        <!-- Cykliczne co X minut -->
-        @if (notificationMode == "cykliczne")
-        {
-            <RadzenColumn Size="12" SizeMD="4">
-                <RadzenLabel Text="Co ile minut wysłać powiadomienie?" />
-                <RadzenNumeric @bind-Value="notificationInterval"
-                               InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })"
-                               Min="1"
-                               Placeholder="np. 15"
-                               Style="width:100%;" />
-            </RadzenColumn>
-        }
-
-        <!-- Przycisk ustawienia -->
-        <RadzenColumn Size="12" SizeMD="4" Style="display:flex; align-items:flex-end;">
-            <RadzenButton Text="Ustaw powiadomienie"
-                          ButtonStyle="ButtonStyle.Primary"
-                          Icon="notifications"
-                          Click="SetNotification"
-                          Style="width:100%; height:3rem; border-radius:12px;" />
-        </RadzenColumn>
-    </RadzenRow>
-</RadzenCard>
 
 @if (setOtoDomGrid)
 {
@@ -270,35 +219,4 @@
         }
     }
 
-    private string? notificationMode;
-    private List<string> notificationModes = new() { "godzina", "cykliczne" };
-
-    // Jednorazowo o godzinie
-    private string? notificationHour;
-
-    // Cykliczne co X minut
-    private int? notificationInterval;
-
-    private async Task SetNotification()
-    {
-        if (string.IsNullOrWhiteSpace(notificationMode))
-        {
-            await DialogService.Alert("Wybierz tryb powiadomień.");
-            return;
-        }
-
-        if (notificationMode == "godzina" && string.IsNullOrWhiteSpace(notificationHour))
-        {
-            await DialogService.Alert("Wybierz godzinę wysłania powiadomienia.");
-            return;
-        }
-
-        if (notificationMode == "cykliczne" && (notificationInterval == null || notificationInterval < 1))
-        {
-            await DialogService.Alert("Podaj poprawną liczbę minut.");
-            return;
-        }
-
-        await DialogService.Alert("Powiadomienie zostało ustawione.");
-    }
 }
