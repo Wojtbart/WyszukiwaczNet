@@ -48,6 +48,7 @@ public class DataWrapper
     public PlatformData? GratkaData { get; set; }
     public PlatformData? SprzedajemyData { get; set; }
     public PlatformData? AutocentrumData { get; set; }
+    public PlatformData? SamochodyData { get; set; }
 }
 
 public class GetDataResponse

@@ -394,7 +394,7 @@
 
     private string _selectedCategory = string.Empty;
     private Dictionary<string, bool> _categoryEnabled = new();
-    private List<string> _carPlatforms  = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum" };
+    private List<string> _carPlatforms  = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum", "Samochody" };
     private List<string> _flatPlatforms = new() { "OtoDom" };
     private List<string> _shopPlatforms = new() { "Amazon", "Olx" };
     private List<string> availablePlatforms => _carPlatforms.Concat(_flatPlatforms).Concat(_shopPlatforms).ToList();

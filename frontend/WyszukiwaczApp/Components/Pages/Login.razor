@@ -9,78 +9,54 @@
 <PageTitle>Logowanie – Wyszukiwacz</PageTitle>
 
 <div class="auth-page">
-    <div class="auth-split">
+    <div class="auth-card">
+        <h1 class="auth-card-title">Zaloguj się</h1>
+        <p class="auth-card-sub">Nie masz konta? <a href="/register">Zarejestruj się bezpłatnie</a></p>
 
-        <!-- Left branding panel (hidden on mobile) -->
-        <div class="auth-brand" aria-hidden="true">
-            <div class="auth-brand-inner">
-                <div class="auth-brand-logo">🔍</div>
-                <h2 class="auth-brand-title">Witaj z powrotem!</h2>
-                <p class="auth-brand-desc">Tysiące ofert z OLX, Otomoto, Otodom i Amazona – monitorowane za Ciebie automatycznie.</p>
-                <div class="auth-brand-stats">
-                    <div class="auth-stat"><span class="auth-stat-n">12+</span><span>portali</span></div>
-                    <div class="auth-stat"><span class="auth-stat-n">5 min</span><span>odświeżanie</span></div>
-                    <div class="auth-stat"><span class="auth-stat-n">24/7</span><span>monitoring</span></div>
-                </div>
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="auth-error">
+                <span>⚠</span>
+                @errorMessage
             </div>
-        </div>
+        }
 
-        <!-- Right form panel -->
-        <div class="auth-form-wrap">
-            <a href="/" class="auth-back-link">← Strona główna</a>
+        <EditForm Model="@loginModel" OnValidSubmit="OnLogin">
+            <DataAnnotationsValidator />
 
-            <div class="auth-card">
-                <div class="auth-card-header">
-                    <h1 class="auth-card-title">Zaloguj się</h1>
-                    <p class="auth-card-sub">Nie masz konta? <a href="/register">Zarejestruj się bezpłatnie</a></p>
-                </div>
+            <div class="auth-field">
+                <label class="auth-label" for="login">Email lub login</label>
+                <InputText id="login" @bind-Value="loginModel.Login" class="auth-input" placeholder="twoj@email.pl lub login" />
+                <ValidationMessage For="@(() => loginModel.Login)" />
+            </div>
 
-                @if (!string.IsNullOrEmpty(errorMessage))
+            <div class="auth-field">
+                <label class="auth-label" for="password">Hasło</label>
+                <InputText id="password" @bind-Value="loginModel.Password" type="password"
+                           class="auth-input" placeholder="Wprowadź hasło"
+                           @onkeydown="HandlePasswordKeyDown" />
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+
+            <div class="auth-remember">
+                <label class="auth-checkbox-label">
+                    <input type="checkbox" @bind="rememberMe" class="auth-checkbox" />
+                    <span>Zapamiętaj mnie</span>
+                </label>
+            </div>
+
+            <button type="submit" class="auth-submit" disabled="@(isLoading || string.IsNullOrEmpty(loginModel.Password))">
+                @if (isLoading)
                 {
-                    <div class="auth-error">
-                        <span class="auth-error-icon">⚠</span>
-                        @errorMessage
-                    </div>
+                    <span class="auth-spinner"></span>
+                    <span>Logowanie...</span>
                 }
-
-                <EditForm Model="@loginModel" OnValidSubmit="OnLogin">
-                    <DataAnnotationsValidator />
-
-                    <div class="auth-field">
-                        <label class="auth-label" for="login">Email lub login</label>
-                        <InputText id="login" @bind-Value="loginModel.Login" class="auth-input" placeholder="twoj@email.pl lub login" />
-                        <ValidationMessage For="@(() => loginModel.Login)" />
-                    </div>
-
-                    <div class="auth-field">
-                        <label class="auth-label" for="password">Hasło</label>
-                        <InputText id="password" @bind-Value="loginModel.Password" type="password"
-                                   class="auth-input" placeholder="Wprowadź hasło"
-                                   @onkeydown="HandlePasswordKeyDown" />
-                        <ValidationMessage For="@(() => loginModel.Password)" />
-                    </div>
-
-                    <div class="auth-remember">
-                        <label class="auth-checkbox-label">
-                            <input type="checkbox" @bind="rememberMe" class="auth-checkbox" />
-                            <span>Zapamiętaj mnie</span>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="auth-submit" disabled="@(isLoading || string.IsNullOrEmpty(loginModel.Password))">
-                        @if (isLoading)
-                        {
-                            <span class="auth-spinner"></span>
-                            <span>Logowanie...</span>
-                        }
-                        else
-                        {
-                            <span>Zaloguj się</span>
-                        }
-                    </button>
-                </EditForm>
-            </div>
-        </div>
+                else
+                {
+                    <span>Zaloguj się</span>
+                }
+            </button>
+        </EditForm>
     </div>
 </div>
 

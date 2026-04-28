@@ -87,6 +87,7 @@ public class DataController : ControllerBase
         "gratka" => "auto/gratka_scrapper.py",
         "sprzedajemy" => "auto/sprzedajemy_scrapper.py",
         "autocentrum" => "auto/autocentrum_scrapper.py",
+        "samochody" => "auto/samochody_scrapper.py",
         "otodom" => "apartment/otodom_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",
