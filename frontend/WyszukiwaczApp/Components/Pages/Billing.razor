@@ -1,0 +1,175 @@
+@page "/billing"
+@using WyszukiwaczApp.Services
+@using WyszukiwaczAppDTO
+@inject SubscriptionService SubscriptionService
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NotificationService NotificationService
+
+<PageTitle>Subskrypcja – Wyszukiwacz</PageTitle>
+
+<div class="billing-page">
+
+    <div class="billing-header">
+        <h1 class="billing-title">Twoja subskrypcja</h1>
+        <p class="billing-subtitle">Zarządzaj planem i płatnościami</p>
+    </div>
+
+    @if (!_loaded)
+    {
+        <div class="billing-loading">Ładowanie...</div>
+    }
+    else
+    {
+        <!-- Current plan card -->
+        <div class="billing-card">
+            <div class="billing-card-header">
+                <span class="billing-plan-emoji">@PlanEmoji</span>
+                <div>
+                    <div class="billing-plan-name">@(_currentPlan?.Name ?? "Free")</div>
+                    <div class="billing-plan-price">
+                        @if (_currentPlan?.PricePln > 0)
+                        { @($"{_currentPlan.PricePln:0} zł / miesiąc") }
+                        else
+                        { <span>Bezpłatny</span> }
+                    </div>
+                </div>
+                <div class="billing-plan-status @StatusClass">@StatusLabel</div>
+            </div>
+
+            @if (_currentPlan?.ExpiresAt.HasValue == true)
+            {
+                <div class="billing-expiry">
+                    Następne odnowienie: <strong>@_currentPlan.ExpiresAt.Value.ToLocalTime().ToString("dd.MM.yyyy")</strong>
+                </div>
+            }
+        </div>
+
+        <!-- Current limits -->
+        <div class="billing-card">
+            <h2 class="billing-section-title">Co masz w swoim planie</h2>
+            <div class="limits-grid">
+                <div class="limit-item">
+                    <span class="limit-icon">🔔</span>
+                    <span class="limit-label">Alerty</span>
+                    <span class="limit-value">@(_limits?.MaxAlerts == int.MaxValue ? "Nielimitowane" : _limits?.MaxAlerts.ToString())</span>
+                </div>
+                <div class="limit-item">
+                    <span class="limit-icon">🌐</span>
+                    <span class="limit-label">Portale</span>
+                    <span class="limit-value">@(_limits?.MaxPortals == int.MaxValue ? "Wszystkie" : _limits?.MaxPortals.ToString())</span>
+                </div>
+                <div class="limit-item">
+                    <span class="limit-icon">⏱</span>
+                    <span class="limit-label">Odświeżanie</span>
+                    <span class="limit-value">Co @(_limits?.RefreshIntervalMin ?? 360) min</span>
+                </div>
+                <div class="limit-item">
+                    <span class="limit-icon">@(_limits?.InstantAlerts == true ? "✅" : "❌")</span>
+                    <span class="limit-label">Alerty instant</span>
+                    <span class="limit-value">@(_limits?.InstantAlerts == true ? "Tak" : "Nie")</span>
+                </div>
+                <div class="limit-item">
+                    <span class="limit-icon">@(_limits?.PriceHistory == true ? "✅" : "❌")</span>
+                    <span class="limit-label">Historia cen</span>
+                    <span class="limit-value">@(_limits?.PriceHistory == true ? "Tak" : "Nie")</span>
+                </div>
+                <div class="limit-item">
+                    <span class="limit-icon">@(_limits?.ExportCsv == true ? "✅" : "❌")</span>
+                    <span class="limit-label">Eksport CSV</span>
+                    <span class="limit-value">@(_limits?.ExportCsv == true ? "Tak" : "Nie")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="billing-actions">
+            @if (_currentPlan?.Slug == "free" || _currentPlan == null)
+            {
+                <a href="/cennik" class="billing-btn billing-btn--upgrade">Przejdź na Premium</a>
+            }
+            else if (_currentPlan.Slug == "premium")
+            {
+                <a href="/cennik" class="billing-btn billing-btn--upgrade">Przejdź na Pro</a>
+                <button class="billing-btn billing-btn--cancel" @onclick="Cancel">Anuluj subskrypcję</button>
+            }
+            else if (_currentPlan.Slug == "pro")
+            {
+                <button class="billing-btn billing-btn--cancel" @onclick="Cancel">Anuluj subskrypcję</button>
+            }
+        </div>
+
+        @if (_successMsg)
+        {
+            <div class="billing-alert billing-alert--success">
+                Płatność zakończona sukcesem! Twój plan został aktywowany.
+            </div>
+        }
+    }
+
+</div>
+
+@code {
+    private UserPlanDto? _currentPlan;
+    private WyszukiwaczAppDTO.PlanLimitsDto? _limits;
+    private bool _loaded;
+    private bool _successMsg;
+    private int _userId;
+
+    private string PlanEmoji => _currentPlan?.Slug switch
+    {
+        "premium" => "🔵",
+        "pro"     => "🟣",
+        _         => "🟢"
+    };
+
+    private string StatusLabel => _currentPlan?.Slug switch
+    {
+        "premium" => "Premium",
+        "pro"     => "Pro",
+        _         => "Free"
+    };
+
+    private string StatusClass => _currentPlan?.Slug switch
+    {
+        "premium" => "status--premium",
+        "pro"     => "status--pro",
+        _         => "status--free"
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var token = await LocalStorage.GetItemAsync<string>("authToken") ?? string.Empty;
+        if (string.IsNullOrEmpty(token)) { Navigation.NavigateTo("/login"); return; }
+
+        SubscriptionService.SetAuthToken(token);
+
+        var userIdStr = await LocalStorage.GetItemAsync<string>("userId") ?? string.Empty;
+        if (!int.TryParse(userIdStr, out _userId) || _userId <= 0) { Navigation.NavigateTo("/login"); return; }
+
+        _currentPlan = await SubscriptionService.GetUserPlanAsync(_userId);
+        _limits = await SubscriptionService.GetUserLimitsAsync(_userId);
+
+        var uri = new Uri(Navigation.Uri);
+        var qs = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        _successMsg = qs["success"] == "1";
+
+        _loaded = true;
+        StateHasChanged();
+    }
+
+    private async Task Cancel()
+    {
+        var result = await SubscriptionService.CancelSubscriptionAsync(_userId);
+        if (result)
+        {
+            NotificationService.Notify(NotificationSeverity.Success, "Subskrypcja anulowana. Dostęp wygasa na koniec okresu.");
+            _currentPlan = await SubscriptionService.GetUserPlanAsync(_userId);
+            StateHasChanged();
+        }
+        else
+            NotificationService.Notify(NotificationSeverity.Error, "Brak aktywnej subskrypcji do anulowania.");
+    }
+}

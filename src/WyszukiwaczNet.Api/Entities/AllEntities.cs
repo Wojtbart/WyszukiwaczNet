@@ -312,6 +312,104 @@ public class UserNotificationConfig
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 
+[Table("subscription_plans")]
+public class SubscriptionPlan
+{
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    [Column("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(20)]
+    [Column("slug")]
+    public string Slug { get; set; } = string.Empty;
+
+    [Column("price_pln", TypeName = "numeric(8,2)")]
+    public decimal PricePln { get; set; }
+
+    [Column("max_alerts")]
+    public int MaxAlerts { get; set; }
+
+    [Column("max_portals")]
+    public int MaxPortals { get; set; }
+
+    [Column("refresh_interval_min")]
+    public int RefreshIntervalMin { get; set; }
+
+    [Column("instant_alerts")]
+    public bool InstantAlerts { get; set; }
+
+    [Column("price_history")]
+    public bool PriceHistory { get; set; }
+
+    [Column("export_csv")]
+    public bool ExportCsv { get; set; }
+
+    [Column("api_access")]
+    public bool ApiAccess { get; set; }
+
+    [Column("webhook_support")]
+    public bool WebhookSupport { get; set; }
+
+    [Column("is_active")]
+    public bool IsActive { get; set; } = true;
+
+    [Column("stripe_price_id")]
+    [MaxLength(100)]
+    public string? StripePriceId { get; set; }
+
+    public ICollection<UserSubscription> UserSubscriptions { get; set; } = new List<UserSubscription>();
+}
+
+[Table("user_subscriptions")]
+public class UserSubscription
+{
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("user_id")]
+    public int UserId { get; set; }
+
+    [ForeignKey("UserId")]
+    public User? User { get; set; }
+
+    [Column("plan_id")]
+    public int PlanId { get; set; }
+
+    [ForeignKey("PlanId")]
+    public SubscriptionPlan? Plan { get; set; }
+
+    [MaxLength(20)]
+    [Column("status")]
+    public string Status { get; set; } = "active";
+
+    [MaxLength(100)]
+    [Column("stripe_customer_id")]
+    public string? StripeCustomerId { get; set; }
+
+    [MaxLength(100)]
+    [Column("stripe_subscription_id")]
+    public string? StripeSubscriptionId { get; set; }
+
+    [Column("current_period_start")]
+    public DateTime? CurrentPeriodStart { get; set; }
+
+    [Column("current_period_end")]
+    public DateTime? CurrentPeriodEnd { get; set; }
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+}
+
 [Table("background_jobs")]
 public class BackgroundJob
 {

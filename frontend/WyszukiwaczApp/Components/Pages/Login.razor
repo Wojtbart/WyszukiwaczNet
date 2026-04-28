@@ -1,153 +1,85 @@
 @page "/login"
-@layout MainLayout
+@layout PublicLayout
 @using WyszukiwaczAppDTO
 @using WyszukiwaczApp
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService LocalStorage
 
-<style>
-    .login-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 70vh;
-    }
-    
-    .login-card {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        padding: 2.5rem;
-        width: 100%;
-        max-width: 680px;
-    }
-    
-    .login-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .login-header h2 {
-        color: #333;
-        font-weight: 600;
-        margin: 0;
-    }
-    
-    .form-group {
-        margin-bottom: 1.25rem;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: #555;
-        font-weight: 500;
-    }
-    
-    .form-control {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    
-    .form-control:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-    }
-    
-    .btn-login {
-        width: 100%;
-        padding: 0.875rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.2s, box-shadow 0.2s;
-        margin-top: 0.5rem;
-    }
-    
-    .btn-login:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-login:active {
-        transform: translateY(0);
-    }
-    
-    .register-link {
-        text-align: center;
-        margin-top: 1.5rem;
-        color: #666;
-    }
-    
-    .register-link a {
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 500;
-    }
-    
-    .register-link a:hover {
-        text-decoration: underline;
-    }
-    
-    .error-message {
-        background: #fee;
-        border: 1px solid #fcc;
-        color: #c33;
-        padding: 0.75rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-    }
-</style>
+<PageTitle>Logowanie – Wyszukiwacz</PageTitle>
 
-<div class="login-container">
-    <div class="login-card">
-        <div class="login-header">
-            <h2>Logowanie</h2>
+<div class="auth-page">
+    <div class="auth-split">
+
+        <!-- Left branding panel (hidden on mobile) -->
+        <div class="auth-brand" aria-hidden="true">
+            <div class="auth-brand-inner">
+                <div class="auth-brand-logo">🔍</div>
+                <h2 class="auth-brand-title">Witaj z powrotem!</h2>
+                <p class="auth-brand-desc">Tysiące ofert z OLX, Otomoto, Otodom i Amazona – monitorowane za Ciebie automatycznie.</p>
+                <div class="auth-brand-stats">
+                    <div class="auth-stat"><span class="auth-stat-n">12+</span><span>portali</span></div>
+                    <div class="auth-stat"><span class="auth-stat-n">5 min</span><span>odświeżanie</span></div>
+                    <div class="auth-stat"><span class="auth-stat-n">24/7</span><span>monitoring</span></div>
+                </div>
+            </div>
         </div>
 
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="error-message">@errorMessage</div>
-        }
+        <!-- Right form panel -->
+        <div class="auth-form-wrap">
+            <a href="/" class="auth-back-link">← Strona główna</a>
 
-        <EditForm Model="@loginModel" OnValidSubmit="OnLogin">
-            <DataAnnotationsValidator />
-            
-            <div class="form-group">
-                <label for="login">Email lub login</label>
-                <InputText id="login" @bind-Value="loginModel.Login" class="form-control" placeholder="Wprowadź email lub login" />
-                <ValidationMessage For="@(() => loginModel.Login)" />
+            <div class="auth-card">
+                <div class="auth-card-header">
+                    <h1 class="auth-card-title">Zaloguj się</h1>
+                    <p class="auth-card-sub">Nie masz konta? <a href="/register">Zarejestruj się bezpłatnie</a></p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="auth-error">
+                        <span class="auth-error-icon">⚠</span>
+                        @errorMessage
+                    </div>
+                }
+
+                <EditForm Model="@loginModel" OnValidSubmit="OnLogin">
+                    <DataAnnotationsValidator />
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="login">Email lub login</label>
+                        <InputText id="login" @bind-Value="loginModel.Login" class="auth-input" placeholder="twoj@email.pl lub login" />
+                        <ValidationMessage For="@(() => loginModel.Login)" />
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-label" for="password">Hasło</label>
+                        <InputText id="password" @bind-Value="loginModel.Password" type="password"
+                                   class="auth-input" placeholder="Wprowadź hasło"
+                                   @onkeydown="HandlePasswordKeyDown" />
+                        <ValidationMessage For="@(() => loginModel.Password)" />
+                    </div>
+
+                    <div class="auth-remember">
+                        <label class="auth-checkbox-label">
+                            <input type="checkbox" @bind="rememberMe" class="auth-checkbox" />
+                            <span>Zapamiętaj mnie</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="auth-submit" disabled="@(isLoading || string.IsNullOrEmpty(loginModel.Password))">
+                        @if (isLoading)
+                        {
+                            <span class="auth-spinner"></span>
+                            <span>Logowanie...</span>
+                        }
+                        else
+                        {
+                            <span>Zaloguj się</span>
+                        }
+                    </button>
+                </EditForm>
             </div>
-
-            <div class="form-group">
-                <label for="password">Hasło</label>
-                <InputText id="password" @bind-Value="loginModel.Password" type="password" class="form-control" placeholder="Wprowadź hasło" @onkeydown="HandlePasswordKeyDown" />
-                <ValidationMessage For="@(() => loginModel.Password)" />
-            </div>
-
-            <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem;">
-                <input type="checkbox" id="rememberMe" @bind="rememberMe" style="width:16px;height:16px;cursor:pointer;" />
-                <label for="rememberMe" style="margin:0;cursor:pointer;font-weight:400;">Zapamiętaj dane logowania</label>
-            </div>
-
-            <button type="submit" class="btn-login" disabled="@(isLoading || string.IsNullOrEmpty(loginModel.Password))">
-                @(isLoading ? "Logowanie..." : "Zaloguj się")
-            </button>
-        </EditForm>
-
-        <div class="register-link">
-            Nie masz konta? <a href="/register">Zarejestruj się</a>
         </div>
     </div>
 </div>
@@ -198,7 +130,7 @@
                 Globals.IsLogged = true;
                 Globals.Login = loginModel.Login;
                 Globals.AuthToken = result.Token;
-                
+
                 await LocalStorage.SetItemAsync("authToken", result.Token);
                 await LocalStorage.SetItemAsync("login", loginModel.Login);
 
@@ -212,7 +144,7 @@
                     await LocalStorage.RemoveItemAsync("rememberedLogin");
                     await LocalStorage.RemoveItemAsync("rememberedPassword");
                 }
-                
+
                 NavigationManager.NavigateTo("/");
             }
             else
@@ -220,7 +152,7 @@
                 errorMessage = result?.Message ?? "Nieprawidłowy login lub hasło";
             }
         }
-        catch (Exception)
+        catch
         {
             errorMessage = "Niepoprawne dane logowania";
         }

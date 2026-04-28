@@ -19,6 +19,7 @@
     </PackageReference>
     <PackageReference Include="MimeKit" Version="4.16.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="Stripe.net" Version="46.2.0" />
     <PackageReference Include="Twilio" Version="7.14.7" />
   </ItemGroup>
 

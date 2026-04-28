@@ -61,6 +61,7 @@ builder.Services.AddSingleton<ISmsProvider, TwilioSmsProvider>();
 builder.Services.AddSingleton<IDiscordProvider, DiscordWebhookProvider>();
 
 builder.Services.AddScoped<INotificationJob, NotificationJob>();
+builder.Services.AddScoped<ISubscriptionService, WyszukiwaczNet.Api.Services.SubscriptionService>();
 
 builder.Services.AddHangfire(config => config
     .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)

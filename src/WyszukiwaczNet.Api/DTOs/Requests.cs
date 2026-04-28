@@ -137,3 +137,32 @@ public class UserJobDto
     public DateTime? LastExecution { get; set; }
     public string? LastState { get; set; }
 }
+
+public record UserPlanDto(
+    string Slug,
+    string Name,
+    double PricePln,
+    DateTime? ExpiresAt
+);
+
+public record SubscriptionPlanDto(
+    int Id,
+    string Slug,
+    string Name,
+    double PricePln,
+    int MaxAlerts,
+    int MaxPortals,
+    int RefreshIntervalMin,
+    bool InstantAlerts,
+    bool PriceHistory,
+    bool ExportCsv,
+    bool ApiAccess,
+    bool WebhookSupport
+);
+
+public record CreateCheckoutSessionRequest(
+    int UserId,
+    string PlanSlug,
+    string SuccessUrl,
+    string CancelUrl
+);

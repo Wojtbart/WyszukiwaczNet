@@ -204,3 +204,47 @@ public class UserJobsResponse
     public bool Success { get; set; }
     public List<UserJobDto>? Data { get; set; }
 }
+
+public class UserPlanDto
+{
+    public string Slug { get; set; } = "free";
+    public string Name { get; set; } = "Free";
+    public double PricePln { get; set; }
+    public DateTime? ExpiresAt { get; set; }
+}
+
+public class SubscriptionPlanDto
+{
+    public int Id { get; set; }
+    public string Slug { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public double PricePln { get; set; }
+    public int MaxAlerts { get; set; }
+    public int MaxPortals { get; set; }
+    public int RefreshIntervalMin { get; set; }
+    public bool InstantAlerts { get; set; }
+    public bool PriceHistory { get; set; }
+    public bool ExportCsv { get; set; }
+    public bool ApiAccess { get; set; }
+    public bool WebhookSupport { get; set; }
+}
+
+public class CreateCheckoutSessionRequest
+{
+    public int UserId { get; set; }
+    public string PlanSlug { get; set; } = string.Empty;
+    public string SuccessUrl { get; set; } = string.Empty;
+    public string CancelUrl { get; set; } = string.Empty;
+}
+
+public class PlanLimitsDto
+{
+    public int MaxAlerts { get; set; }
+    public int MaxPortals { get; set; }
+    public int RefreshIntervalMin { get; set; }
+    public bool InstantAlerts { get; set; }
+    public bool PriceHistory { get; set; }
+    public bool ExportCsv { get; set; }
+    public bool ApiAccess { get; set; }
+    public bool WebhookSupport { get; set; }
+}

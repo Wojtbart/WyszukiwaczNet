@@ -1,0 +1,222 @@
+@page "/cennik"
+@layout PublicLayout
+@using WyszukiwaczApp.Services
+@using WyszukiwaczAppDTO
+@inject SubscriptionService SubscriptionService
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
+<PageTitle>Cennik – Wyszukiwacz | Alerty ogłoszeniowe OLX, Otomoto, Amazon</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="Wybierz plan Wyszukiwacza. Darmowy plan bez rejestracji, Premium 29 zł/mies. z alertami natychmiastowymi i wszystkimi portalami, Pro 99 zł/mies. dla dealerów." />
+    <meta name="keywords" content="cennik wyszukiwacz, subskrypcja alerty ogłoszenia, premium OLX Otomoto, monitoring cen samochodów" />
+    <meta property="og:title" content="Cennik – Wyszukiwacz" />
+    <meta property="og:description" content="Darmowy plan, Premium i Pro – wybierz plan dopasowany do Twoich potrzeb." />
+</HeadContent>
+
+<div class="pricing-page">
+
+    <div class="pricing-hero">
+        <h1 class="pricing-title">Prosty cennik, bez ukrytych kosztów</h1>
+        <p class="pricing-subtitle">Zacznij za darmo. Przejdź na wyższy plan gdy będziesz potrzebować więcej.</p>
+    </div>
+
+    @if (_plans == null)
+    {
+        <div class="pricing-grid">
+            @for (int i = 0; i < 3; i++)
+            {
+                <div class="plan-card plan-card--skeleton"></div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="pricing-grid">
+
+            <!-- FREE always shown even if not in DB -->
+            <div class="plan-card">
+                <div class="plan-badge">Zawsze darmowy</div>
+                <div class="plan-icon">🟢</div>
+                <h2 class="plan-name">Free</h2>
+                <div class="plan-price">
+                    <span class="plan-price-amount">0 zł</span>
+                    <span class="plan-price-period">/miesiąc</span>
+                </div>
+                <p class="plan-tagline">Idealne na start</p>
+                <ul class="plan-features">
+                    <li class="feat feat--ok">Ręczne wyszukiwanie ofert</li>
+                    <li class="feat feat--ok">Podgląd z 2 portali</li>
+                    <li class="feat feat--ok">1 zapisane wyszukiwanie</li>
+                    <li class="feat feat--ok">1 alert email dziennie</li>
+                    <li class="feat feat--ok">Odświeżanie co 6h</li>
+                    <li class="feat feat--no">Alerty natychmiastowe</li>
+                    <li class="feat feat--no">Wszystkie portale</li>
+                    <li class="feat feat--no">Historia cen</li>
+                    <li class="feat feat--no">Eksport CSV</li>
+                </ul>
+                <a href="/register" class="plan-btn plan-btn--outline">Zacznij za darmo</a>
+            </div>
+
+            @{
+                var premium = _plans.FirstOrDefault(p => p.Slug == "premium");
+                var pro = _plans.FirstOrDefault(p => p.Slug == "pro");
+            }
+
+            <!-- PREMIUM -->
+            <div class="plan-card plan-card--featured">
+                <div class="plan-badge plan-badge--featured">Najpopularniejszy</div>
+                <div class="plan-icon">🔵</div>
+                <h2 class="plan-name">Premium</h2>
+                <div class="plan-price">
+                    <span class="plan-price-amount">@(premium != null ? $"{premium.PricePln:0} zł" : "29 zł")</span>
+                    <span class="plan-price-period">/miesiąc</span>
+                </div>
+                <p class="plan-tagline">Dla aktywnych kupujących</p>
+                <ul class="plan-features">
+                    <li class="feat feat--ok">Wszystkie portale (OLX, Otomoto, Otodom, Amazon...)</li>
+                    <li class="feat feat--ok">Alerty natychmiastowe (email / push)</li>
+                    <li class="feat feat--ok">Nielimitowane zapisane wyszukiwania</li>
+                    <li class="feat feat--ok">Odświeżanie co 5–15 min</li>
+                    <li class="feat feat--ok">Historia cen ofert</li>
+                    <li class="feat feat--ok">Wykrywanie świeżych okazji</li>
+                    <li class="feat feat--ok">Eksport CSV</li>
+                    <li class="feat feat--no">Webhook / API</li>
+                    <li class="feat feat--no">Raporty PDF</li>
+                </ul>
+                <button class="plan-btn plan-btn--primary" @onclick='() => Subscribe("premium")'>
+                    @(_userPlan == "premium" ? "Aktualny plan" : "Wybierz Premium")
+                </button>
+            </div>
+
+            <!-- PRO -->
+            <div class="plan-card">
+                <div class="plan-badge plan-badge--pro">Dla profesjonalistów</div>
+                <div class="plan-icon">🟣</div>
+                <h2 class="plan-name">Pro</h2>
+                <div class="plan-price">
+                    <span class="plan-price-amount">@(pro != null ? $"{pro.PricePln:0} zł" : "99 zł")</span>
+                    <span class="plan-price-period">/miesiąc</span>
+                </div>
+                <p class="plan-tagline">Dla handlarzy i komisów</p>
+                <ul class="plan-features">
+                    <li class="feat feat--ok">Wszystko z Premium</li>
+                    <li class="feat feat--ok">Monitoring całej marki/modelu</li>
+                    <li class="feat feat--ok">Automatyczny scoring okazji</li>
+                    <li class="feat feat--ok">Dane cenowe rynku</li>
+                    <li class="feat feat--ok">Webhook / API</li>
+                    <li class="feat feat--ok">Raport tygodniowy PDF</li>
+                    <li class="feat feat--ok">Wiele kont / zespół</li>
+                    <li class="feat feat--ok">Odświeżanie co 5 min</li>
+                    <li class="feat feat--ok">Priorytetowe wsparcie</li>
+                </ul>
+                <button class="plan-btn plan-btn--pro" @onclick='() => Subscribe("pro")'>
+                    @(_userPlan == "pro" ? "Aktualny plan" : "Wybierz Pro")
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- Feature comparison table -->
+    <div class="comparison-wrap">
+        <h2 class="comparison-title">Szczegółowe porównanie planów</h2>
+        <div class="comparison-table-wrap">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Funkcja</th>
+                        <th>Free</th>
+                        <th class="col-premium">Premium</th>
+                        <th>Pro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Liczba portali</td><td>2</td><td class="col-premium">Wszystkie</td><td>Wszystkie</td></tr>
+                    <tr><td>Zapisane wyszukiwania</td><td>1</td><td class="col-premium">Nielimitowane</td><td>Nielimitowane</td></tr>
+                    <tr><td>Częstość odświeżania</td><td>Co 6h</td><td class="col-premium">Co 5–15 min</td><td>Co 5 min</td></tr>
+                    <tr><td>Alerty natychmiastowe</td><td>❌</td><td class="col-premium">✅</td><td>✅</td></tr>
+                    <tr><td>Email / Push / Discord</td><td>Email (1/dzień)</td><td class="col-premium">Wszystkie</td><td>Wszystkie</td></tr>
+                    <tr><td>Historia cen</td><td>❌</td><td class="col-premium">✅</td><td>✅</td></tr>
+                    <tr><td>Eksport CSV</td><td>❌</td><td class="col-premium">✅</td><td>✅</td></tr>
+                    <tr><td>Webhook / API</td><td>❌</td><td class="col-premium">❌</td><td>✅</td></tr>
+                    <tr><td>Raport PDF</td><td>❌</td><td class="col-premium">❌</td><td>✅</td></tr>
+                    <tr><td>Scoring okazji</td><td>❌</td><td class="col-premium">❌</td><td>✅</td></tr>
+                    <tr><td>Wiele kont</td><td>❌</td><td class="col-premium">❌</td><td>✅</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="pricing-faq">
+        <h2 class="faq-title">Często zadawane pytania</h2>
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary>Czy mogę anulować subskrypcję w dowolnym momencie?</summary>
+                <p>Tak. Anulowanie jest natychmiastowe w panelu konta. Dostęp do płatnych funkcji wygasa na koniec opłaconego okresu.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Jakie metody płatności obsługujecie?</summary>
+                <p>Karta kredytowa/debetowa, Przelewy24 (BLIK, przelew bankowy). Płatności obsługuje Stripe z szyfrowaniem SSL.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Czy mogę przejść na wyższy/niższy plan?</summary>
+                <p>Tak. Upgrade jest natychmiastowy i rozliczany proporcjonalnie. Downgrade aktywuje się od nowego okresu rozliczeniowego.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Czy wystawiacie faktury VAT?</summary>
+                <p>Tak. Faktury wystawia Stripe i są dostępne w panelu konta po zalogowaniu.</p>
+            </details>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private List<SubscriptionPlanDto>? _plans;
+    private string _userPlan = "free";
+    private int _userId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        _plans = await SubscriptionService.GetPlansAsync() ?? new();
+
+        var token = await LocalStorage.GetItemAsync<string>("authToken") ?? string.Empty;
+        if (!string.IsNullOrEmpty(token))
+        {
+            SubscriptionService.SetAuthToken(token);
+            var userIdStr = await LocalStorage.GetItemAsync<string>("userId") ?? string.Empty;
+            if (int.TryParse(userIdStr, out _userId) && _userId > 0)
+            {
+                var plan = await SubscriptionService.GetUserPlanAsync(_userId);
+                _userPlan = plan?.Slug ?? "free";
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task Subscribe(string planSlug)
+    {
+        if (_userId <= 0)
+        {
+            Navigation.NavigateTo($"/register?redirect=cennik");
+            return;
+        }
+
+        var baseUri = Navigation.BaseUri.TrimEnd('/');
+        var url = await SubscriptionService.CreateCheckoutSessionAsync(new CreateCheckoutSessionRequest
+        {
+            UserId = _userId,
+            PlanSlug = planSlug,
+            SuccessUrl = $"{baseUri}/billing?success=1",
+            CancelUrl = $"{baseUri}/cennik"
+        });
+
+        if (!string.IsNullOrEmpty(url))
+            Navigation.NavigateTo(url, forceLoad: true);
+    }
+}

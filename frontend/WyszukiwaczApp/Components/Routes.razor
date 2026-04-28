@@ -33,7 +33,7 @@
     {
         try
         {
-            if (!Globals.IsLogged && context.Path != "login" && context.Path != "register" && context.Path != "")
+            if (!Globals.IsLogged && context.Path != "login" && context.Path != "register" && context.Path != "" && context.Path != "cennik")
             {
                 if (Navigation.Uri != Navigation.ToAbsoluteUri("login").ToString())
                 {

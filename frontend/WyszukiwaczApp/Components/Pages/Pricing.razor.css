@@ -1,0 +1,325 @@
+/* ── Page ─────────────────────────────────────────────── */
+.pricing-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+}
+
+/* ── Hero ─────────────────────────────────────────────── */
+.pricing-hero {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+.pricing-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin: 0 0 0.75rem;
+    line-height: 1.2;
+}
+
+.pricing-subtitle {
+    color: #6b7280;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* ── Plans grid ───────────────────────────────────────── */
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    margin-bottom: 4rem;
+}
+
+@media (max-width: 900px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* ── Plan card ────────────────────────────────────────── */
+.plan-card {
+    background: white;
+    border-radius: 20px;
+    border: 2px solid #e5e9ef;
+    padding: 2rem 1.75rem;
+    position: relative;
+    transition: box-shadow 0.2s;
+}
+
+.plan-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+.plan-card--featured {
+    border-color: #667eea;
+    box-shadow: 0 4px 24px rgba(102,126,234,0.18);
+    transform: translateY(-6px);
+}
+
+.plan-card--skeleton {
+    min-height: 520px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e8eaf0 50%, #f0f2f5 75%);
+    background-size: 400% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ── Badge ────────────────────────────────────────────── */
+.plan-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    background: #f0f2f5;
+    color: #6b7280;
+    margin-bottom: 1.25rem;
+}
+
+.plan-badge--featured {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.plan-badge--pro {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+/* ── Icon + Name ──────────────────────────────────────── */
+.plan-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.plan-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin: 0 0 1rem;
+}
+
+/* ── Price ────────────────────────────────────────────── */
+.plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    margin-bottom: 0.4rem;
+}
+
+.plan-price-amount {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #1a1a2e;
+}
+
+.plan-price-period {
+    font-size: 0.9rem;
+    color: #9ca3af;
+}
+
+.plan-tagline {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin: 0 0 1.5rem;
+}
+
+/* ── Feature list ─────────────────────────────────────── */
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.feat {
+    font-size: 0.9rem;
+    color: #374151;
+    padding-left: 1.6rem;
+    position: relative;
+}
+
+.feat::before {
+    position: absolute;
+    left: 0;
+    font-size: 0.95rem;
+}
+
+.feat--ok { color: #1f2937; }
+.feat--ok::before { content: "✅"; }
+.feat--no { color: #9ca3af; }
+.feat--no::before { content: "❌"; }
+
+/* ── Buttons ──────────────────────────────────────────── */
+.plan-btn {
+    display: block;
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.plan-btn--primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.plan-btn--primary:hover { opacity: 0.88; }
+
+.plan-btn--outline {
+    background: transparent;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.plan-btn--outline:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.plan-btn--pro {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: white;
+}
+
+.plan-btn--pro:hover { opacity: 0.88; }
+
+/* ── Comparison table ─────────────────────────────────── */
+.comparison-wrap {
+    margin-bottom: 4rem;
+}
+
+.comparison-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.comparison-table-wrap {
+    overflow-x: auto;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+}
+
+.comparison-table th {
+    background: #f8fafc;
+    padding: 0.75rem 1.2rem;
+    text-align: center;
+    font-weight: 700;
+    color: #374151;
+    border-bottom: 2px solid #e5e9ef;
+}
+
+.comparison-table th:first-child {
+    text-align: left;
+}
+
+.comparison-table td {
+    padding: 0.7rem 1.2rem;
+    text-align: center;
+    border-bottom: 1px solid #f0f2f5;
+    color: #374151;
+}
+
+.comparison-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.comparison-table tr:hover td {
+    background: #f8fafc;
+}
+
+.col-premium {
+    background: #f5f3ff;
+}
+
+/* ── FAQ ──────────────────────────────────────────────── */
+.pricing-faq {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.faq-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.faq-item {
+    background: white;
+    border: 1px solid #e5e9ef;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.faq-item summary {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1f2937;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-item summary::-webkit-details-marker { display: none; }
+
+.faq-item summary::after {
+    content: "+";
+    font-size: 1.2rem;
+    color: #667eea;
+    font-weight: 300;
+}
+
+.faq-item[open] summary::after {
+    content: "–";
+}
+
+.faq-item p {
+    padding: 0 1.25rem 1rem;
+    margin: 0;
+    font-size: 0.9rem;
+    color: #6b7280;
+    line-height: 1.7;
+    border-top: 1px solid #f0f2f5;
+    padding-top: 0.75rem;
+}

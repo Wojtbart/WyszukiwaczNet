@@ -18,6 +18,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
     public DbSet<UserNotificationConfig> UserNotificationConfigs => Set<UserNotificationConfig>();
+    public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+    public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,6 +54,17 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Platform>(entity =>
         {
             entity.HasIndex(p => p.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<SubscriptionPlan>(entity =>
+        {
+            entity.HasIndex(p => p.Slug).IsUnique();
+        });
+
+        modelBuilder.Entity<UserSubscription>(entity =>
+        {
+            entity.HasIndex(us => us.UserId);
+            entity.HasIndex(us => us.StripeSubscriptionId);
         });
     }
 }

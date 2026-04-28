@@ -71,6 +71,19 @@
         opacity: 0.85;
     }
 
+    .nav-btn-pricing {
+        padding: 0.45rem 1.2rem;
+        color: #374151;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+
+    .nav-btn-pricing:hover {
+        color: #667eea;
+    }
+
     .public-content {
         flex: 1;
     }
@@ -172,6 +185,7 @@
     <nav class="public-nav" role="navigation" aria-label="Nawigacja główna">
         <a href="/" class="public-nav-logo" aria-label="Wyszukiwacz – strona główna">Wyszukiwacz</a>
         <div class="public-nav-actions">
+            <a href="/cennik" class="nav-btn-pricing">Cennik</a>
             <a href="/login" class="nav-btn-login">Zaloguj się</a>
             <a href="/register" class="nav-btn-register">Zarejestruj się bezpłatnie</a>
         </div>
@@ -198,8 +212,10 @@
             <div class="footer-links">
                 <h4>Konto</h4>
                 <ul>
+                    <li><a href="/cennik">Cennik</a></li>
                     <li><a href="/register">Zarejestruj się</a></li>
                     <li><a href="/login">Zaloguj się</a></li>
+                    <li><a href="/billing">Moja subskrypcja</a></li>
                 </ul>
             </div>
         </div>
