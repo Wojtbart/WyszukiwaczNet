@@ -34,42 +34,58 @@
             <div class="auth-field-row">
                 <div class="auth-field">
                     <label class="auth-label" for="name">Imię</label>
-                    <InputText id="name" @bind-Value="registerModel.Name" class="auth-input" placeholder="Jan" />
+                    <div class="auth-input-group">
+                        <i class="material-icons auth-input-icon">badge</i>
+                        <input id="name" @bind="registerModel.Name" class="auth-input" placeholder="Jan" />
+                    </div>
                 </div>
                 <div class="auth-field">
                     <label class="auth-label" for="surname">Nazwisko</label>
-                    <InputText id="surname" @bind-Value="registerModel.Surname" class="auth-input" placeholder="Kowalski" />
+                    <div class="auth-input-group">
+                        <i class="material-icons auth-input-icon">badge</i>
+                        <input id="surname" @bind="registerModel.Surname" class="auth-input" placeholder="Kowalski" />
+                    </div>
                 </div>
             </div>
 
             <div class="auth-field">
                 <label class="auth-label" for="login">Login <span class="auth-required">*</span></label>
-                <InputText id="login" @bind-Value="registerModel.Login" class="auth-input" placeholder="Nazwa użytkownika" />
-                <ValidationMessage For="@(() => registerModel.Login)" />
+                <div class="auth-input-group">
+                    <i class="material-icons auth-input-icon">person</i>
+                    <input id="login" @bind="registerModel.Login" class="auth-input" placeholder="Nazwa użytkownika" />
+                </div>
             </div>
 
             <div class="auth-field">
                 <label class="auth-label" for="email">Email <span class="auth-required">*</span></label>
-                <InputText id="email" @bind-Value="registerModel.Email" class="auth-input" placeholder="twoj@email.pl" />
-                <ValidationMessage For="@(() => registerModel.Email)" />
+                <div class="auth-input-group">
+                    <i class="material-icons auth-input-icon">email</i>
+                    <input id="email" type="email" @bind="registerModel.Email" class="auth-input" placeholder="twoj@email.pl" />
+                </div>
             </div>
 
             <div class="auth-field">
                 <label class="auth-label" for="phone">Telefon <span class="auth-optional">(opcjonalnie)</span></label>
-                <InputText id="phone" @bind-Value="registerModel.Phone" class="auth-input" placeholder="+48123456789" />
-                <ValidationMessage For="@(() => registerModel.Phone)" />
+                <div class="auth-input-group">
+                    <i class="material-icons auth-input-icon">phone</i>
+                    <input id="phone" type="tel" @bind="registerModel.Phone" class="auth-input" placeholder="+48123456789" />
+                </div>
             </div>
 
             <div class="auth-field">
                 <label class="auth-label" for="password">Hasło <span class="auth-required">*</span></label>
-                <InputText id="password" @bind-Value="registerModel.Password" type="password" class="auth-input" placeholder="Min. 6 znaków" />
-                <ValidationMessage For="@(() => registerModel.Password)" />
+                <div class="auth-input-group">
+                    <i class="material-icons auth-input-icon">lock</i>
+                    <input id="password" type="password" @bind="registerModel.Password" class="auth-input" placeholder="Min. 6 znaków" />
+                </div>
             </div>
 
             <div class="auth-field">
                 <label class="auth-label" for="repeatPassword">Powtórz hasło <span class="auth-required">*</span></label>
-                <InputText id="repeatPassword" @bind-Value="registerModel.RepeatPassword" type="password" class="auth-input" placeholder="Powtórz hasło" />
-                <ValidationMessage For="@(() => registerModel.RepeatPassword)" />
+                <div class="auth-input-group">
+                    <i class="material-icons auth-input-icon">lock_reset</i>
+                    <input id="repeatPassword" type="password" @bind="registerModel.RepeatPassword" class="auth-input" placeholder="Powtórz hasło" />
+                </div>
             </div>
 
             <button type="submit" class="auth-submit" disabled="@isLoading">

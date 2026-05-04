@@ -60,6 +60,14 @@
                                 @(_categoryEnabled.GetValueOrDefault("Zakupy") ? "aktywne" : "nieaktywne")
                             </span>
                         </div>
+                        <div class="cat-btn @(_selectedCategory == "Praca" ? "cat-btn--active" : "")"
+                             @onclick='async () => await SelectCategory("Praca")'>
+                            <span class="cat-btn-emoji">💼</span>
+                            <span>Praca</span>
+                            <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Praca") ? "cat-status--on" : "cat-status--off")">
+                                @(_categoryEnabled.GetValueOrDefault("Praca") ? "aktywne" : "nieaktywne")
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -397,12 +405,14 @@
     private List<string> _carPlatforms  = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum", "Samochody" };
     private List<string> _flatPlatforms = new() { "OtoDom" };
     private List<string> _shopPlatforms = new() { "Amazon", "Olx" };
-    private List<string> availablePlatforms => _carPlatforms.Concat(_flatPlatforms).Concat(_shopPlatforms).ToList();
+    private List<string> _workPlatforms = new() { "PracaPl" };
+    private List<string> availablePlatforms => _carPlatforms.Concat(_flatPlatforms).Concat(_shopPlatforms).Concat(_workPlatforms).ToList();
     private List<string> ActivePlatforms => _selectedCategory switch
     {
         "Motoryzacja"   => _carPlatforms,
         "Nieruchomości" => _flatPlatforms,
         "Zakupy"        => _shopPlatforms,
+        "Praca"         => _workPlatforms,
         _               => new()
     };
     private string SearchPlaceholder => _selectedCategory switch
@@ -410,6 +420,7 @@
         "Motoryzacja"   => "np. Toyota Corolla, BMW 3...",
         "Nieruchomości" => "np. Warszawa, Kraków...",
         "Zakupy"        => "np. iPhone 14, karta graficzna...",
+        "Praca"         => "np. developer, kierowca, manager...",
         _               => "Wpisz szukany tekst..."
     };
     private List<string> selectedPlatforms = new();

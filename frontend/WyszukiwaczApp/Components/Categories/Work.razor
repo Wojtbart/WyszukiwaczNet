@@ -1,0 +1,165 @@
+@page "/work"
+
+@using WyszukiwaczAppDTO
+@using System.Threading.Tasks
+@inject DataProxy DataProxy
+@inject DialogService DialogService
+
+<style>
+    .link {
+        background-color: #a04ba7;
+        border: none;
+        color: white;
+        padding: 6px 19px;
+        text-decoration: none !important;
+        display: inline-block;
+        border: 1px solid #7c658b;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .link:hover, .link:visited {
+        color: #7c658b;
+        text-decoration: none !important;
+        background-color: white;
+        border: 2px solid #7c658b;
+    }
+
+    .link:active {
+        box-shadow: none;
+        color: white;
+        text-decoration: none !important;
+    }
+
+    .rz-form-field-content {
+        outline: none !important;
+        border-radius: 15px;
+    }
+
+    .grid-margin {
+        margin-bottom: 20px;
+        box-shadow: 0 0 50px #ccc;
+    }
+</style>
+
+<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
+    <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
+        <RadzenFormField Text="Stanowisko / słowo kluczowe" Variant="Variant.Flat" Style="width:70%;margin-right:20px;">
+            <RadzenTextBox @bind-Value="@searchedKeyword" Style="width: 100%; border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
+            <RadzenButton Click=LoadData Text="ZAŁADUJ" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(searchedKeyword)" />
+        </RadzenFormField>
+    </RadzenColumn>
+</RadzenRow>
+
+<RadzenText TextStyle="TextStyle.H4" Text="Wybierz portale pracy" Style="color:red; margin-bottom:20px;" />
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+    <RadzenImage Path="images/pracuj.svg" Style="width: 4rem;height:2rem;" AlternateText="Pracuj" />
+    <RadzenLabel Text="Pracuj" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setPracujGrid Name="CheckBox1" />
+</RadzenButton>
+
+@if (setPracujGrid)
+{
+    <RadzenDataGrid Data="@pracujData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak ofert pracy.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <h3 style="display: inline-block; color:red; font-weight:bold;">💼 Pracuj</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Stanowisko" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="140px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Zobacz ofertę" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="SellerName" Title="Pracodawca" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Wynagrodzenie (PLN)" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @(context.Price.HasValue ? $"od {(int)context.Price} PLN" : "—")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="Typ umowy" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.AdditionalInfo</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    private string searchedKeyword = string.Empty;
+    private bool isLoading = false;
+    private bool setPracujGrid = false;
+    private IEnumerable<ScrapedItem>? pracujData;
+
+    DataModel model = new();
+
+    private async Task LoadData()
+    {
+        if (string.IsNullOrWhiteSpace(searchedKeyword))
+        {
+            await DialogService.Alert("Wpisz stanowisko lub słowo kluczowe.");
+            return;
+        }
+        if (!Globals.IsPhraseValid(searchedKeyword))
+        {
+            await DialogService.Alert("Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik.");
+            return;
+        }
+
+        isLoading = true;
+
+        var websites = new List<string>();
+        if (setPracujGrid) websites.Add("pracuj");
+
+        model = new DataModel
+        {
+            websites = websites,
+            phrase = searchedKeyword,
+            request_number = "30",
+            additional_phrase = ""
+        };
+
+        try
+        {
+            var result = await DataProxy.getData(model);
+            pracujData = result?.Data?.PracujData?.Output;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"Błąd podczas pobierania danych: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -49,6 +49,7 @@ public class DataWrapper
     public PlatformData? SprzedajemyData { get; set; }
     public PlatformData? AutocentrumData { get; set; }
     public PlatformData? SamochodyData { get; set; }
+    public PlatformData? PracujData { get; set; }
 }
 
 public class GetDataResponse

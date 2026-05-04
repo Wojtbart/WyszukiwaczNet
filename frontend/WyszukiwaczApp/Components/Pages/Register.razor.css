@@ -83,25 +83,48 @@
 .auth-required { color: #ef4444; font-size: 0.8rem; }
 .auth-optional { color: #9ca3af; font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 0.78rem; }
 
-.auth-input {
-    width: 100%;
-    padding: 0.7rem 1rem;
+.auth-input-group {
+    display: flex;
+    align-items: center;
     border: 2px solid #e5e9ef;
     border-radius: 10px;
-    font-size: 0.95rem;
-    color: #1f2937;
     background: #fafbfc;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    box-sizing: border-box;
-    display: block;
+    overflow: hidden;
 }
 
-.auth-input:focus {
-    outline: none;
+.auth-input-group:focus-within {
     border-color: #667eea;
     background: white;
     box-shadow: 0 0 0 3px rgba(102,126,234,0.12);
 }
+
+.auth-input-icon {
+    padding: 0 0.75rem 0 0.9rem;
+    color: #9ca3af;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.auth-input-group:focus-within .auth-input-icon {
+    color: #667eea;
+}
+
+.auth-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0.7rem 1rem 0.7rem 0;
+    font-size: 0.95rem;
+    color: #1f2937;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.auth-input::placeholder { color: #b0b8c9; }
 
 .auth-submit {
     width: 100%;

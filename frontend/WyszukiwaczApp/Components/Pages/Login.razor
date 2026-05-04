@@ -26,16 +26,20 @@
 
             <div class="auth-field">
                 <label class="auth-label" for="login">Email lub login</label>
-                <InputText id="login" @bind-Value="loginModel.Login" class="auth-input" placeholder="twoj@email.pl lub login" />
-                <ValidationMessage For="@(() => loginModel.Login)" />
+                <div class="auth-input-group">
+                    <i class="material-icons auth-input-icon">person</i>
+                    <input id="login" @bind="loginModel.Login" class="auth-input" placeholder="twoj@email.pl lub login" />
+                </div>
             </div>
 
             <div class="auth-field">
                 <label class="auth-label" for="password">Hasło</label>
-                <InputText id="password" @bind-Value="loginModel.Password" type="password"
+                <div class="auth-input-group">
+                    <i class="material-icons auth-input-icon">lock</i>
+                    <input id="password" type="password" @bind="loginModel.Password"
                            class="auth-input" placeholder="Wprowadź hasło"
                            @onkeydown="HandlePasswordKeyDown" />
-                <ValidationMessage For="@(() => loginModel.Password)" />
+                </div>
             </div>
 
             <div class="auth-remember">
