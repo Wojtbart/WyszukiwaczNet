@@ -45,8 +45,19 @@
 
 <RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
     <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
-        <RadzenFormField Text="Stanowisko / słowo kluczowe" Variant="Variant.Flat" Style="width:70%;margin-right:20px;">
+        <RadzenFormField Text="Stanowisko / słowo kluczowe" Variant="Variant.Flat" Style="width:35%;margin-right:20px;">
             <RadzenTextBox @bind-Value="@searchedKeyword" Style="width: 100%; border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Lokalizacja (opcjonalnie)" Variant="Variant.Flat" Style="width:20%;margin-right:20px;">
+            <RadzenTextBox @bind-Value="@workLocation" Placeholder="np. Rzeszów" Style="width: 100%; border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Poziom stanowiska" Variant="Variant.Flat" Style="width:180px;margin-right:20px;">
+            <RadzenDropDown @bind-Value="@employmentLevel" Data="@employmentLevels" TextProperty="Label" ValueProperty="Value"
+                            Placeholder="Dowolny" AllowClear="true" Style="width:100%;border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Typ umowy" Variant="Variant.Flat" Style="width:150px;margin-right:20px;">
+            <RadzenDropDown @bind-Value="@contractType" Data="@contractTypes" TextProperty="Label" ValueProperty="Value"
+                            Placeholder="Dowolna" AllowClear="true" Style="width:100%;border-radius:15px;" />
         </RadzenFormField>
         <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
             <RadzenButton Click=LoadData Text="ZAŁADUJ" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(searchedKeyword)" />
@@ -56,10 +67,15 @@
 
 <RadzenText TextStyle="TextStyle.H4" Text="Wybierz portale pracy" Style="color:red; margin-bottom:20px;" />
 
-<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
     <RadzenImage Path="images/pracuj.svg" Style="width: 4rem;height:2rem;" AlternateText="Pracuj" />
     <RadzenLabel Text="Pracuj" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
     <RadzenCheckBox @bind-Value=@setPracujGrid Name="CheckBox1" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+    <RadzenLabel Text="JustJoin.IT" Component="CheckBox2" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
+    <RadzenCheckBox @bind-Value=@setJJIGrid Name="CheckBox2" />
 </RadzenButton>
 
 @if (setPracujGrid)
@@ -82,7 +98,7 @@
                     <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="Link" Width="140px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="170px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <div class="rz-text-align-center" style="height:38px;">
                         <RadzenLink Path="@context.Url" Text="Zobacz ofertę" Target="_blank" class="link" />
@@ -94,19 +110,103 @@
                     <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="Wynagrodzenie" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
-                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
+                    @if (context.JobDetail?.SalaryRaw != null)
+                    {
+                        <RadzenText style="white-space:pre-wrap; font-weight:bold; color:#2e7d32;">@context.JobDetail.SalaryRaw</RadzenText>
+                    }
+                    else if (context.Price.HasValue)
+                    {
+                        <RadzenText>od @((int)context.Price) PLN</RadzenText>
+                    }
+                    else
+                    {
+                        <RadzenText style="color:#aaa;">—</RadzenText>
+                    }
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Price" Title="Wynagrodzenie (PLN)" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="Technologie" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
-                    @(context.Price.HasValue ? $"od {(int)context.Price} PLN" : "—")
+                    <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.Technologies ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="AdditionalInfo" Title="Typ umowy" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="Miejsce pracy" TextAlign="TextAlign.Center">
                 <Template Context="context">
-                    <RadzenText style="white-space:pre-wrap">@context.AdditionalInfo</RadzenText>
+                    <RadzenText style="white-space:pre-wrap">@(context.JobDetail?.WorkLocation ?? context.Location ?? "—")</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Siedziba firmy" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@(context.JobDetail?.HqLocation ?? "—")</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="Informacje dodatkowe" TextAlign="TextAlign.Center" Width="220px">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap; font-size:0.82rem;">@(context.AdditionalInfo ?? "—")</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@if (setJJIGrid)
+{
+    <RadzenDataGrid Data="@jjiData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak ofert pracy.</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <h3 style="display: inline-block; color:#ff5733; font-weight:bold;">💻 JustJoin.IT</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Stanowisko" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="170px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Zobacz ofertę" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="SellerName" Title="Firma" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Wynagrodzenie" TextAlign="TextAlign.Center" Width="200px">
+                <Template Context="context">
+                    @if (context.JobDetail?.SalaryRaw != null)
+                    {
+                        <RadzenText style="white-space:pre-wrap; font-weight:bold; color:#2e7d32;">@context.JobDetail.SalaryRaw</RadzenText>
+                    }
+                    else
+                    {
+                        <RadzenText style="color:#aaa;">—</RadzenText>
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Technologie" TextAlign="TextAlign.Center" Width="200px">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.Technologies ?? "—")</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="Lokalizacja" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@(context.Location ?? "—")</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="Pozostało" TextAlign="TextAlign.Center" Width="120px">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap; font-size:0.85rem; color:#e65100;">@(context.AdditionalInfo ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
         </Columns>
@@ -115,9 +215,28 @@
 
 @code {
     private string searchedKeyword = string.Empty;
+    private string workLocation = string.Empty;
+    private int? employmentLevel = null;
+    private int? contractType = null;
     private bool isLoading = false;
     private bool setPracujGrid = false;
+    private bool setJJIGrid = false;
     private IEnumerable<ScrapedItem>? pracujData;
+    private IEnumerable<ScrapedItem>? jjiData;
+
+    private record FilterOption(string Label, int Value);
+    private static readonly List<FilterOption> employmentLevels = new()
+    {
+        new("Junior", 17),
+        new("Mid / Regular", 4),
+        new("Senior", 18),
+        new("Ekspert", 19),
+    };
+    private static readonly List<FilterOption> contractTypes = new()
+    {
+        new("Umowa o pracę", 0),
+        new("B2B", 3),
+    };
 
     DataModel model = new();
 
@@ -130,7 +249,7 @@
         }
         if (!Globals.IsPhraseValid(searchedKeyword))
         {
-            await DialogService.Alert("Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik.");
+            await DialogService.Alert("Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik, #, .");
             return;
         }
 
@@ -138,19 +257,24 @@
 
         var websites = new List<string>();
         if (setPracujGrid) websites.Add("pracuj");
+        if (setJJIGrid) websites.Add("justjoinit");
 
         model = new DataModel
         {
             websites = websites,
             phrase = searchedKeyword,
             request_number = "30",
-            additional_phrase = ""
+            additional_phrase = "",
+            work_location = string.IsNullOrWhiteSpace(workLocation) ? null : workLocation.Trim(),
+            employment_level = employmentLevel,
+            contract_type = contractType,
         };
 
         try
         {
             var result = await DataProxy.getData(model);
             pracujData = result?.Data?.PracujData?.Output;
+            jjiData = result?.Data?.JustjoinitData?.Output;
             StateHasChanged();
         }
         catch (Exception ex)

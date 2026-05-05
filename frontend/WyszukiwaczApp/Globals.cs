@@ -16,7 +16,7 @@ namespace WyszukiwaczApp
         {
             if (string.IsNullOrWhiteSpace(phrase) || phrase.Length > 200)
                 return false;
-            return Regex.IsMatch(phrase, @"^[\p{L}\p{N}\s\-]+$");
+            return Regex.IsMatch(phrase, @"^[\p{L}\p{N}\s\-#.]+$");
         }
     }
 }

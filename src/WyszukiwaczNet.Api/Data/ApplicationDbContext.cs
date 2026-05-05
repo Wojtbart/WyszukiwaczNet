@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserNotificationSetting> UserNotificationSettings => Set<UserNotificationSetting>();
     public DbSet<Offer> Offers => Set<Offer>();
     public DbSet<VehicleDetail> VehicleDetails => Set<VehicleDetail>();
+    public DbSet<JobDetail> JobDetails => Set<JobDetail>();
     public DbSet<OfferHistory> OfferHistories => Set<OfferHistory>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
@@ -44,6 +45,11 @@ public class ApplicationDbContext : DbContext
             .HasOne(o => o.VehicleDetail)
             .WithOne(v => v.Offer)
             .HasForeignKey<VehicleDetail>(v => v.OfferId);
+
+        modelBuilder.Entity<Offer>()
+            .HasOne(o => o.JobDetail)
+            .WithOne(j => j.Offer)
+            .HasForeignKey<JobDetail>(j => j.OfferId);
 
         modelBuilder.Entity<Offer>()
             .HasIndex(o => o.PlatformId);

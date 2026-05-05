@@ -42,7 +42,10 @@ public record GetDataRequest(
     List<string> Websites,
     string Phrase,
     string? AdditionalPhrase,
-    int RequestNumber
+    int RequestNumber,
+    string? WorkLocation = null,
+    int? EmploymentLevel = null,
+    int? ContractType = null
 );
 
 public record NotificationRequest(

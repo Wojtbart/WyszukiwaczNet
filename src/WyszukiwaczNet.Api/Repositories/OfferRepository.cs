@@ -29,6 +29,7 @@ public class OfferRepository : IOfferRepository
     {
         return await _context.Offers
             .Include(o => o.VehicleDetail)
+            .Include(o => o.JobDetail)
             .Include(o => o.Platform)
             .Where(o => o.PlatformId == platformId && o.Status == "active")
             .OrderBy(o => o.CreatedAt)
@@ -40,6 +41,7 @@ public class OfferRepository : IOfferRepository
     {
         var offers = await _context.Offers
             .Include(o => o.VehicleDetail)
+            .Include(o => o.JobDetail)
             .Include(o => o.Platform)
             .Where(o => o.PlatformId == platformId && o.Status == "active" && o.CreatedAt >= since)
             .OrderBy(o => o.CreatedAt)
@@ -53,6 +55,7 @@ public class OfferRepository : IOfferRepository
     {
         return await _context.Offers
             .Include(o => o.VehicleDetail)
+            .Include(o => o.JobDetail)
             .Include(o => o.Platform)
             .Where(o => o.Status == "active")
             .OrderBy(o => o.CreatedAt)
@@ -64,6 +67,7 @@ public class OfferRepository : IOfferRepository
     {
         return await _context.Offers
             .Include(o => o.VehicleDetail)
+            .Include(o => o.JobDetail)
             .Include(o => o.Platform)
             .FirstOrDefaultAsync(o => o.Id == id);
     }

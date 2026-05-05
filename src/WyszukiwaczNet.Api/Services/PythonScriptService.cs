@@ -10,7 +10,7 @@ namespace WyszukiwaczNet.Api.Services;
 
 public interface IPythonScriptService
 {
-    Task<(int RecordsCount, List<Offer> Output)> ExecuteScraperAsync(string scriptPath, string phrase, string platformName, int limit = 100, CancellationToken cancellationToken = default);
+    Task<(int RecordsCount, List<Offer> Output)> ExecuteScraperAsync(string scriptPath, string phrase, string platformName, int limit = 100, List<string>? extraArgs = null, CancellationToken cancellationToken = default);
 }
 
 public class PythonScriptService : IPythonScriptService
@@ -31,6 +31,7 @@ public class PythonScriptService : IPythonScriptService
         string phrase,
         string platformName,
         int limit = 100,
+        List<string>? extraArgs = null,
         CancellationToken cancellationToken = default)
     {
         if (!IsPhraseValid(phrase))
@@ -51,6 +52,9 @@ public class PythonScriptService : IPythonScriptService
         };
         startInfo.ArgumentList.Add(scriptPath);
         startInfo.ArgumentList.Add(phrase);
+        if (extraArgs != null)
+            foreach (var arg in extraArgs)
+                startInfo.ArgumentList.Add(arg);
 
         using var process = new Process { StartInfo = startInfo };
         var offers = new List<Offer>();
@@ -136,7 +140,7 @@ public class PythonScriptService : IPythonScriptService
     {
         if (string.IsNullOrWhiteSpace(phrase) || phrase.Length > 200)
             return false;
-        return Regex.IsMatch(phrase, @"^[\p{L}\p{N}\s\-]+$");
+        return Regex.IsMatch(phrase, @"^[\p{L}\p{N}\s\-#.]+$");
     }
 
     private static int ParseRecordsCount(string output)

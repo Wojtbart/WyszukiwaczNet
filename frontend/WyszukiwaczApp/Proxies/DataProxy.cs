@@ -58,7 +58,10 @@ public class DataProxy
                 Websites = model.websites,
                 Phrase = model.phrase,
                 AdditionalPhrase = model.additional_phrase,
-                RequestNumber = int.TryParse(model.request_number, out var num) ? num : 30
+                RequestNumber = int.TryParse(model.request_number, out var num) ? num : 30,
+                WorkLocation = model.work_location,
+                EmploymentLevel = model.employment_level,
+                ContractType = model.contract_type,
             };
 
             var response = await _httpClient.PostAsJsonAsync("data/getData", request);

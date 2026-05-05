@@ -60,7 +60,40 @@ public class DataController : ControllerBase
 
             try
             {
-                var (count, output) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase, website, request.RequestNumber);
+                var extraArgs = new List<string>();
+                if (website == "pracuj")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.WorkLocation)) { extraArgs.Add("--loc"); extraArgs.Add(request.WorkLocation!); }
+                    if (request.EmploymentLevel.HasValue) { extraArgs.Add("--et"); extraArgs.Add(request.EmploymentLevel.Value.ToString()); }
+                    if (request.ContractType.HasValue) { extraArgs.Add("--tc"); extraArgs.Add(request.ContractType.Value.ToString()); }
+                }
+                else if (website == "justjoinit")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.WorkLocation)) { extraArgs.Add("--loc"); extraArgs.Add(request.WorkLocation!); }
+                    if (request.EmploymentLevel.HasValue)
+                    {
+                        var level = request.EmploymentLevel.Value switch
+                        {
+                            17 => "junior",
+                            4  => "mid",
+                            18 => "senior",
+                            19 => "expert",
+                            _  => (string?)null
+                        };
+                        if (level != null) { extraArgs.Add("--el"); extraArgs.Add(level); }
+                    }
+                    if (request.ContractType.HasValue)
+                    {
+                        var empType = request.ContractType.Value switch
+                        {
+                            3 => "b2b",
+                            0 => "permanent",
+                            _ => (string?)null
+                        };
+                        if (empType != null) { extraArgs.Add("--emp"); extraArgs.Add(empType); }
+                    }
+                }
+                var (count, output) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase, website, request.RequestNumber, extraArgs);
                 string key = website[0].ToString().ToUpper() + website.Substring(1);
                 results[$"{key}Data"] = new { count, output };
             }
@@ -89,6 +122,7 @@ public class DataController : ControllerBase
         "autocentrum" => "auto/autocentrum_scrapper.py",
         "samochody" => "auto/samochody_scrapper.py",
         "pracuj" => "work/pracuj_scrapper.py",
+        "justjoinit" => "work/justjoinit_scrapper.py",
         "otodom" => "apartment/otodom_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",

@@ -20,6 +20,19 @@ public class ScrapedItem
     public string? CommentsNumber { get; set; }
     public string? Area { get; set; }
     public string? Rooms { get; set; }
+    public JobDetail? JobDetail { get; set; }
+}
+
+public class JobDetail
+{
+    public decimal? SalaryMin { get; set; }
+    public decimal? SalaryMax { get; set; }
+    public string? SalaryCurrency { get; set; }
+    public string? SalaryType { get; set; }
+    public string? SalaryRaw { get; set; }
+    public string? Technologies { get; set; }
+    public string? WorkLocation { get; set; }
+    public string? HqLocation { get; set; }
 }
 
 public class VehicleDetail
@@ -50,6 +63,7 @@ public class DataWrapper
     public PlatformData? AutocentrumData { get; set; }
     public PlatformData? SamochodyData { get; set; }
     public PlatformData? PracujData { get; set; }
+    public PlatformData? JustjoinitData { get; set; }
 }
 
 public class GetDataResponse
@@ -65,4 +79,7 @@ public class DataModel
     public string phrase { get; set; } = string.Empty;
     public string request_number { get; set; } = "30";
     public string? additional_phrase { get; set; }
+    public string? work_location { get; set; }
+    public int? employment_level { get; set; }
+    public int? contract_type { get; set; }
 }

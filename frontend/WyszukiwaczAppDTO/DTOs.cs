@@ -50,6 +50,9 @@ public class GetDataRequest
     public string Phrase { get; set; } = string.Empty;
     public string? AdditionalPhrase { get; set; }
     public int RequestNumber { get; set; }
+    public string? WorkLocation { get; set; }
+    public int? EmploymentLevel { get; set; }
+    public int? ContractType { get; set; }
 }
 
 public class NotificationRequest

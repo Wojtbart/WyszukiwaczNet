@@ -182,6 +182,7 @@ public class Offer
     public string Status { get; set; } = "active";
 
     public VehicleDetail? VehicleDetail { get; set; }
+    public JobDetail? JobDetail { get; set; }
     public ICollection<OfferHistory> OfferHistories { get; set; } = new List<OfferHistory>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }
@@ -216,6 +217,47 @@ public class VehicleDetail
     [MaxLength(50)]
     [Column("body_type")]
     public string? BodyType { get; set; }
+}
+
+[Table("job_details")]
+public class JobDetail
+{
+    [Key]
+    [Column("offer_id")]
+    public int OfferId { get; set; }
+
+    [ForeignKey("OfferId")]
+    public Offer? Offer { get; set; }
+
+    [Column("salary_min", TypeName = "numeric(10,2)")]
+    public decimal? SalaryMin { get; set; }
+
+    [Column("salary_max", TypeName = "numeric(10,2)")]
+    public decimal? SalaryMax { get; set; }
+
+    [MaxLength(20)]
+    [Column("salary_currency")]
+    public string? SalaryCurrency { get; set; }
+
+    [MaxLength(50)]
+    [Column("salary_type")]
+    public string? SalaryType { get; set; }
+
+    [MaxLength(500)]
+    [Column("salary_raw")]
+    public string? SalaryRaw { get; set; }
+
+    [MaxLength(500)]
+    [Column("technologies")]
+    public string? Technologies { get; set; }
+
+    [MaxLength(255)]
+    [Column("work_location")]
+    public string? WorkLocation { get; set; }
+
+    [MaxLength(255)]
+    [Column("hq_location")]
+    public string? HqLocation { get; set; }
 }
 
 [Table("offer_history")]
