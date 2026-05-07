@@ -93,6 +93,74 @@ public class DataController : ControllerBase
                         if (empType != null) { extraArgs.Add("--emp"); extraArgs.Add(empType); }
                     }
                 }
+                else if (website == "nofluffjobs")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.WorkLocation)) { extraArgs.Add("--loc"); extraArgs.Add(request.WorkLocation!); }
+                    if (request.EmploymentLevel.HasValue)
+                    {
+                        var seniority = request.EmploymentLevel.Value switch
+                        {
+                            17 => "junior",
+                            4  => "mid",
+                            18 => "senior",
+                            19 => "expert",
+                            _  => (string?)null
+                        };
+                        if (seniority != null) { extraArgs.Add("--seniority"); extraArgs.Add(seniority); }
+                    }
+                    if (request.ContractType.HasValue)
+                    {
+                        var empType = request.ContractType.Value switch
+                        {
+                            3 => "b2b",
+                            0 => "permanent",
+                            _ => (string?)null
+                        };
+                        if (empType != null) { extraArgs.Add("--employment"); extraArgs.Add(empType); }
+                    }
+                }
+                else if (website == "theprotocolit")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.WorkLocation)) { extraArgs.Add("--loc"); extraArgs.Add(request.WorkLocation!); }
+                    if (request.EmploymentLevel.HasValue)
+                    {
+                        var level = request.EmploymentLevel.Value switch
+                        {
+                            17 => "junior",
+                            4  => "mid",
+                            18 => "senior",
+                            19 => "expert",
+                            _  => (string?)null
+                        };
+                        if (level != null) { extraArgs.Add("--level"); extraArgs.Add(level); }
+                    }
+                    if (request.ContractType.HasValue)
+                    {
+                        var contract = request.ContractType.Value switch
+                        {
+                            3 => "kontrakt-b2b",
+                            0 => "umowa-o-prace",
+                            _ => (string?)null
+                        };
+                        if (contract != null) { extraArgs.Add("--contract"); extraArgs.Add(contract); }
+                    }
+                }
+                else if (website == "bulldogjob")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.WorkLocation)) { extraArgs.Add("--loc"); extraArgs.Add(request.WorkLocation!); }
+                    if (request.EmploymentLevel.HasValue)
+                    {
+                        var level = request.EmploymentLevel.Value switch
+                        {
+                            17 => "junior",
+                            4  => "medium",
+                            18 => "senior",
+                            19 => "lead",
+                            _  => (string?)null
+                        };
+                        if (level != null) { extraArgs.Add("--level"); extraArgs.Add(level); }
+                    }
+                }
                 var (count, output) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase, website, request.RequestNumber, extraArgs);
                 string key = website[0].ToString().ToUpper() + website.Substring(1);
                 results[$"{key}Data"] = new { count, output };
@@ -123,6 +191,9 @@ public class DataController : ControllerBase
         "samochody" => "auto/samochody_scrapper.py",
         "pracuj" => "work/pracuj_scrapper.py",
         "justjoinit" => "work/justjoinit_scrapper.py",
+        "nofluffjobs" => "work/nofluffjobs_scrapper.py",
+        "theprotocolit" => "work/theprotocolit_scrapper.py",
+        "bulldogjob" => "work/bulldogjob_scrapper.py",
         "otodom" => "apartment/otodom_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",

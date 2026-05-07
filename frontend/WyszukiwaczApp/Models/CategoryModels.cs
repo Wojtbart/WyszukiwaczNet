@@ -64,6 +64,9 @@ public class DataWrapper
     public PlatformData? SamochodyData { get; set; }
     public PlatformData? PracujData { get; set; }
     public PlatformData? JustjoinitData { get; set; }
+    public PlatformData? NofluffjobsData { get; set; }
+    public PlatformData? TheprotocolitData { get; set; }
+    public PlatformData? BulldogjobData { get; set; }
 }
 
 public class GetDataResponse
