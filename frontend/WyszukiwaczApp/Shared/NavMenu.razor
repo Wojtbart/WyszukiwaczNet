@@ -1,6 +1,7 @@
 @inject NavigationManager Navigation
 @inject ILocalStorageService LocalStorage
 @inject UserService UserService
+@inject IStringLocalizer<SharedResource> Loc
 @using WyszukiwaczApp
 @implements IDisposable
 
@@ -106,6 +107,37 @@
         justify-content: center;
         padding: 0 5px;
     }
+
+    .lang-switch {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .lang-btn {
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: all 0.2s;
+    }
+
+    .lang-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        text-decoration: none;
+    }
+
+    .lang-btn.active {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+        border-color: white;
+    }
 </style>
 
 <div class="nav-menu d-flex flex-column">
@@ -117,13 +149,13 @@
         <li>
             <NavLink href="/categories" class="nav-link" Match="NavLinkMatch.All" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">📁</span>
-                Kategorie
+                @Loc["Categories"]
             </NavLink>
         </li>
         <li>
-            <NavLink href="/powiadomienia" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
+            <NavLink href="/notification" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">🔔</span>
-                Powiadomienia
+                @Loc["Notifications"]
                 @if (unreadCount > 0)
                 {
                     <span class="nav-badge">@unreadCount</span>
@@ -133,24 +165,24 @@
         <li>
             <NavLink href="/offers" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">📋</span>
-                Historia
+                @Loc["History"]
             </NavLink>
         </li>
 
         <div class="nav-divider"></div>
 
         <li>
-            <NavLink href="/notification" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
-                <span class="nav-link-icon">🔔</span>
-                Ustawienia powiadomień
+            <NavLink href="/account" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
+                <span class="nav-link-icon">👤</span>
+                @Loc["MyAccount"]
             </NavLink>
         </li>
-        @* <li>
-            <NavLink href="/history" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
-                <span class="nav-link-icon">📜</span>
-                Historia
+        <li>
+            <NavLink href="/notification_settings" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
+                <span class="nav-link-icon">🔔</span>
+                @Loc["NotificationSettings"]
             </NavLink>
-        </li> *@
+        </li>
 
         <div class="nav-divider"></div>
 
@@ -159,13 +191,13 @@
             <li>
                 <NavLink href="/login" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                     <span class="nav-link-icon">🔑</span>
-                    Logowanie
+                    @Loc["Login"]
                 </NavLink>
             </li>
             <li>
                 <NavLink href="/register" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
                     <span class="nav-link-icon">📝</span>
-                    Rejestracja
+                    @Loc["Register"]
                 </NavLink>
             </li>
         }
@@ -174,16 +206,24 @@
             <li>
                 <button class="logout-btn" @onclick="Logout">
                     <span class="nav-link-icon">🚪</span>
-                    Wyloguj
+                    @Loc["Logout"]
                 </button>
             </li>
         }
+
+        <div class="nav-divider"></div>
+
+        <li class="lang-switch">
+            <span class="nav-link-icon">🌐</span>
+            <a href="@CultureLink("pl-PL")" class="lang-btn @(IsActive("pl-PL") ? "active" : "")">PL</a>
+            <a href="@CultureLink("en-US")" class="lang-btn @(IsActive("en-US") ? "active" : "")">EN</a>
+        </li>
     </ul>
-    
+
     @if (Globals.IsLogged)
     {
         <div class="user-info mt-auto">
-            Zalogowany: @Globals.Login
+            @Loc["LoggedAs"] @Globals.Login
         </div>
     }
 </div>
@@ -241,4 +281,14 @@
         await LocalStorage.RemoveItemAsync("authToken");
         Navigation.NavigateTo("/login", forceLoad: true);
     }
+
+    private string CultureLink(string culture)
+    {
+        var uri = new Uri(Navigation.Uri);
+        var redirect = uri.PathAndQuery;
+        return $"/setculture?culture={culture}&redirectUri={Uri.EscapeDataString(redirect)}";
+    }
+
+    private bool IsActive(string culture) =>
+        System.Globalization.CultureInfo.CurrentUICulture.Name.Equals(culture, StringComparison.OrdinalIgnoreCase);
 }

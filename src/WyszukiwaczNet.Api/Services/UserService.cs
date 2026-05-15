@@ -22,6 +22,10 @@ public interface IUserService
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
     Task MarkSingleNotificationReadAsync(int notificationId);
+    Task<UserProfileResponse> GetUserProfileAsync(int userId);
+    Task<(bool Success, string? Message)> UpdatePasswordAsync(UpdatePasswordRequest request);
+    Task<(bool Success, string? Message)> UpdateEmailAsync(UpdateEmailRequest request);
+    Task<(bool Success, string? Message)> UpdatePhoneAsync(UpdatePhoneRequest request);
 }
 
 public class UserService : IUserService
@@ -224,6 +228,52 @@ public class UserService : IUserService
     public async Task MarkSingleNotificationReadAsync(int notificationId)
     {
         await _userRepository.MarkSingleNotificationReadAsync(notificationId);
+    }
+
+    public async Task<UserProfileResponse> GetUserProfileAsync(int userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+            return new UserProfileResponse(false, null, null, null, null, "Nie znaleziono użytkownika.");
+        return new UserProfileResponse(true, user.Id, user.Login, user.Email, user.Phone, null);
+    }
+
+    public async Task<(bool Success, string? Message)> UpdatePasswordAsync(UpdatePasswordRequest request)
+    {
+        var user = await _userRepository.GetByIdAsync(request.UserId);
+        if (user == null) return (false, "Nie znaleziono użytkownika.");
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+            return (false, "Nieprawidłowe aktualne hasło.");
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _userRepository.UpdateAsync(user);
+        return (true, "Hasło zostało zmienione.");
+    }
+
+    public async Task<(bool Success, string? Message)> UpdateEmailAsync(UpdateEmailRequest request)
+    {
+        var user = await _userRepository.GetByIdAsync(request.UserId);
+        if (user == null) return (false, "Nie znaleziono użytkownika.");
+        var existing = await _userRepository.GetByEmailAsync(request.NewEmail);
+        if (existing != null && existing.Id != request.UserId)
+            return (false, "Podany adres email jest już zajęty.");
+        user.Email = request.NewEmail;
+        await _userRepository.UpdateAsync(user);
+        return (true, "Adres email został zmieniony.");
+    }
+
+    public async Task<(bool Success, string? Message)> UpdatePhoneAsync(UpdatePhoneRequest request)
+    {
+        var user = await _userRepository.GetByIdAsync(request.UserId);
+        if (user == null) return (false, "Nie znaleziono użytkownika.");
+        if (!string.IsNullOrEmpty(request.NewPhone))
+        {
+            var existing = await _userRepository.GetByPhoneAsync(request.NewPhone);
+            if (existing != null && existing.Id != request.UserId)
+                return (false, "Podany numer telefonu jest już zajęty.");
+        }
+        user.Phone = request.NewPhone;
+        await _userRepository.UpdateAsync(user);
+        return (true, "Numer telefonu został zmieniony.");
     }
 
     public async Task<(bool Success, string? Message)> UpdateNotificationSettingAsync(NotificationSettingRequest request)

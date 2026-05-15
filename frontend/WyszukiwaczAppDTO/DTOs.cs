@@ -251,3 +251,13 @@ public class PlanLimitsDto
     public bool ApiAccess { get; set; }
     public bool WebhookSupport { get; set; }
 }
+
+public class UserProfileDto
+{
+    public bool Success { get; set; }
+    public int? UserId { get; set; }
+    public string? Login { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
+    public string? Message { get; set; }
+}

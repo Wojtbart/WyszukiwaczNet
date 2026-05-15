@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="Categories" xml:space="preserve"><value>Categories</value></data>
+  <data name="Notifications" xml:space="preserve"><value>Notifications</value></data>
+  <data name="History" xml:space="preserve"><value>History</value></data>
+  <data name="NotificationSettings" xml:space="preserve"><value>Notification settings</value></data>
+  <data name="Login" xml:space="preserve"><value>Sign in</value></data>
+  <data name="Register" xml:space="preserve"><value>Sign up</value></data>
+  <data name="Logout" xml:space="preserve"><value>Sign out</value></data>
+  <data name="LoggedAs" xml:space="preserve"><value>Logged in as:</value></data>
+  <data name="Cars" xml:space="preserve"><value>Cars</value></data>
+  <data name="Flats" xml:space="preserve"><value>Apartments</value></data>
+  <data name="Shopping" xml:space="preserve"><value>Shopping</value></data>
+  <data name="JobOffers" xml:space="preserve"><value>IT job offers</value></data>
+  <data name="CategoriesHeader" xml:space="preserve"><value>Categories</value></data>
+  <data name="Language" xml:space="preserve"><value>Language</value></data>
+
+  <data name="Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Link" xml:space="preserve"><value>Link</value></data>
+  <data name="OpenLink" xml:space="preserve"><value>Open link</value></data>
+  <data name="ViewOffer" xml:space="preserve"><value>View offer</value></data>
+  <data name="Image" xml:space="preserve"><value>Image</value></data>
+  <data name="NoImage" xml:space="preserve"><value>No image</value></data>
+  <data name="Price" xml:space="preserve"><value>Price</value></data>
+  <data name="PricePLN" xml:space="preserve"><value>Price (PLN)</value></data>
+  <data name="Location" xml:space="preserve"><value>Location</value></data>
+  <data name="AddedDate" xml:space="preserve"><value>Added on</value></data>
+  <data name="NoData" xml:space="preserve"><value>No data to display.</value></data>
+  <data name="NoJobs" xml:space="preserve"><value>No job offers.</value></data>
+  <data name="Load" xml:space="preserve"><value>LOAD</value></data>
+  <data name="SearchedText" xml:space="preserve"><value>Search text</value></data>
+  <data name="ChoosePagesAds" xml:space="preserve"><value>Choose sites to fetch listings from</value></data>
+  <data name="ChoosePages" xml:space="preserve"><value>Choose sites to fetch the listing from</value></data>
+  <data name="ChooseJobPortals" xml:space="preserve"><value>Choose job portals</value></data>
+  <data name="ChoosePlatformLast100" xml:space="preserve"><value>Choose platform to view its 100 most recent offers</value></data>
+  <data name="AdditionalInfo" xml:space="preserve"><value>Additional info</value></data>
+  <data name="ErrorFetching" xml:space="preserve"><value>Error fetching data:</value></data>
+  <data name="FillSearchedText" xml:space="preserve"><value>Fill in the "Search text" field</value></data>
+  <data name="FillBrandOrModel" xml:space="preserve"><value>Fill the Brand or Model field.</value></data>
+  <data name="EnterKeyword" xml:space="preserve"><value>Enter a position or keyword.</value></data>
+  <data name="InvalidPhrase" xml:space="preserve"><value>Phrase contains invalid characters. Allowed: letters, digits, spaces, hyphen.</value></data>
+  <data name="InvalidPhraseExt" xml:space="preserve"><value>Phrase contains invalid characters. Allowed: letters, digits, spaces, hyphen, #, .</value></data>
+
+  <data name="Brand" xml:space="preserve"><value>Brand</value></data>
+  <data name="Model" xml:space="preserve"><value>Model</value></data>
+  <data name="ChooseFuel" xml:space="preserve"><value>Select fuel type</value></data>
+  <data name="ChooseHorsepower" xml:space="preserve"><value>Select engine power (HP)</value></data>
+  <data name="ChooseCapacity" xml:space="preserve"><value>Select engine capacity (cc)</value></data>
+  <data name="FuelPetrol" xml:space="preserve"><value>Petrol</value></data>
+  <data name="FuelPetrolCng" xml:space="preserve"><value>Petrol-CNG</value></data>
+  <data name="FuelPetrolLng" xml:space="preserve"><value>Petrol-LNG</value></data>
+  <data name="FuelDiesel" xml:space="preserve"><value>Diesel</value></data>
+  <data name="FuelElectric" xml:space="preserve"><value>Electric</value></data>
+  <data name="FuelHybrid" xml:space="preserve"><value>Hybrid</value></data>
+  <data name="MileageKm" xml:space="preserve"><value>Mileage (km)</value></data>
+  <data name="ProductionYear" xml:space="preserve"><value>Year</value></data>
+  <data name="Fuel" xml:space="preserve"><value>Fuel</value></data>
+  <data name="Gearbox" xml:space="preserve"><value>Gearbox</value></data>
+  <data name="BodyType" xml:space="preserve"><value>Body type</value></data>
+  <data name="BodyTypeShort" xml:space="preserve"><value>Body</value></data>
+  <data name="Seller" xml:space="preserve"><value>Seller</value></data>
+  <data name="Extra" xml:space="preserve"><value>Extra</value></data>
+
+  <data name="PositionKeyword" xml:space="preserve"><value>Position / keyword</value></data>
+  <data name="WorkLocation" xml:space="preserve"><value>Location</value></data>
+  <data name="WorkLocationPlaceholder" xml:space="preserve"><value>e.g. Warsaw</value></data>
+  <data name="Seniority" xml:space="preserve"><value>Seniority level</value></data>
+  <data name="ContractType" xml:space="preserve"><value>Contract type</value></data>
+  <data name="AnyM" xml:space="preserve"><value>Any</value></data>
+  <data name="AnyF" xml:space="preserve"><value>Any</value></data>
+  <data name="LevelJunior" xml:space="preserve"><value>Junior</value></data>
+  <data name="LevelMid" xml:space="preserve"><value>Mid / Regular</value></data>
+  <data name="LevelSenior" xml:space="preserve"><value>Senior</value></data>
+  <data name="LevelExpert" xml:space="preserve"><value>Expert</value></data>
+  <data name="ContractEmployment" xml:space="preserve"><value>Employment contract</value></data>
+  <data name="ContractB2B" xml:space="preserve"><value>B2B</value></data>
+  <data name="Position" xml:space="preserve"><value>Position</value></data>
+  <data name="Employer" xml:space="preserve"><value>Employer</value></data>
+  <data name="Company" xml:space="preserve"><value>Company</value></data>
+  <data name="Salary" xml:space="preserve"><value>Salary</value></data>
+  <data name="Technologies" xml:space="preserve"><value>Technologies</value></data>
+  <data name="WorkPlace" xml:space="preserve"><value>Workplace</value></data>
+  <data name="CompanyHQ" xml:space="preserve"><value>Company HQ</value></data>
+  <data name="HQ" xml:space="preserve"><value>HQ</value></data>
+  <data name="AdditionalInfoExt" xml:space="preserve"><value>Additional info</value></data>
+  <data name="Remaining" xml:space="preserve"><value>Remaining</value></data>
+  <data name="Contract" xml:space="preserve"><value>Contract</value></data>
+  <data name="Level" xml:space="preserve"><value>Level</value></data>
+  <data name="WorkMode" xml:space="preserve"><value>Work mode</value></data>
+  <data name="FromPLN" xml:space="preserve"><value>from</value></data>
+
+  <data name="ConfigureNotifications" xml:space="preserve"><value>Configure automatic search and notifications</value></data>
+  <data name="Category" xml:space="preserve"><value>Category</value></data>
+  <data name="CatAuto" xml:space="preserve"><value>Automotive</value></data>
+  <data name="CatRealEstate" xml:space="preserve"><value>Real estate</value></data>
+  <data name="CatShopping" xml:space="preserve"><value>Shopping</value></data>
+  <data name="CatWork" xml:space="preserve"><value>Work</value></data>
+  <data name="Active" xml:space="preserve"><value>active</value></data>
+  <data name="Inactive" xml:space="preserve"><value>inactive</value></data>
+  <data name="Search" xml:space="preserve"><value>Search</value></data>
+  <data name="MaxResults" xml:space="preserve"><value>Max results</value></data>
+  <data name="Platforms" xml:space="preserve"><value>Platforms</value></data>
+  <data name="NotificationChannels" xml:space="preserve"><value>Notification channels</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="EmailDesc" xml:space="preserve"><value>Send results to email</value></data>
+  <data name="SMS" xml:space="preserve"><value>SMS</value></data>
+  <data name="SMSDesc" xml:space="preserve"><value>Send an SMS message</value></data>
+  <data name="Discord" xml:space="preserve"><value>Discord</value></data>
+  <data name="DiscordDesc" xml:space="preserve"><value>Send to a Discord channel</value></data>
+  <data name="InApp" xml:space="preserve"><value>In-app only</value></data>
+  <data name="InAppDesc" xml:space="preserve"><value>Visible only inside the app</value></data>
+  <data name="InAppChip" xml:space="preserve"><value>In app</value></data>
+  <data name="Schedule" xml:space="preserve"><value>Schedule</value></data>
+  <data name="SendAtHour" xml:space="preserve"><value>Send at a specific time</value></data>
+  <data name="SendAtHourDesc" xml:space="preserve"><value>Notification sent once a day</value></data>
+  <data name="Cyclic" xml:space="preserve"><value>Cyclic sending</value></data>
+  <data name="CyclicDesc" xml:space="preserve"><value>Repeat every set number of minutes</value></data>
+  <data name="EveryHowManyMin" xml:space="preserve"><value>Every how many minutes:</value></data>
+  <data name="FiltersRealEstate" xml:space="preserve"><value>Filters (Real estate)</value></data>
+  <data name="Sale" xml:space="preserve"><value>Sale</value></data>
+  <data name="Rent" xml:space="preserve"><value>Rent</value></data>
+  <data name="Private" xml:space="preserve"><value>Private</value></data>
+  <data name="Public" xml:space="preserve"><value>Public</value></data>
+  <data name="Last24h" xml:space="preserve"><value>Last 24h</value></data>
+  <data name="Summary" xml:space="preserve"><value>Summary</value></data>
+  <data name="Phrase" xml:space="preserve"><value>Phrase</value></data>
+  <data name="MaxResultsShort" xml:space="preserve"><value>Max results</value></data>
+  <data name="NotSet" xml:space="preserve"><value>Not set</value></data>
+  <data name="DailyAt" xml:space="preserve"><value>Daily at</value></data>
+  <data name="Every" xml:space="preserve"><value>Every</value></data>
+  <data name="Min" xml:space="preserve"><value>min</value></data>
+  <data name="Channels" xml:space="preserve"><value>Channels</value></data>
+  <data name="None" xml:space="preserve"><value>None</value></data>
+  <data name="SaveSettings" xml:space="preserve"><value>Save settings</value></data>
+  <data name="DeleteScheduledJobs" xml:space="preserve"><value>Delete scheduled jobs</value></data>
+  <data name="ActiveJobs" xml:space="preserve"><value>Active jobs</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="NoActiveJobs" xml:space="preserve"><value>No active jobs.</value></data>
+  <data name="PlaceholderAuto" xml:space="preserve"><value>e.g. Toyota Corolla, BMW 3...</value></data>
+  <data name="PlaceholderRealEstate" xml:space="preserve"><value>e.g. Warsaw, Krakow...</value></data>
+  <data name="PlaceholderShopping" xml:space="preserve"><value>e.g. iPhone 14, graphics card...</value></data>
+  <data name="PlaceholderWork" xml:space="preserve"><value>e.g. developer, driver, manager...</value></data>
+  <data name="PlaceholderDefault" xml:space="preserve"><value>Enter search text...</value></data>
+  <data name="PageTitleOffers" xml:space="preserve"><value>Offers - Wyszukiwacz</value></data>
+
+  <!-- Account page -->
+  <data name="MyAccount" xml:space="preserve"><value>My account</value></data>
+  <data name="AccountData" xml:space="preserve"><value>Account details</value></data>
+  <data name="Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Phone" xml:space="preserve"><value>Phone</value></data>
+  <data name="NotProvided" xml:space="preserve"><value>Not provided</value></data>
+  <data name="ChangePassword" xml:space="preserve"><value>Change password</value></data>
+  <data name="CurrentPassword" xml:space="preserve"><value>Current password</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>New password</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Confirm password</value></data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve"><value>Passwords do not match.</value></data>
+  <data name="ChangeEmail" xml:space="preserve"><value>Change email</value></data>
+  <data name="NewEmail" xml:space="preserve"><value>New email address</value></data>
+  <data name="ChangePhone" xml:space="preserve"><value>Change phone</value></data>
+  <data name="NewPhone" xml:space="preserve"><value>New phone number</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="MemberSince" xml:space="preserve"><value>Member since</value></data>
+</root>

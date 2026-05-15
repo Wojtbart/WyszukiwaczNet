@@ -2,8 +2,9 @@
 @page "/offers/recent"
 @using WyszukiwaczAppDTO
 @inject OfferService OfferService
+@inject IStringLocalizer<SharedResource> Loc
 
-<PageTitle>Oferty - Wyszukiwacz</PageTitle>
+<PageTitle>@Loc["PageTitleOffers"]</PageTitle>
 
 <style>
     .link {
@@ -49,7 +50,7 @@
     }
 </style>
 
-<RadzenText TextStyle="TextStyle.H4" Text="Historia" Style="color:red; margin-bottom:20px;" />
+<RadzenText TextStyle="TextStyle.H4" Text="@(Loc["History"].Value)" Style="color:red; margin-bottom:20px;" />
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
     <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
@@ -111,7 +112,7 @@
 {
     <div class="empty-state">
         <div class="empty-state-icon">🔍</div>
-        <h3>Wybierz platformę, dla której chcesz zobaczyć 100 ostatnich ofert</h3>
+        <h3>@Loc["ChoosePlatformLast100"]</h3>
     </div>
 }
 else
@@ -123,38 +124,38 @@ else
                     class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
-            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych do wyświetlenia.</p>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
         </EmptyTemplate>
         <Columns>
-            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="250px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Title"].Value)" Frozen="true" Width="250px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="150px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <div class="rz-text-align-center" style="height:38px;">
-                        <RadzenLink Path="@context.Url" Text="Otwórz Link" Target="_blank" class="link" />
+                        <RadzenLink Path="@context.Url" Text="@(Loc["OpenLink"].Value)" Target="_blank" class="link" />
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="ImageUrl" Title="@(Loc["Image"].Value)" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     @if (string.IsNullOrEmpty(context.ImageUrl))
                     {
-                        <div style="color: gray; text-align: center; font-style: italic;">Brak zdjęcia</div>
+                        <div style="color: gray; text-align: center; font-style: italic;">@Loc["NoImage"]</div>
                     }
                     else
                     {
-                        <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="Zdjęcie" />
+                        <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="@(Loc["Image"].Value)" />
                     }
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Price" Title="Cena" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Price" Title="@(Loc["Price"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">@((int?)context.Price)</Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center" />
-            <RadzenDataGridColumn Property="CreatedAt" Title="Data dodania" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center" />
+            <RadzenDataGridColumn Property="CreatedAt" Title="@(Loc["AddedDate"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">@context.CreatedAt.ToString("dd.MM.yyyy")</Template>
             </RadzenDataGridColumn>
         </Columns>

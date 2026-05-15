@@ -4,6 +4,7 @@
 @using System.Threading.Tasks
 @inject DataProxy DataProxy
 @inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> Loc
 
 <style>
     .link {
@@ -45,27 +46,27 @@
 
 <RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
     <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
-        <RadzenFormField Text="Stanowisko / słowo kluczowe" Variant="Variant.Flat" Style="width:35%;margin-right:20px;">
+        <RadzenFormField Text="@(Loc["PositionKeyword"].Value)" Variant="Variant.Flat" Style="width:35%;margin-right:20px;">
             <RadzenTextBox @bind-Value="@searchedKeyword" Style="width: 100%; border-radius:15px;" />
         </RadzenFormField>
-        <RadzenFormField Text="Lokalizacja" Variant="Variant.Flat" Style="width:20%;margin-right:20px;">
-            <RadzenTextBox @bind-Value="@workLocation" Placeholder="np. Rzeszów" Style="width: 100%; border-radius:15px;" />
+        <RadzenFormField Text="@(Loc["WorkLocation"].Value)" Variant="Variant.Flat" Style="width:20%;margin-right:20px;">
+            <RadzenTextBox @bind-Value="@workLocation" Placeholder="@(Loc["WorkLocationPlaceholder"].Value)" Style="width: 100%; border-radius:15px;" />
         </RadzenFormField>
-        <RadzenFormField Text="Poziom stanowiska" Variant="Variant.Flat" Style="width:180px;margin-right:20px;">
+        <RadzenFormField Text="@(Loc["Seniority"].Value)" Variant="Variant.Flat" Style="width:180px;margin-right:20px;">
             <RadzenDropDown @bind-Value="@employmentLevel" Data="@employmentLevels" TextProperty="Label" ValueProperty="Value"
-                            Placeholder="Dowolny" AllowClear="true" Style="width:100%;border-radius:15px;" />
+                            Placeholder="@(Loc["AnyM"].Value)" AllowClear="true" Style="width:100%;border-radius:15px;" />
         </RadzenFormField>
-        <RadzenFormField Text="Typ umowy" Variant="Variant.Flat" Style="width:150px;margin-right:20px;">
+        <RadzenFormField Text="@(Loc["ContractType"].Value)" Variant="Variant.Flat" Style="width:150px;margin-right:20px;">
             <RadzenDropDown @bind-Value="@contractType" Data="@contractTypes" TextProperty="Label" ValueProperty="Value"
-                            Placeholder="Dowolna" AllowClear="true" Style="width:100%;border-radius:15px;" />
+                            Placeholder="@(Loc["AnyF"].Value)" AllowClear="true" Style="width:100%;border-radius:15px;" />
         </RadzenFormField>
         <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
-            <RadzenButton Click=LoadData Text="ZAŁADUJ" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(searchedKeyword)" />
+            <RadzenButton Click=LoadData Text="@(Loc["Load"].Value)" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(searchedKeyword)" />
         </RadzenFormField>
     </RadzenColumn>
 </RadzenRow>
 
-<RadzenText TextStyle="TextStyle.H4" Text="Wybierz portale pracy" Style="color:red; margin-bottom:20px;" />
+<RadzenText TextStyle="TextStyle.H4" Text="@(Loc["ChooseJobPortals"].Value)" Style="color:red; margin-bottom:20px;" />
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
     <RadzenImage Path="images/pracuj.svg" Style="width:5rem;height:3rem;" AlternateText="Pracuj" />
@@ -107,30 +108,30 @@
                     class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
-            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak ofert pracy.</p>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
         </EmptyTemplate>
         <HeaderTemplate>
             <h3 style="display: inline-block; color:red; font-weight:bold;">💼 Pracuj</h3>
         </HeaderTemplate>
         <Columns>
-            <RadzenDataGridColumn Property="Title" Title="Stanowisko" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Position"].Value)" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="Link" Width="170px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="170px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <div class="rz-text-align-center" style="height:38px;">
-                        <RadzenLink Path="@context.Url" Text="Zobacz ofertę" Target="_blank" class="link" />
+                        <RadzenLink Path="@context.Url" Text="@(Loc["ViewOffer"].Value)" Target="_blank" class="link" />
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="SellerName" Title="Pracodawca" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="SellerName" Title="@(Loc["Employer"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Wynagrodzenie" TextAlign="TextAlign.Center" Width="200px">
+            <RadzenDataGridColumn Title="@(Loc["Salary"].Value)" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
                     @if (context.JobDetail?.SalaryRaw != null)
                     {
@@ -138,7 +139,7 @@
                     }
                     else if (context.Price.HasValue)
                     {
-                        <RadzenText>od @((int)context.Price) PLN</RadzenText>
+                        <RadzenText>@Loc["FromPLN"] @((int)context.Price) PLN</RadzenText>
                     }
                     else
                     {
@@ -146,22 +147,22 @@
                     }
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Technologie" TextAlign="TextAlign.Center" Width="200px">
+            <RadzenDataGridColumn Title="@(Loc["Technologies"].Value)" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.Technologies ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Miejsce pracy" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="@(Loc["WorkPlace"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@(context.JobDetail?.WorkLocation ?? context.Location ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Siedziba firmy" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="@(Loc["CompanyHQ"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@(context.JobDetail?.HqLocation ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="AdditionalInfo" Title="Informacje dodatkowe" TextAlign="TextAlign.Center" Width="220px">
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["AdditionalInfoExt"].Value)" TextAlign="TextAlign.Center" Width="220px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.82rem;">@(context.AdditionalInfo ?? "—")</RadzenText>
                 </Template>
@@ -179,30 +180,30 @@
                     class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
-            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak ofert pracy.</p>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
         </EmptyTemplate>
         <HeaderTemplate>
             <h3 style="display: inline-block; color:#ff5733; font-weight:bold;">💻 JustJoin.IT</h3>
         </HeaderTemplate>
         <Columns>
-            <RadzenDataGridColumn Property="Title" Title="Stanowisko" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Position"].Value)" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="Link" Width="170px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="170px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <div class="rz-text-align-center" style="height:38px;">
-                        <RadzenLink Path="@context.Url" Text="Zobacz ofertę" Target="_blank" class="link" />
+                        <RadzenLink Path="@context.Url" Text="@(Loc["ViewOffer"].Value)" Target="_blank" class="link" />
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="SellerName" Title="Firma" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="SellerName" Title="@(Loc["Company"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Wynagrodzenie" TextAlign="TextAlign.Center" Width="200px">
+            <RadzenDataGridColumn Title="@(Loc["Salary"].Value)" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
                     @if (context.JobDetail?.SalaryRaw != null)
                     {
@@ -214,17 +215,17 @@
                     }
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Technologie" TextAlign="TextAlign.Center" Width="200px">
+            <RadzenDataGridColumn Title="@(Loc["Technologies"].Value)" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.Technologies ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Lokalizacja" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@(context.Location ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="AdditionalInfo" Title="Pozostało" TextAlign="TextAlign.Center" Width="120px">
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["Remaining"].Value)" TextAlign="TextAlign.Center" Width="120px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.85rem; color:#e65100;">@(context.AdditionalInfo ?? "—")</RadzenText>
                 </Template>
@@ -242,30 +243,30 @@
                     class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
-            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak ofert pracy.</p>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
         </EmptyTemplate>
         <HeaderTemplate>
             <h3 style="display: inline-block; color:#2e7d32; font-weight:bold;">🐾 NoFluffJobs</h3>
         </HeaderTemplate>
         <Columns>
-            <RadzenDataGridColumn Property="Title" Title="Stanowisko" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Position"].Value)" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="Link" Width="170px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="170px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <div class="rz-text-align-center" style="height:38px;">
-                        <RadzenLink Path="@context.Url" Text="Zobacz ofertę" Target="_blank" class="link" />
+                        <RadzenLink Path="@context.Url" Text="@(Loc["ViewOffer"].Value)" Target="_blank" class="link" />
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="SellerName" Title="Firma" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="SellerName" Title="@(Loc["Company"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Wynagrodzenie" TextAlign="TextAlign.Center" Width="200px">
+            <RadzenDataGridColumn Title="@(Loc["Salary"].Value)" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
                     @if (context.JobDetail?.SalaryRaw != null)
                     {
@@ -277,12 +278,12 @@
                     }
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Technologie" TextAlign="TextAlign.Center" Width="200px">
+            <RadzenDataGridColumn Title="@(Loc["Technologies"].Value)" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.Technologies ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Lokalizacja" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@(context.Location ?? "—")</RadzenText>
                 </Template>
@@ -301,30 +302,30 @@
                     class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
-            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak ofert pracy.</p>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
         </EmptyTemplate>
         <HeaderTemplate>
             <h3 style="display: inline-block; color:#e65100; font-weight:bold;">🐶 BulldogJob</h3>
         </HeaderTemplate>
         <Columns>
-            <RadzenDataGridColumn Property="Title" Title="Stanowisko" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Position"].Value)" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="Link" Width="170px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="170px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <div class="rz-text-align-center" style="height:38px;">
-                        <RadzenLink Path="@context.Url" Text="Zobacz ofertę" Target="_blank" class="link" />
+                        <RadzenLink Path="@context.Url" Text="@(Loc["ViewOffer"].Value)" Target="_blank" class="link" />
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="SellerName" Title="Firma" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="SellerName" Title="@(Loc["Company"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Wynagrodzenie" TextAlign="TextAlign.Center" Width="200px">
+            <RadzenDataGridColumn Title="@(Loc["Salary"].Value)" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
                     @if (context.JobDetail?.SalaryRaw != null)
                     {
@@ -336,22 +337,22 @@
                     }
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Technologie" TextAlign="TextAlign.Center" Width="200px">
+            <RadzenDataGridColumn Title="@(Loc["Technologies"].Value)" TextAlign="TextAlign.Center" Width="200px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.Technologies ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Lokalizacja" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@(context.Location ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="AdditionalInfo" Title="Umowa" TextAlign="TextAlign.Center" Width="160px">
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["Contract"].Value)" TextAlign="TextAlign.Center" Width="160px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.AdditionalInfo ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Poziom" TextAlign="TextAlign.Center" Width="120px">
+            <RadzenDataGridColumn Title="@(Loc["Level"].Value)" TextAlign="TextAlign.Center" Width="120px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.HqLocation ?? "—")</RadzenText>
                 </Template>
@@ -369,30 +370,30 @@
                     class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
-            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak ofert pracy.</p>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
         </EmptyTemplate>
         <HeaderTemplate>
             <h3 style="display: inline-block; color:#00a1ff; font-weight:bold;">🔬 TheProtocol.IT</h3>
         </HeaderTemplate>
         <Columns>
-            <RadzenDataGridColumn Property="Title" Title="Stanowisko" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Position"].Value)" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="Link" Width="170px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="170px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <div class="rz-text-align-center" style="height:38px;">
-                        <RadzenLink Path="@context.Url" Text="Zobacz ofertę" Target="_blank" class="link" />
+                        <RadzenLink Path="@context.Url" Text="@(Loc["ViewOffer"].Value)" Target="_blank" class="link" />
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="SellerName" Title="Firma" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="SellerName" Title="@(Loc["Company"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Wynagrodzenie" TextAlign="TextAlign.Center" Width="220px">
+            <RadzenDataGridColumn Title="@(Loc["Salary"].Value)" TextAlign="TextAlign.Center" Width="220px">
                 <Template Context="context">
                     @if (context.JobDetail?.SalaryRaw != null)
                     {
@@ -404,17 +405,17 @@
                     }
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Technologie" TextAlign="TextAlign.Center" Width="220px">
+            <RadzenDataGridColumn Title="@(Loc["Technologies"].Value)" TextAlign="TextAlign.Center" Width="220px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.Technologies ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Tryb pracy" TextAlign="TextAlign.Center" Width="130px">
+            <RadzenDataGridColumn Title="@(Loc["WorkMode"].Value)" TextAlign="TextAlign.Center" Width="130px">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@(context.Location ?? "—")</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Title="Siedziba" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Title="@(Loc["HQ"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <RadzenText style="white-space:pre-wrap">@(context.JobDetail?.HqLocation ?? "—")</RadzenText>
                 </Template>
@@ -441,19 +442,19 @@
     private IEnumerable<ScrapedItem>? bulldogData;
 
     private record FilterOption(string Label, int? Value);
-    private static readonly List<FilterOption> employmentLevels = new()
+    private List<FilterOption> employmentLevels => new()
     {
-        new("Dowolny", null),
-        new("Junior", 17),
-        new("Mid / Regular", 4),
-        new("Senior", 18),
-        new("Ekspert", 19),
+        new(Loc["AnyM"], null),
+        new(Loc["LevelJunior"], 17),
+        new(Loc["LevelMid"], 4),
+        new(Loc["LevelSenior"], 18),
+        new(Loc["LevelExpert"], 19),
     };
-    private static readonly List<FilterOption> contractTypes = new()
+    private List<FilterOption> contractTypes => new()
     {
-        new("Dowolna", null),
-        new("Umowa o pracę", 0),
-        new("B2B", 3),
+        new(Loc["AnyF"], null),
+        new(Loc["ContractEmployment"], 0),
+        new(Loc["ContractB2B"], 3),
     };
 
     DataModel model = new();
@@ -462,12 +463,12 @@
     {
         if (string.IsNullOrWhiteSpace(searchedKeyword))
         {
-            await DialogService.Alert("Wpisz stanowisko lub słowo kluczowe.");
+            await DialogService.Alert(Loc["EnterKeyword"]);
             return;
         }
         if (!Globals.IsPhraseValid(searchedKeyword))
         {
-            await DialogService.Alert("Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik, #, .");
+            await DialogService.Alert(Loc["InvalidPhraseExt"]);
             return;
         }
 
@@ -503,7 +504,7 @@
         }
         catch (Exception ex)
         {
-            await DialogService.Alert($"Błąd podczas pobierania danych: {ex.Message}");
+            await DialogService.Alert($"{Loc["ErrorFetching"]} {ex.Message}");
         }
         finally
         {

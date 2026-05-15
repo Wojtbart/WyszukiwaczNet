@@ -319,6 +319,60 @@ public class UserService
         catch { }
     }
 
+    public async Task<UserProfileDto?> GetUserProfileAsync(int userId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"users/{userId}");
+            var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) return null;
+            return JsonConvert.DeserializeObject<UserProfileDto>(content);
+        }
+        catch { return null; }
+    }
+
+    public async Task<(bool Success, string? Message)> UpdatePasswordAsync(int userId, string currentPassword, string newPassword)
+    {
+        try
+        {
+            var json = JsonConvert.SerializeObject(new { UserId = userId, CurrentPassword = currentPassword, NewPassword = newPassword });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PatchAsync($"users/{userId}/password", content);
+            var body = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<dynamic>(body);
+            return (response.IsSuccessStatusCode, result?.message?.ToString());
+        }
+        catch { return (false, "Błąd połączenia."); }
+    }
+
+    public async Task<(bool Success, string? Message)> UpdateEmailAsync(int userId, string newEmail)
+    {
+        try
+        {
+            var json = JsonConvert.SerializeObject(new { UserId = userId, NewEmail = newEmail });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PatchAsync($"users/{userId}/email", content);
+            var body = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<dynamic>(body);
+            return (response.IsSuccessStatusCode, result?.message?.ToString());
+        }
+        catch { return (false, "Błąd połączenia."); }
+    }
+
+    public async Task<(bool Success, string? Message)> UpdatePhoneAsync(int userId, string? newPhone)
+    {
+        try
+        {
+            var json = JsonConvert.SerializeObject(new { UserId = userId, NewPhone = newPhone });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PatchAsync($"users/{userId}/phone", content);
+            var body = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<dynamic>(body);
+            return (response.IsSuccessStatusCode, result?.message?.ToString());
+        }
+        catch { return (false, "Błąd połączenia."); }
+    }
+
     public async Task<bool> UpdateNotificationSettingAsync(int userId, int channelId, bool enabled)
     {
         try

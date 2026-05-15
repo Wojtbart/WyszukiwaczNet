@@ -1,4 +1,4 @@
-@page "/notification"
+@page "/notification_settings"
 @using WyszukiwaczAppDTO
 @using WyszukiwaczApp.Proxies
 @using WyszukiwaczApp.Services
@@ -9,6 +9,7 @@
 @inject LoginProxy LoginProxy
 @inject UserService UserService
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IStringLocalizer<SharedResource> Loc
 
 <div class="notif-page">
 
@@ -18,8 +19,8 @@
             <RadzenIcon Icon="notifications_active" />
         </div>
         <div>
-            <h1 class="notif-title">Powiadomienia</h1>
-            <p class="notif-subtitle">Skonfiguruj automatyczne wyszukiwanie i powiadomienia</p>
+            <h1 class="notif-title">@Loc["Notifications"]</h1>
+            <p class="notif-subtitle">@Loc["ConfigureNotifications"]</p>
         </div>
     </div>
 
@@ -32,40 +33,40 @@
             <div class="n-card">
                 <div class="n-card-header">
                     <RadzenIcon Icon="category" class="n-card-icon" />
-                    <span>Kategoria</span>
+                    <span>@Loc["Category"]</span>
                 </div>
                 <div class="n-card-body">
                     <div class="cat-selector">
                         <div class="cat-btn @(_selectedCategory == "Motoryzacja" ? "cat-btn--active" : "")"
                              @onclick='async () => await SelectCategory("Motoryzacja")'>
                             <span class="cat-btn-emoji">🚗</span>
-                            <span>Motoryzacja</span>
+                            <span>@Loc["CatAuto"]</span>
                             <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Motoryzacja") ? "cat-status--on" : "cat-status--off")">
-                                @(_categoryEnabled.GetValueOrDefault("Motoryzacja") ? "aktywne" : "nieaktywne")
+                                @(_categoryEnabled.GetValueOrDefault("Motoryzacja") ? Loc["Active"] : Loc["Inactive"])
                             </span>
                         </div>
                         <div class="cat-btn @(_selectedCategory == "Nieruchomości" ? "cat-btn--active" : "")"
                              @onclick='async () => await SelectCategory("Nieruchomości")'>
                             <span class="cat-btn-emoji">🏠</span>
-                            <span>Nieruchomości</span>
+                            <span>@Loc["CatRealEstate"]</span>
                             <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Nieruchomości") ? "cat-status--on" : "cat-status--off")">
-                                @(_categoryEnabled.GetValueOrDefault("Nieruchomości") ? "aktywne" : "nieaktywne")
+                                @(_categoryEnabled.GetValueOrDefault("Nieruchomości") ? Loc["Active"] : Loc["Inactive"])
                             </span>
                         </div>
                         <div class="cat-btn @(_selectedCategory == "Zakupy" ? "cat-btn--active" : "")"
                              @onclick='async () => await SelectCategory("Zakupy")'>
                             <span class="cat-btn-emoji">🛒</span>
-                            <span>Zakupy</span>
+                            <span>@Loc["CatShopping"]</span>
                             <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Zakupy") ? "cat-status--on" : "cat-status--off")">
-                                @(_categoryEnabled.GetValueOrDefault("Zakupy") ? "aktywne" : "nieaktywne")
+                                @(_categoryEnabled.GetValueOrDefault("Zakupy") ? Loc["Active"] : Loc["Inactive"])
                             </span>
                         </div>
                         <div class="cat-btn @(_selectedCategory == "Praca" ? "cat-btn--active" : "")"
                              @onclick='async () => await SelectCategory("Praca")'>
                             <span class="cat-btn-emoji">💼</span>
-                            <span>Praca</span>
+                            <span>@Loc["CatWork"]</span>
                             <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Praca") ? "cat-status--on" : "cat-status--off")">
-                                @(_categoryEnabled.GetValueOrDefault("Praca") ? "aktywne" : "nieaktywne")
+                                @(_categoryEnabled.GetValueOrDefault("Praca") ? Loc["Active"] : Loc["Inactive"])
                             </span>
                         </div>
                     </div>
@@ -78,15 +79,15 @@
             <div class="n-card">
                 <div class="n-card-header">
                     <RadzenIcon Icon="search" class="n-card-icon" />
-                    <span>Wyszukiwanie</span>
+                    <span>@Loc["Search"]</span>
                 </div>
                 <div class="n-card-body">
                     <div class="n-field">
-                        <label class="n-label">Szukany tekst</label>
+                        <label class="n-label">@Loc["SearchedText"]</label>
                         <RadzenTextBox @bind-Value="@searchedText" Placeholder="@SearchPlaceholder" class="n-input-full" />
                     </div>
                     <div class="n-field">
-                        <label class="n-label">Liczba wyników (maks.)</label>
+                        <label class="n-label">@Loc["MaxResults"]</label>
                         <RadzenNumeric Min="1" Max="30" @bind-Value="@requestNumbers" class="n-input-sm" />
                     </div>
                 </div>
@@ -96,7 +97,7 @@
             <div class="n-card">
                 <div class="n-card-header">
                     <RadzenIcon Icon="language" class="n-card-icon" />
-                    <span>Platformy – @_selectedCategory</span>
+                    <span>@Loc["Platforms"] – @LocalizedCategory(_selectedCategory)</span>
                 </div>
                 <div class="n-card-body">
                     <div class="platform-grid">
@@ -118,7 +119,7 @@
             <div class="n-card">
                 <div class="n-card-header">
                     <RadzenIcon Icon="send" class="n-card-icon" />
-                    <span>Kanały powiadomień</span>
+                    <span>@Loc["NotificationChannels"]</span>
                 </div>
                 <div class="n-card-body">
                     <div class="channel-list">
@@ -127,8 +128,8 @@
                                 <RadzenIcon Icon="email" />
                             </div>
                             <div class="channel-info">
-                                <span class="channel-name">Email</span>
-                                <span class="channel-desc">Wyślij wyniki na email</span>
+                                <span class="channel-name">@Loc["Email"]</span>
+                                <span class="channel-desc">@Loc["EmailDesc"]</span>
                             </div>
                             <RadzenCheckBox TValue="bool" @bind-Value="isEmailChecked" class="channel-toggle" />
                         </div>
@@ -137,8 +138,8 @@
                                 <RadzenIcon Icon="sms" />
                             </div>
                             <div class="channel-info">
-                                <span class="channel-name">SMS</span>
-                                <span class="channel-desc">Wyślij wiadomość SMS</span>
+                                <span class="channel-name">@Loc["SMS"]</span>
+                                <span class="channel-desc">@Loc["SMSDesc"]</span>
                             </div>
                             <RadzenCheckBox TValue="bool" @bind-Value="isSMSChecked" class="channel-toggle" />
                         </div>
@@ -147,8 +148,8 @@
                                 <RadzenIcon Icon="forum" />
                             </div>
                             <div class="channel-info">
-                                <span class="channel-name">Discord</span>
-                                <span class="channel-desc">Wyślij na kanał Discord</span>
+                                <span class="channel-name">@Loc["Discord"]</span>
+                                <span class="channel-desc">@Loc["DiscordDesc"]</span>
                             </div>
                             <RadzenCheckBox TValue="bool" @bind-Value="isDiscordChecked" class="channel-toggle" />
                         </div>
@@ -157,8 +158,8 @@
                                 <RadzenIcon Icon="notifications" />
                             </div>
                             <div class="channel-info">
-                                <span class="channel-name">Tylko w aplikacji</span>
-                                <span class="channel-desc">Powiadomienia widoczne tylko w aplikacji</span>
+                                <span class="channel-name">@Loc["InApp"]</span>
+                                <span class="channel-desc">@Loc["InAppDesc"]</span>
                             </div>
                             <RadzenCheckBox TValue="bool" @bind-Value="isInAppChecked" class="channel-toggle" />
                         </div>
@@ -170,14 +171,14 @@
             <div class="n-card">
                 <div class="n-card-header">
                     <RadzenIcon Icon="schedule" class="n-card-icon" />
-                    <span>Harmonogram</span>
+                    <span>@Loc["Schedule"]</span>
                 </div>
                 <div class="n-card-body">
                     <div class="schedule-option @(isSendingHourChecked ? "schedule-option--active" : "")">
                         <div class="schedule-option-header">
                             <div>
-                                <span class="schedule-option-title">Wyślij o konkretnej godzinie</span>
-                                <span class="schedule-option-desc">Powiadomienie zostanie wysłane raz dziennie</span>
+                                <span class="schedule-option-title">@Loc["SendAtHour"]</span>
+                                <span class="schedule-option-desc">@Loc["SendAtHourDesc"]</span>
                             </div>
                             <RadzenCheckBox TValue="bool" @bind-Value="isSendingHourChecked" Change="OnCheckboxHourChanged" />
                         </div>
@@ -193,15 +194,15 @@
                     <div class="schedule-option @(isCyclicMessagingChecked ? "schedule-option--active" : "")">
                         <div class="schedule-option-header">
                             <div>
-                                <span class="schedule-option-title">Wysyłanie cykliczne</span>
-                                <span class="schedule-option-desc">Powtarzaj co określoną liczbę minut</span>
+                                <span class="schedule-option-title">@Loc["Cyclic"]</span>
+                                <span class="schedule-option-desc">@Loc["CyclicDesc"]</span>
                             </div>
                             <RadzenCheckBox TValue="bool" @bind-Value="isCyclicMessagingChecked" Change="OnCheckboxCyclicChanged" />
                         </div>
                         @if (isCyclicMessagingChecked)
                         {
                             <div class="schedule-picker">
-                                <label class="n-label">Co ile minut:</label>
+                                <label class="n-label">@Loc["EveryHowManyMin"]</label>
                                 <RadzenNumeric Min="1" Max="100" @bind-Value="@minutesAfterSendingNotification" Style="width: 100px;" />
                             </div>
                         }
@@ -215,33 +216,33 @@
             <div class="n-card">
                 <div class="n-card-header">
                     <RadzenIcon Icon="apartment" class="n-card-icon" />
-                    <span>Filtry (Nieruchomości)</span>
+                    <span>@Loc["FiltersRealEstate"]</span>
                 </div>
                 <div class="n-card-body">
                     <div class="filter-grid">
                         <label class="filter-chip @(isSprzedaz ? "filter-chip--active" : "")">
                             <input type="checkbox" @bind="isSprzedaz" @bind:after="() => OnCheckboxChanged(isSprzedaz)" hidden />
-                            Sprzedaż
+                            @Loc["Sale"]
                         </label>
                         <label class="filter-chip @(isWynajem ? "filter-chip--active" : "")">
                             <input type="checkbox" @bind="isWynajem" @bind:after="() => OnCheckboxChanged(isWynajem)" hidden />
-                            Wynajem
+                            @Loc["Rent"]
                         </label>
                         <label class="filter-chip @(isPrywatne ? "filter-chip--active" : "")">
                             <input type="checkbox" @bind="isPrywatne" @bind:after="() => OnCheckboxChanged(isPrywatne)" hidden />
-                            Prywatne
+                            @Loc["Private"]
                         </label>
                         <label class="filter-chip @(isPubliczne ? "filter-chip--active" : "")">
                             <input type="checkbox" @bind="isPubliczne" @bind:after="() => OnCheckboxChanged(isPubliczne)" hidden />
-                            Publiczne
+                            @Loc["Public"]
                         </label>
                         <label class="filter-chip @(isOstatnie24h ? "filter-chip--active" : "")">
                             <input type="checkbox" @bind="isOstatnie24h" @bind:after="() => OnCheckboxChanged(isOstatnie24h)" hidden />
-                            Ostatnie 24h
+                            @Loc["Last24h"]
                         </label>
                         <label class="filter-chip @(isDowolna ? "filter-chip--active" : "")">
                             <input type="checkbox" @bind="isDowolna" @bind:after="() => OnCheckboxChanged(isDowolna)" hidden />
-                            Dowolna
+                            @Loc["AnyF"]
                         </label>
                     </div>
                 </div>
@@ -255,56 +256,56 @@
             <div class="n-card n-summary">
                 <div class="n-card-header">
                     <RadzenIcon Icon="summarize" class="n-card-icon" />
-                    <span>Podsumowanie</span>
+                    <span>@Loc["Summary"]</span>
                 </div>
                 <div class="n-card-body">
 
                     <div class="summary-section">
-                        <span class="summary-label">Kategoria</span>
-                        <span class="summary-value">@(string.IsNullOrEmpty(_selectedCategory) ? "—" : _selectedCategory)</span>
+                        <span class="summary-label">@Loc["Category"]</span>
+                        <span class="summary-value">@(string.IsNullOrEmpty(_selectedCategory) ? "—" : LocalizedCategory(_selectedCategory))</span>
                     </div>
 
                     <div class="summary-section">
-                        <span class="summary-label">Fraza</span>
+                        <span class="summary-label">@Loc["Phrase"]</span>
                         <span class="summary-value">@(string.IsNullOrEmpty(searchedText) ? "—" : searchedText)</span>
                     </div>
 
                     <div class="summary-section">
-                        <span class="summary-label">Wyniki maks.</span>
+                        <span class="summary-label">@Loc["MaxResultsShort"]</span>
                         <span class="summary-value">@(requestNumbers > 0 ? requestNumbers.ToString() : "—")</span>
                     </div>
 
                     <div class="summary-section">
-                        <span class="summary-label">Harmonogram</span>
+                        <span class="summary-label">@Loc["Schedule"]</span>
                         <span class="summary-value">
                             @if (isSendingHourChecked && dateSendingNotification.HasValue)
-                            { @($"Codziennie o {dateSendingNotification:HH:mm}") }
+                            { @($"{Loc["DailyAt"]} {dateSendingNotification:HH:mm}") }
                             else if (isCyclicMessagingChecked && minutesAfterSendingNotification > 0)
-                            { @($"Co {minutesAfterSendingNotification} min") }
+                            { @($"{Loc["Every"]} {minutesAfterSendingNotification} {Loc["Min"]}") }
                             else
-                            { <span class="summary-empty">Nie ustawiono</span> }
+                            { <span class="summary-empty">@Loc["NotSet"]</span> }
                         </span>
                     </div>
 
                     <div class="summary-section">
-                        <span class="summary-label">Kanały</span>
+                        <span class="summary-label">@Loc["Channels"]</span>
                         <div class="summary-chips">
-                            @if (isEmailChecked) { <span class="s-chip s-chip--email">Email</span> }
-                            @if (isSMSChecked)   { <span class="s-chip s-chip--sms">SMS</span> }
-                            @if (isDiscordChecked) { <span class="s-chip s-chip--discord">Discord</span> }
-                            @if (isInAppChecked) { <span class="s-chip s-chip--inapp">W aplikacji</span> }
+                            @if (isEmailChecked) { <span class="s-chip s-chip--email">@Loc["Email"]</span> }
+                            @if (isSMSChecked)   { <span class="s-chip s-chip--sms">@Loc["SMS"]</span> }
+                            @if (isDiscordChecked) { <span class="s-chip s-chip--discord">@Loc["Discord"]</span> }
+                            @if (isInAppChecked) { <span class="s-chip s-chip--inapp">@Loc["InAppChip"]</span> }
                             @if (!isEmailChecked && !isSMSChecked && !isDiscordChecked && !isInAppChecked)
-                            { <span class="summary-empty">Brak</span> }
+                            { <span class="summary-empty">@Loc["None"]</span> }
                         </div>
                     </div>
 
                     <div class="summary-section">
-                        <span class="summary-label">Platformy</span>
+                        <span class="summary-label">@Loc["Platforms"]</span>
                         <div class="summary-chips">
                             @foreach (var p in selectedPlatforms)
                             { <span class="s-chip s-chip--platform">@p</span> }
                             @if (!selectedPlatforms.Any())
-                            { <span class="summary-empty">Brak</span> }
+                            { <span class="summary-empty">@Loc["None"]</span> }
                         </div>
                     </div>
                 </div>
@@ -312,10 +313,10 @@
 
             <!-- Action buttons -->
             <div class="notif-actions">
-                <RadzenButton Click="SaveConfiguration" Icon="save" Text="Zapisz ustawienia"
+                <RadzenButton Click="SaveConfiguration" Icon="save" Text="@(Loc["SaveSettings"].Value)"
                               ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"
                               class="n-btn-full" />
-                <RadzenButton Click="DeleteJobs" Icon="delete_forever" Text="Usuń zaplanowane joby"
+                <RadzenButton Click="DeleteJobs" Icon="delete_forever" Text="@(Loc["DeleteScheduledJobs"].Value)"
                               ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium"
                               class="n-btn-full" />
             </div>
@@ -324,18 +325,18 @@
             <div class="n-card" style="margin-top: 1rem;">
                 <div class="n-card-header">
                     <RadzenIcon Icon="work_history" class="n-card-icon" />
-                    <span>Aktywne zadania</span>
+                    <span>@Loc["ActiveJobs"]</span>
                     <RadzenButton Click="LoadJobs" Icon="refresh" ButtonStyle="ButtonStyle.Light"
                                   Size="ButtonSize.Small" style="margin-left:auto;" />
                 </div>
                 <div class="n-card-body">
                     @if (userJobs == null)
                     {
-                        <span style="color:#888;font-size:0.85rem;">Ładowanie...</span>
+                        <span style="color:#888;font-size:0.85rem;">@Loc["Loading"]</span>
                     }
                     else if (!userJobs.Any())
                     {
-                        <span style="color:#888;font-size:0.85rem;">Brak aktywnych zadań.</span>
+                        <span style="color:#888;font-size:0.85rem;">@Loc["NoActiveJobs"]</span>
                     }
                     else
                     {
@@ -417,11 +418,20 @@
     };
     private string SearchPlaceholder => _selectedCategory switch
     {
-        "Motoryzacja"   => "np. Toyota Corolla, BMW 3...",
-        "Nieruchomości" => "np. Warszawa, Kraków...",
-        "Zakupy"        => "np. iPhone 14, karta graficzna...",
-        "Praca"         => "np. developer, kierowca, manager...",
-        _               => "Wpisz szukany tekst..."
+        "Motoryzacja"   => Loc["PlaceholderAuto"],
+        "Nieruchomości" => Loc["PlaceholderRealEstate"],
+        "Zakupy"        => Loc["PlaceholderShopping"],
+        "Praca"         => Loc["PlaceholderWork"],
+        _               => Loc["PlaceholderDefault"]
+    };
+
+    private string LocalizedCategory(string? cat) => cat switch
+    {
+        "Motoryzacja"   => Loc["CatAuto"],
+        "Nieruchomości" => Loc["CatRealEstate"],
+        "Zakupy"        => Loc["CatShopping"],
+        "Praca"         => Loc["CatWork"],
+        _               => cat ?? ""
     };
     private List<string> selectedPlatforms = new();
 

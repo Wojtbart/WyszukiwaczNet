@@ -169,3 +169,28 @@ public record CreateCheckoutSessionRequest(
     string SuccessUrl,
     string CancelUrl
 );
+
+public record UserProfileResponse(
+    bool Success,
+    int? UserId,
+    string? Login,
+    string? Email,
+    string? Phone,
+    string? Message
+);
+
+public record UpdatePasswordRequest(
+    int UserId,
+    string CurrentPassword,
+    string NewPassword
+);
+
+public record UpdateEmailRequest(
+    int UserId,
+    string NewEmail
+);
+
+public record UpdatePhoneRequest(
+    int UserId,
+    string? NewPhone
+);

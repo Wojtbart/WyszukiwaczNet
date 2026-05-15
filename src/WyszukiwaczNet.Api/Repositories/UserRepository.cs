@@ -27,6 +27,7 @@ public interface IUserRepository
     Task MarkNotificationsReadAsync(int userId);
     Task MarkSingleNotificationReadAsync(int notificationId);
     Task<User?> ValidateCredentialsAsync(string login, string password);
+    Task UpdateAsync(User user);
 }
 
 public class UserRepository : IUserRepository
@@ -206,6 +207,12 @@ public class UserRepository : IUserRepository
         await _context.Notifications
             .Where(n => n.Id == notificationId && n.Status == "new")
             .ExecuteUpdateAsync(s => s.SetProperty(n => n.Status, "read"));
+    }
+
+    public async Task UpdateAsync(User user)
+    {
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<User?> ValidateCredentialsAsync(string login, string password)

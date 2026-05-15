@@ -1,4 +1,5 @@
 @inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> Loc
 @page "/categories"
 
 <style>
@@ -47,23 +48,23 @@
 </style>
 
 <div class="categories-container">
-    <h2>Kategorie</h2>
+    <h2>@Loc["CategoriesHeader"]</h2>
     <div class="category-grid">
         <a href="/cars" class="category-card">
             <div class="category-icon">🚗</div>
-            <div>Samochody</div>
+            <div>@Loc["Cars"]</div>
         </a>
         <a href="/flats" class="category-card">
             <div class="category-icon">🏠</div>
-            <div>Mieszkania</div>
+            <div>@Loc["Flats"]</div>
         </a>
         <a href="/shopping" class="category-card">
             <div class="category-icon">🛒</div>
-            <div>Zakupy</div>
+            <div>@Loc["Shopping"]</div>
         </a>
         <a href="/work" class="category-card">
             <div class="category-icon">💼</div>
-            <div>Oferty pracy IT</div>
+            <div>@Loc["JobOffers"]</div>
         </a>
     </div>
 </div>

@@ -9,7 +9,8 @@ Disallow: /shopping
 Disallow: /offers
 Disallow: /categories
 Disallow: /notification
-Disallow: /powiadomienia
+Disallow: /notification_settings
+Disallow: /account
 Disallow: /history
 
 Sitemap: https://wyszukiwacz.pl/sitemap.xml

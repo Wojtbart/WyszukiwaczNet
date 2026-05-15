@@ -63,6 +63,41 @@ public class UsersController : ControllerBase
     }
 
 
+    [HttpGet("{userId}")]
+    public async Task<IActionResult> GetUserProfile(int userId)
+    {
+        var profile = await _userService.GetUserProfileAsync(userId);
+        if (!profile.Success) return NotFound(profile);
+        return Ok(profile);
+    }
+
+    [HttpPatch("{userId}/password")]
+    public async Task<IActionResult> UpdatePassword(int userId, [FromBody] UpdatePasswordRequest request)
+    {
+        if (userId != request.UserId) return BadRequest(new { success = false, message = "Niezgodność ID." });
+        var (success, message) = await _userService.UpdatePasswordAsync(request);
+        if (!success) return BadRequest(new { success, message });
+        return Ok(new { success, message });
+    }
+
+    [HttpPatch("{userId}/email")]
+    public async Task<IActionResult> UpdateEmail(int userId, [FromBody] UpdateEmailRequest request)
+    {
+        if (userId != request.UserId) return BadRequest(new { success = false, message = "Niezgodność ID." });
+        var (success, message) = await _userService.UpdateEmailAsync(request);
+        if (!success) return BadRequest(new { success, message });
+        return Ok(new { success, message });
+    }
+
+    [HttpPatch("{userId}/phone")]
+    public async Task<IActionResult> UpdatePhone(int userId, [FromBody] UpdatePhoneRequest request)
+    {
+        if (userId != request.UserId) return BadRequest(new { success = false, message = "Niezgodność ID." });
+        var (success, message) = await _userService.UpdatePhoneAsync(request);
+        if (!success) return BadRequest(new { success, message });
+        return Ok(new { success, message });
+    }
+
     [HttpGet("getUserByLogin/{login}")]
     public async Task<IActionResult> GetUserByLogin(string login)
     {

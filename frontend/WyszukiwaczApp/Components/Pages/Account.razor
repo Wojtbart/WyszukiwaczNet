@@ -1,0 +1,273 @@
+@page "/account"
+@layout MainLayout
+@inject UserService UserService
+@inject LoginProxy LoginProxy
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject IStringLocalizer<SharedResource> Loc
+
+<style>
+    .account-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @@media (max-width: 768px) {
+        .account-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .account-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+
+    .account-card h3 {
+        margin: 0 0 1.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.75rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 0.9rem;
+    }
+
+    .info-label {
+        color: #888;
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.35rem;
+        font-weight: 500;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.55rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .btn-save {
+        width: 100%;
+        padding: 0.6rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        margin-top: 0.5rem;
+    }
+
+    .btn-save:hover { opacity: 0.85; }
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .alert {
+        padding: 0.6rem 0.9rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        margin-top: 0.75rem;
+    }
+
+    .alert-success { background: #d1fae5; color: #065f46; }
+    .alert-error { background: #fee2e2; color: #991b1b; }
+
+    .page-title {
+        margin: 0 0 1.5rem;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #333;
+    }
+</style>
+
+@if (isLoading)
+{
+    <p>@Loc["Loading"]</p>
+}
+else
+{
+    <h2 class="page-title">@Loc["MyAccount"]</h2>
+
+    <div class="account-grid">
+        <div class="account-card">
+            <h3>@Loc["AccountData"]</h3>
+            <div class="info-row">
+                <span class="info-label">@Loc["Username"]</span>
+                <span class="info-value">@(profile?.Login ?? "-")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">@Loc["Email"]</span>
+                <span class="info-value">@(profile?.Email ?? "-")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">@Loc["Phone"]</span>
+                <span class="info-value">@(string.IsNullOrEmpty(profile?.Phone) ? Loc["NotProvided"].Value : profile.Phone)</span>
+            </div>
+        </div>
+
+        <div class="account-card">
+            <h3>@Loc["ChangePassword"]</h3>
+            <div class="form-group">
+                <label>@Loc["CurrentPassword"]</label>
+                <input type="password" @bind="currentPassword" />
+            </div>
+            <div class="form-group">
+                <label>@Loc["NewPassword"]</label>
+                <input type="password" @bind="newPassword" />
+            </div>
+            <div class="form-group">
+                <label>@Loc["ConfirmPassword"]</label>
+                <input type="password" @bind="confirmPassword" />
+            </div>
+            <button class="btn-save" @onclick="ChangePassword" disabled="@pwBusy">@Loc["Save"]</button>
+            @if (!string.IsNullOrEmpty(pwMsg))
+            {
+                <div class="alert @(pwSuccess ? "alert-success" : "alert-error")">@pwMsg</div>
+            }
+        </div>
+
+        <div class="account-card">
+            <h3>@Loc["ChangeEmail"]</h3>
+            <div class="form-group">
+                <label>@Loc["NewEmail"]</label>
+                <input type="email" @bind="newEmail" />
+            </div>
+            <button class="btn-save" @onclick="ChangeEmail" disabled="@emailBusy">@Loc["Save"]</button>
+            @if (!string.IsNullOrEmpty(emailMsg))
+            {
+                <div class="alert @(emailSuccess ? "alert-success" : "alert-error")">@emailMsg</div>
+            }
+        </div>
+
+        <div class="account-card">
+            <h3>@Loc["ChangePhone"]</h3>
+            <div class="form-group">
+                <label>@Loc["NewPhone"]</label>
+                <input type="tel" @bind="newPhone" />
+            </div>
+            <button class="btn-save" @onclick="ChangePhone" disabled="@phoneBusy">@Loc["Save"]</button>
+            @if (!string.IsNullOrEmpty(phoneMsg))
+            {
+                <div class="alert @(phoneSuccess ? "alert-success" : "alert-error")">@phoneMsg</div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private UserProfileDto? profile;
+    private bool isLoading = true;
+    private int userId;
+
+    private string currentPassword = string.Empty;
+    private string newPassword = string.Empty;
+    private string confirmPassword = string.Empty;
+    private bool pwBusy;
+    private bool pwSuccess;
+    private string? pwMsg;
+
+    private string newEmail = string.Empty;
+    private bool emailBusy;
+    private bool emailSuccess;
+    private string? emailMsg;
+
+    private string? newPhone;
+    private bool phoneBusy;
+    private bool phoneSuccess;
+    private string? phoneMsg;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var login = await LocalStorage.GetItemAsync<string>("login") ?? string.Empty;
+        var token = await LocalStorage.GetItemAsync<string>("authToken") ?? string.Empty;
+        if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(token)) { NavigationManager.NavigateTo("/login"); return; }
+
+        Globals.IsLogged = true;
+        Globals.AuthToken = token;
+
+        var userInfo = await LoginProxy.GetUser(login);
+        if (userInfo == null || userInfo.user_id <= 0) { NavigationManager.NavigateTo("/login"); return; }
+        userId = userInfo.user_id;
+        Globals.UserId = userId;
+
+        profile = await UserService.GetUserProfileAsync(userId);
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task ChangePassword()
+    {
+        pwMsg = null;
+        if (newPassword != confirmPassword)
+        {
+            pwSuccess = false;
+            pwMsg = Loc["PasswordsDoNotMatch"].Value;
+            return;
+        }
+        pwBusy = true;
+        var (success, msg) = await UserService.UpdatePasswordAsync(userId, currentPassword, newPassword);
+        pwSuccess = success;
+        pwMsg = msg;
+        if (success) { currentPassword = string.Empty; newPassword = string.Empty; confirmPassword = string.Empty; }
+        pwBusy = false;
+    }
+
+    private async Task ChangeEmail()
+    {
+        emailMsg = null;
+        emailBusy = true;
+        var (success, msg) = await UserService.UpdateEmailAsync(userId, newEmail);
+        emailSuccess = success;
+        emailMsg = msg;
+        if (success) { profile!.Email = newEmail; newEmail = string.Empty; }
+        emailBusy = false;
+    }
+
+    private async Task ChangePhone()
+    {
+        phoneMsg = null;
+        phoneBusy = true;
+        var (success, msg) = await UserService.UpdatePhoneAsync(userId, newPhone);
+        phoneSuccess = success;
+        phoneMsg = msg;
+        if (success && profile != null) profile.Phone = newPhone;
+        phoneBusy = false;
+    }
+}
