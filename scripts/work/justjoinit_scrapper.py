@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 import requests
 from bs4 import BeautifulSoup
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
 import re
+import json
 import argparse
 import urllib.parse
 import unicodedata
@@ -41,100 +43,124 @@ def build_url(keyword, location=None, experience_level=None, employment_type=Non
     return f"{path}?{urllib.parse.urlencode(params)}"
 
 
-def parse_salary(salary_span):
-    if not salary_span:
-        return None, None, "PLN", "monthly", None
+def extract_offers_from_html(html):
+    """Pull offers from Next.js streaming chunks embedded in self.__next_f.push(...)."""
+    pushes = re.findall(
+        r'self\.__next_f\.push\(\[\d+,"((?:[^"\\]|\\.)*)"\]\)',
+        html, re.DOTALL,
+    )
+    chunks = []
+    for p in pushes:
+        try:
+            chunks.append(json.loads('"' + p + '"'))
+        except Exception:
+            continue
+    big = "".join(chunks)
 
-    undisclosed = salary_span.find("div")
-    if undisclosed:
-        return None, None, "PLN", "monthly", undisclosed.get_text(strip=True)
+    pos = 0
+    while True:
+        i = big.find('"data":[', pos)
+        if i == -1:
+            return []
+        arr_start = big.find('[', i)
+        arr_text = _extract_balanced_array(big, arr_start)
+        if arr_text and 'applyUrl' in arr_text and 'companyName' in arr_text:
+            try:
+                arr = json.loads(arr_text)
+                if isinstance(arr, list) and arr and isinstance(arr[0], dict) and "slug" in arr[0]:
+                    return arr
+            except Exception:
+                pass
+        pos = i + 1
 
-    spans = salary_span.find_all("span")
-    nums = []
-    salary_unit = None
-    for s in spans:
-        t = s.get_text(strip=True).replace("\xa0", "").replace(" ", "")
-        if t.isdigit():
-            nums.append(int(t))
-        elif "/" in t:
-            salary_unit = t
 
-    salary_min = nums[0] if nums else None
-    salary_max = nums[1] if len(nums) > 1 else salary_min
-    currency = salary_unit.split("/")[0] if salary_unit else "PLN"
-    salary_type = "hourly" if salary_unit and "/h" in salary_unit else "monthly"
+def _extract_balanced_array(text, start):
+    depth = 0
+    in_str = False
+    esc = False
+    for j in range(start, len(text)):
+        c = text[j]
+        if in_str:
+            if esc:
+                esc = False
+            elif c == "\\":
+                esc = True
+            elif c == '"':
+                in_str = False
+        else:
+            if c == '"':
+                in_str = True
+            elif c == '[':
+                depth += 1
+            elif c == ']':
+                depth -= 1
+                if depth == 0:
+                    return text[start:j + 1]
+    return None
 
-    if salary_min is not None and salary_max is not None and salary_min != salary_max:
-        salary_raw = f"{salary_min} - {salary_max} {salary_unit}" if salary_unit else f"{salary_min} - {salary_max}"
-    elif salary_min is not None:
-        salary_raw = f"{salary_min} {salary_unit}" if salary_unit else str(salary_min)
-    else:
+
+def pick_salary(employment_types):
+    """Prefer PLN original; fall back to first non-null entry."""
+    if not employment_types:
+        return None, None, "PLN", "monthly", None, None
+
+    pln_original = next(
+        (e for e in employment_types
+         if e.get("currency") == "PLN" and e.get("currencySource") == "original"),
+        None,
+    )
+    pln_any = next((e for e in employment_types if e.get("currency") == "PLN"), None)
+    chosen = pln_original or pln_any or employment_types[0]
+
+    salary_min = chosen.get("from")
+    salary_max = chosen.get("to")
+    currency = chosen.get("currency") or "PLN"
+    unit = chosen.get("unit") or "month"
+    salary_type = "hourly" if unit == "hour" else "monthly"
+    contract_type = chosen.get("type")
+
+    if salary_min is None and salary_max is None:
         salary_raw = None
+    elif salary_min is not None and salary_max is not None and salary_min != salary_max:
+        salary_raw = f"{int(round(salary_min))} - {int(round(salary_max))} {currency}/{unit}"
+    else:
+        v = salary_min if salary_min is not None else salary_max
+        salary_raw = f"{int(round(v))} {currency}/{unit}"
 
-    return salary_min, salary_max, currency, salary_type, salary_raw
+    return salary_min, salary_max, currency, salary_type, salary_raw, contract_type
 
 
-def parse_offer(card):
+def parse_offer(offer):
     try:
-        href = card.get("href", "")
-        if not href:
+        slug = offer.get("slug")
+        if not slug:
             return None
-        url = BASE_URL + href if href.startswith("/") else href
+        url = f"{BASE_URL}/job-offer/{slug}"
 
-        title_tag = card.find("h3")
-        if not title_tag:
+        title = offer.get("title") or offer.get("body")
+        if not title:
             return None
-        title = title_tag.get_text(strip=True)
 
-        img_tag = card.find("img", id="offerCardCompanyLogo")
-        image_url = img_tag.get("src") if img_tag else None
+        company = offer.get("companyName")
+        image_url = offer.get("companyLogoThumbUrl")
 
-        # company name: p sibling after ApartmentRoundedIcon svg
-        company = None
-        apt_svg = card.find("svg", attrs={"data-testid": "ApartmentRoundedIcon"})
-        if apt_svg:
-            p = apt_svg.find_next_sibling("p")
-            company = p.get_text(strip=True) if p else None
-
-        # salary
-        salary_span = card.find("span", class_=lambda c: c and "MuiTypography-lead4" in c)
-        salary_min, salary_max, salary_currency, salary_type, salary_raw = parse_salary(salary_span)
-
-        # city from location button
-        city_span = card.find("span", class_=lambda c: c and "mui-1o4wo1x" in c)
-        city = city_span.get_text(strip=True) if city_span else None
-
-        # remote indicator: p sibling after ShareLocationRoundedIcon svg
-        remote_p = None
-        share_svg = card.find("svg", attrs={"data-testid": "ShareLocationRoundedIcon"})
-        if share_svg:
-            p = share_svg.find_next_sibling("p")
-            if p and p.get_text(strip=True).lower() == "remote":
-                remote_p = "Remote"
-
-        if city and remote_p:
-            location = f"{city} / {remote_p}"
-        elif remote_p:
-            location = remote_p
+        city = offer.get("city")
+        workplace = offer.get("workplaceType")
+        if workplace and workplace != "office":
+            location = f"{city} / {workplace}" if city else workplace.capitalize()
         else:
             location = city
 
-        # days left + technologies from chip divs
-        days_left = None
-        technologies = []
-        seen = set()
-        chips = card.find_all("div", class_=lambda c: c and "mui-jikuwi" in c)
-        for chip in chips:
-            text = chip.get_text(strip=True)
-            if not text or text in seen:
-                continue
-            seen.add(text)
-            if re.match(r'\d+d left', text):
-                days_left = text
-            elif "click Apply" not in text and "Super offer" not in text:
-                technologies.append(text)
+        skills = offer.get("requiredSkills") or []
+        technologies = ", ".join(skills) if skills else None
 
-        tech_str = ", ".join(technologies) if technologies else None
+        salary_min, salary_max, salary_currency, salary_type, salary_raw, contract = pick_salary(
+            offer.get("employmentTypes") or []
+        )
+
+        exp_level = offer.get("experienceLevel")
+        bits = [b for b in (contract, exp_level) if b]
+        additional_info = " | ".join(bits) if bits else None
 
         return {
             "title": title,
@@ -146,11 +172,11 @@ def parse_offer(card):
             "salary_currency": salary_currency,
             "salary_type": salary_type,
             "salary_raw": salary_raw,
-            "technologies": tech_str,
+            "technologies": technologies,
             "location": location,
             "work_location": location,
-            "hq_location": None,
-            "additional_info": days_left,
+            "hq_location": offer.get("street"),
+            "additional_info": additional_info,
         }
     except Exception as e:
         print(f"  parse error: {e}")
@@ -184,11 +210,12 @@ def insert_offer(cnx, platform_id, data):
         RETURNING id
     """
     additional = (data["additional_info"] or "")[:255]
+    price = int(round(data["salary_min"])) if data["salary_min"] is not None else None
     with cnx.cursor() as cursor:
         cursor.execute(query, (
             platform_id,
             data["title"],
-            data["salary_min"],
+            price,
             data["salary_currency"],
             data["url"],
             data["image_url"],
@@ -239,22 +266,17 @@ def get_data_and_insert(cnx, keyword, location=None, experience_level=None, empl
         "Accept": "text/html,application/xhtml+xml,application/xhtml+xml,*/*;q=0.8",
     }
     response = requests.get(url, headers=headers, timeout=20)
-    soup = BeautifulSoup(response.content, "html.parser")
+    html = response.text
 
-    container = soup.find("div", id="up-offers-list")
-    if not container:
-        print("up-offers-list not found — site may require JS rendering")
+    offers = extract_offers_from_html(html)
+    if not offers:
+        print("No offers extracted from streaming chunks")
         return
 
-    cards = container.find_all("a", class_="offer-card")
-    if not cards:
-        print("No offer-card elements found")
-        return
+    print(f"Found {len(offers)} offers")
 
-    print(f"Found {len(cards)} offers")
-
-    for card in cards:
-        data = parse_offer(card)
+    for offer in offers:
+        data = parse_offer(offer)
         if not data:
             continue
 
@@ -262,9 +284,14 @@ def get_data_and_insert(cnx, keyword, location=None, experience_level=None, empl
             print(f"  SKIP (exists): {data['url']}")
             continue
 
-        offer_id = insert_offer(cnx, platform_id, data)
-        insert_job_detail(cnx, offer_id, data)
-        cnx.commit()
+        try:
+            offer_id = insert_offer(cnx, platform_id, data)
+            insert_job_detail(cnx, offer_id, data)
+            cnx.commit()
+        except Exception as e:
+            cnx.rollback()
+            print(f"  insert error: {e}")
+            continue
 
         COUNTER += 1
         print(f"  +inserted: {data['title']} | {data['company']} | {data.get('location')}")

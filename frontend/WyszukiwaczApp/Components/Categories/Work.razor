@@ -48,7 +48,7 @@
         <RadzenFormField Text="Stanowisko / słowo kluczowe" Variant="Variant.Flat" Style="width:35%;margin-right:20px;">
             <RadzenTextBox @bind-Value="@searchedKeyword" Style="width: 100%; border-radius:15px;" />
         </RadzenFormField>
-        <RadzenFormField Text="Lokalizacja (opcjonalnie)" Variant="Variant.Flat" Style="width:20%;margin-right:20px;">
+        <RadzenFormField Text="Lokalizacja" Variant="Variant.Flat" Style="width:20%;margin-right:20px;">
             <RadzenTextBox @bind-Value="@workLocation" Placeholder="np. Rzeszów" Style="width: 100%; border-radius:15px;" />
         </RadzenFormField>
         <RadzenFormField Text="Poziom stanowiska" Variant="Variant.Flat" Style="width:180px;margin-right:20px;">
@@ -68,27 +68,31 @@
 <RadzenText TextStyle="TextStyle.H4" Text="Wybierz portale pracy" Style="color:red; margin-bottom:20px;" />
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
-    <RadzenImage Path="images/pracuj.svg" Style="width: 4rem;height:2rem;" AlternateText="Pracuj" />
+    <RadzenImage Path="images/pracuj.svg" Style="width:5rem;height:3rem;" AlternateText="Pracuj" />
     <RadzenLabel Text="Pracuj" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
     <RadzenCheckBox @bind-Value=@setPracujGrid Name="CheckBox1" />
 </RadzenButton>
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
+    <RadzenImage Path="images/justjoinit.png" Style="width:3rem;height:3rem;" AlternateText="JustJoinIt" />
     <RadzenLabel Text="JustJoin.IT" Component="CheckBox2" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
     <RadzenCheckBox @bind-Value=@setJJIGrid Name="CheckBox2" />
 </RadzenButton>
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
+    <RadzenImage Path="images/nofluffjobs.png" Style="width:3rem;height:3rem;" AlternateText="NoFluffJobs" />
     <RadzenLabel Text="NoFluffJobs" Component="CheckBox3" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
     <RadzenCheckBox @bind-Value=@setNFJGrid Name="CheckBox3" />
 </RadzenButton>
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
+    <RadzenImage Path="images/theprotocolit.png" Style="width:6rem;height:3rem;" AlternateText="TheProtocol.IT" />
     <RadzenLabel Text="TheProtocol.IT" Component="CheckBox4" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
     <RadzenCheckBox @bind-Value=@setTPGrid Name="CheckBox4" />
 </RadzenButton>
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
+    <RadzenImage Path="images/bulldogjob.svg" Style="width:5rem;height:3rem;" AlternateText="BulldogJob" />
     <RadzenLabel Text="BulldogJob" Component="CheckBox5" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
     <RadzenCheckBox @bind-Value=@setBulldogGrid Name="CheckBox5" />
 </RadzenButton>

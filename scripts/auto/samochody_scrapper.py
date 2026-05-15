@@ -10,7 +10,7 @@ from psycopg2 import Error
 sys.stdout.reconfigure(encoding='utf-8')
 
 BASE_URL = "https://samochody.pl"
-PLATFORM_NAME = "Samochody"
+PLATFORM_ID = 13
 COUNTER = 0
 
 
@@ -38,12 +38,12 @@ def parse_price(text):
         return None, None
 
 
-def get_platform_id(cnx, platform_name):
+def get_platform_id(cnx, platform_id):
     with cnx.cursor() as cursor:
-        cursor.execute("SELECT id FROM platforms WHERE name = %s", (platform_name,))
+        cursor.execute("SELECT id FROM platforms WHERE id = %s", (platform_id,))
         row = cursor.fetchone()
         if not row:
-            raise Exception(f"Platform '{platform_name}' not found in DB")
+            raise Exception(f"Platform  not found in DB")
         return row[0]
 
 
@@ -187,7 +187,7 @@ def parse_listing(a_tag):
 
 def get_data_and_insert(cnx, phrase):
     global COUNTER
-    platform_id = get_platform_id(cnx, PLATFORM_NAME)
+    platform_id = get_platform_id(cnx, PLATFORM_ID)
 
     # phrase: [brand, model, ...] e.g. ["hyundai", "i30"]
     brand = phrase[0].lower() if len(phrase) > 0 else ""

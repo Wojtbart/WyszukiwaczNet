@@ -115,27 +115,9 @@
 
     <ul class="nav-links">
         <li>
-            <NavLink href="/" class="nav-link" Match="NavLinkMatch.All" @onclick="_ => OnLinkClicked.InvokeAsync()">
-                <span class="nav-link-icon">🏠</span>
-                Strona główna
-            </NavLink>
-        </li>
-        <li>
-            <NavLink href="/offers" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
-                <span class="nav-link-icon">📋</span>
-                Historia
-            </NavLink>
-        </li>
-        <li>
-            <NavLink href="/categories" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
+            <NavLink href="/categories" class="nav-link" Match="NavLinkMatch.All" @onclick="_ => OnLinkClicked.InvokeAsync()">
                 <span class="nav-link-icon">📁</span>
                 Kategorie
-            </NavLink>
-        </li>
-        <li>
-            <NavLink href="/work" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
-                <span class="nav-link-icon">💼</span>
-                Praca
             </NavLink>
         </li>
         <li>
@@ -146,6 +128,12 @@
                 {
                     <span class="nav-badge">@unreadCount</span>
                 }
+            </NavLink>
+        </li>
+        <li>
+            <NavLink href="/offers" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
+                <span class="nav-link-icon">📋</span>
+                Historia
             </NavLink>
         </li>
 
