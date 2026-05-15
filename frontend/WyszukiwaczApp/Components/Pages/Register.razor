@@ -5,13 +5,14 @@
 @using System.ComponentModel.DataAnnotations
 @inject UserService UserService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<SharedResource> Loc
 
-<PageTitle>Rejestracja – Wyszukiwacz</PageTitle>
+<PageTitle>@Loc["RegisterPageTitle"]</PageTitle>
 
 <div class="auth-page">
     <div class="auth-card">
-        <h1 class="auth-card-title">Utwórz konto</h1>
-        <p class="auth-card-sub">Masz już konto? <a href="/login">Zaloguj się</a></p>
+        <h1 class="auth-card-title">@Loc["RegisterTitle"]</h1>
+        <p class="auth-card-sub">@Loc["RegisterHasAccount"] <a href="/login">@Loc["SignIn"]</a></p>
 
         @if (!string.IsNullOrEmpty(errorMessage))
         {
@@ -33,14 +34,14 @@
 
             <div class="auth-field-row">
                 <div class="auth-field">
-                    <label class="auth-label" for="name">Imię</label>
+                    <label class="auth-label" for="name">@Loc["FirstName"]</label>
                     <div class="auth-input-group">
                         <i class="material-icons auth-input-icon">badge</i>
                         <input id="name" @bind="registerModel.Name" class="auth-input" placeholder="Jan" />
                     </div>
                 </div>
                 <div class="auth-field">
-                    <label class="auth-label" for="surname">Nazwisko</label>
+                    <label class="auth-label" for="surname">@Loc["LastName"]</label>
                     <div class="auth-input-group">
                         <i class="material-icons auth-input-icon">badge</i>
                         <input id="surname" @bind="registerModel.Surname" class="auth-input" placeholder="Kowalski" />
@@ -49,10 +50,10 @@
             </div>
 
             <div class="auth-field">
-                <label class="auth-label" for="login">Login <span class="auth-required">*</span></label>
+                <label class="auth-label" for="login">@Loc["UsernameLabel"] <span class="auth-required">*</span></label>
                 <div class="auth-input-group">
                     <i class="material-icons auth-input-icon">person</i>
-                    <input id="login" @bind="registerModel.Login" class="auth-input" placeholder="Nazwa użytkownika" />
+                    <input id="login" @bind="registerModel.Login" class="auth-input" placeholder="@(Loc["UsernamePlaceholder"].Value)" />
                 </div>
             </div>
 
@@ -65,7 +66,7 @@
             </div>
 
             <div class="auth-field">
-                <label class="auth-label" for="phone">Telefon <span class="auth-optional">(opcjonalnie)</span></label>
+                <label class="auth-label" for="phone">@Loc["Phone"] <span class="auth-optional">@Loc["Optional"]</span></label>
                 <div class="auth-input-group">
                     <i class="material-icons auth-input-icon">phone</i>
                     <input id="phone" type="tel" @bind="registerModel.Phone" class="auth-input" placeholder="+48123456789" />
@@ -73,18 +74,18 @@
             </div>
 
             <div class="auth-field">
-                <label class="auth-label" for="password">Hasło <span class="auth-required">*</span></label>
+                <label class="auth-label" for="password">@Loc["PasswordLabel"] <span class="auth-required">*</span></label>
                 <div class="auth-input-group">
                     <i class="material-icons auth-input-icon">lock</i>
-                    <input id="password" type="password" @bind="registerModel.Password" class="auth-input" placeholder="Min. 6 znaków" />
+                    <input id="password" type="password" @bind="registerModel.Password" class="auth-input" placeholder="@(Loc["PasswordMinHint"].Value)" />
                 </div>
             </div>
 
             <div class="auth-field">
-                <label class="auth-label" for="repeatPassword">Powtórz hasło <span class="auth-required">*</span></label>
+                <label class="auth-label" for="repeatPassword">@Loc["RepeatPasswordLabel"] <span class="auth-required">*</span></label>
                 <div class="auth-input-group">
                     <i class="material-icons auth-input-icon">lock_reset</i>
-                    <input id="repeatPassword" type="password" @bind="registerModel.RepeatPassword" class="auth-input" placeholder="Powtórz hasło" />
+                    <input id="repeatPassword" type="password" @bind="registerModel.RepeatPassword" class="auth-input" placeholder="@(Loc["RepeatPasswordLabel"].Value)" />
                 </div>
             </div>
 
@@ -92,16 +93,16 @@
                 @if (isLoading)
                 {
                     <span class="auth-spinner"></span>
-                    <span>Rejestracja...</span>
+                    <span>@Loc["Registering"]</span>
                 }
                 else
                 {
-                    <span>Zarejestruj się bezpłatnie</span>
+                    <span>@Loc["RegisterButton"]</span>
                 }
             </button>
 
             <p class="auth-terms">
-                Rejestrując się akceptujesz <a href="/">regulamin</a> i <a href="/">politykę prywatności</a>.
+                @Loc["TermsAccept"] <a href="/">@Loc["TermsOfService"]</a> i <a href="/">@Loc["PrivacyPolicy"]</a>.
             </p>
         </EditForm>
     </div>
@@ -141,18 +142,18 @@
 
             if (result?.Success == true)
             {
-                successMessage = "Rejestracja zakończona pomyślnie! Przekierowuję do logowania...";
+                successMessage = Loc["RegisterSuccessMsg"].Value;
                 await Task.Delay(1500);
                 NavigationManager.NavigateTo("/login");
             }
             else
             {
-                errorMessage = result?.Message ?? "Rejestracja nie powiodła się";
+                errorMessage = result?.Message ?? Loc["RegisterFailedMsg"].Value;
             }
         }
         catch
         {
-            errorMessage = "Wystąpił błąd podczas rejestracji.";
+            errorMessage = Loc["RegisterGenericError"].Value;
         }
         finally
         {

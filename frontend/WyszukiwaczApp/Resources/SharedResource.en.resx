@@ -55,12 +55,18 @@
   <data name="ChooseFuel" xml:space="preserve"><value>Select fuel type</value></data>
   <data name="ChooseHorsepower" xml:space="preserve"><value>Select engine power (HP)</value></data>
   <data name="ChooseCapacity" xml:space="preserve"><value>Select engine capacity (cc)</value></data>
+  <data name="ChooseGearbox" xml:space="preserve"><value>Select gearbox type</value></data>
+  <data name="EnginePlaceholder" xml:space="preserve"><value>e.g. 2.0 or 150 HP</value></data>
+  <data name="EngineLabel" xml:space="preserve"><value>Engine</value></data>
   <data name="FuelPetrol" xml:space="preserve"><value>Petrol</value></data>
   <data name="FuelPetrolCng" xml:space="preserve"><value>Petrol-CNG</value></data>
   <data name="FuelPetrolLng" xml:space="preserve"><value>Petrol-LNG</value></data>
+  <data name="FuelPetrolLpg" xml:space="preserve"><value>Petrol+LPG</value></data>
   <data name="FuelDiesel" xml:space="preserve"><value>Diesel</value></data>
   <data name="FuelElectric" xml:space="preserve"><value>Electric</value></data>
   <data name="FuelHybrid" xml:space="preserve"><value>Hybrid</value></data>
+  <data name="GearboxManual" xml:space="preserve"><value>Manual</value></data>
+  <data name="GearboxAutomatic" xml:space="preserve"><value>Automatic</value></data>
   <data name="MileageKm" xml:space="preserve"><value>Mileage (km)</value></data>
   <data name="ProductionYear" xml:space="preserve"><value>Year</value></data>
   <data name="Fuel" xml:space="preserve"><value>Fuel</value></data>
@@ -169,4 +175,109 @@
   <data name="NewPhone" xml:space="preserve"><value>New phone number</value></data>
   <data name="Save" xml:space="preserve"><value>Save</value></data>
   <data name="MemberSince" xml:space="preserve"><value>Member since</value></data>
+
+  <!-- Login page -->
+  <data name="LoginPageTitle" xml:space="preserve"><value>Sign in – Wyszukiwacz</value></data>
+  <data name="LoginTitle" xml:space="preserve"><value>Sign in</value></data>
+  <data name="LoginNoAccount" xml:space="preserve"><value>Don't have an account?</value></data>
+  <data name="LoginRegisterFree" xml:space="preserve"><value>Sign up for free</value></data>
+  <data name="LoginEmailOrUsername" xml:space="preserve"><value>Email or username</value></data>
+  <data name="PasswordLabel" xml:space="preserve"><value>Password</value></data>
+  <data name="LoginPlaceholderUser" xml:space="preserve"><value>your@email.com or username</value></data>
+  <data name="LoginPlaceholderPass" xml:space="preserve"><value>Enter password</value></data>
+  <data name="LoginRememberMe" xml:space="preserve"><value>Remember me</value></data>
+  <data name="LoginButton" xml:space="preserve"><value>Sign in</value></data>
+  <data name="LoggingIn" xml:space="preserve"><value>Signing in...</value></data>
+  <data name="LoginInvalidCredentials" xml:space="preserve"><value>Invalid username or password</value></data>
+  <data name="LoginGenericError" xml:space="preserve"><value>Incorrect credentials</value></data>
+
+  <!-- Register page -->
+  <data name="RegisterPageTitle" xml:space="preserve"><value>Sign up – Wyszukiwacz</value></data>
+  <data name="RegisterTitle" xml:space="preserve"><value>Create account</value></data>
+  <data name="RegisterHasAccount" xml:space="preserve"><value>Already have an account?</value></data>
+  <data name="SignIn" xml:space="preserve"><value>Sign in</value></data>
+  <data name="FirstName" xml:space="preserve"><value>First name</value></data>
+  <data name="LastName" xml:space="preserve"><value>Last name</value></data>
+  <data name="UsernameLabel" xml:space="preserve"><value>Username</value></data>
+  <data name="UsernamePlaceholder" xml:space="preserve"><value>Choose a username</value></data>
+  <data name="Optional" xml:space="preserve"><value>(optional)</value></data>
+  <data name="RegisterButton" xml:space="preserve"><value>Sign up for free</value></data>
+  <data name="Registering" xml:space="preserve"><value>Registering...</value></data>
+  <data name="RegisterSuccessMsg" xml:space="preserve"><value>Registration successful! Redirecting to login...</value></data>
+  <data name="RegisterFailedMsg" xml:space="preserve"><value>Registration failed</value></data>
+  <data name="RegisterGenericError" xml:space="preserve"><value>An error occurred during registration.</value></data>
+  <data name="TermsAccept" xml:space="preserve"><value>By registering you accept our</value></data>
+  <data name="TermsOfService" xml:space="preserve"><value>terms of service</value></data>
+  <data name="PrivacyPolicy" xml:space="preserve"><value>privacy policy</value></data>
+  <data name="RepeatPasswordLabel" xml:space="preserve"><value>Repeat password</value></data>
+  <data name="PasswordMinHint" xml:space="preserve"><value>Min. 6 characters</value></data>
+
+  <!-- Home page -->
+  <data name="HeroBadge" xml:space="preserve"><value>Free listing aggregator for Poland</value></data>
+  <data name="HeroH1Line1" xml:space="preserve"><value>One portal.</value></data>
+  <data name="HeroH1Line2" xml:space="preserve"><value>All listings.</value></data>
+  <data name="HeroSub" xml:space="preserve"><value>Search for cars, apartments and products on OLX, Otomoto, Otodom, Amazon and dozens of other sites – all in one place. Set an alert and never miss a deal.</value></data>
+  <data name="HeroCTA1" xml:space="preserve"><value>Sign up for free</value></data>
+  <data name="HeroCTA2" xml:space="preserve"><value>I already have an account</value></data>
+  <data name="PlatformsLabel" xml:space="preserve"><value>We search for you</value></data>
+  <data name="StatPortalsLabel" xml:space="preserve"><value>listing portals in one place</value></data>
+  <data name="StatCategoriesLabel" xml:space="preserve"><value>categories: cars, apartments, shopping</value></data>
+  <data name="StatFreeLabel" xml:space="preserve"><value>completely free access</value></data>
+  <data name="StatFreeValue" xml:space="preserve"><value>0 PLN</value></data>
+  <data name="HowHeading" xml:space="preserve"><value>How it works?</value></data>
+  <data name="HowSub" xml:space="preserve"><value>Three steps separate you from finding the perfect offer. No more manually browsing dozens of sites.</value></data>
+  <data name="Step1Title" xml:space="preserve"><value>Choose a category and enter a phrase</value></data>
+  <data name="Step1Body" xml:space="preserve"><value>Looking for a car, apartment or specific product? Choose a category, type what you're looking for and set filters.</value></data>
+  <data name="Step2Title" xml:space="preserve"><value>Set an alert once</value></data>
+  <data name="Step2Body" xml:space="preserve"><value>Define your criteria as an alert. The system will automatically monitor dozens of portals without your involvement.</value></data>
+  <data name="Step3Title" xml:space="preserve"><value>Receive notifications</value></data>
+  <data name="Step3Body" xml:space="preserve"><value>When a new listing matching your alert appears, you instantly get a notification in the app. Be first.</value></data>
+  <data name="FeaturesHeading" xml:space="preserve"><value>What does Wyszukiwacz offer?</value></data>
+  <data name="FeaturesSub" xml:space="preserve"><value>All the tools for effective listing search in one place.</value></data>
+  <data name="Feature1Title" xml:space="preserve"><value>Parallel search</value></data>
+  <data name="Feature1Body" xml:space="preserve"><value>One query searches all supported portals simultaneously. No need to visit each site separately.</value></data>
+  <data name="Feature2Title" xml:space="preserve"><value>Alerts and notifications</value></data>
+  <data name="Feature2Body" xml:space="preserve"><value>Set an alert for any phrase and category. When a new matching listing appears, you instantly see it in the notifications section.</value></data>
+  <data name="Feature3Title" xml:space="preserve"><value>Lightning-fast results</value></data>
+  <data name="Feature3Body" xml:space="preserve"><value>Results from multiple portals are collected in real time and presented in a clear, unified view.</value></data>
+  <data name="Feature4Title" xml:space="preserve"><value>Clear offer view</value></data>
+  <data name="Feature4Body" xml:space="preserve"><value>Compare offers from different portals side by side – price, location, date added – in one consistent interface.</value></data>
+  <data name="Feature5Title" xml:space="preserve"><value>Filters and categories</value></data>
+  <data name="Feature5Body" xml:space="preserve"><value>Cars, apartments, shopping – each category has dedicated filters tailored to the specifics of that market.</value></data>
+  <data name="Feature6Title" xml:space="preserve"><value>Secure account</value></data>
+  <data name="Feature6Body" xml:space="preserve"><value>Your data and alert settings are securely stored on the server and accessible after logging in from any device.</value></data>
+  <data name="CategoriesHeading" xml:space="preserve"><value>Listing categories</value></data>
+  <data name="CategoriesSub" xml:space="preserve"><value>Three main markets covered by Wyszukiwacz – each with its own set of portals and filters.</value></data>
+  <data name="CatCarsTitle" xml:space="preserve"><value>Used cars</value></data>
+  <data name="CatCarsPortals" xml:space="preserve"><value>6 automotive portals</value></data>
+  <data name="CatCarsBody" xml:space="preserve"><value>Search for used and new cars on the biggest Polish automotive portals simultaneously. Compare prices and filters in one place.</value></data>
+  <data name="CatFlatsTitle" xml:space="preserve"><value>Apartments and houses</value></data>
+  <data name="CatFlatsPortals" xml:space="preserve"><value>Largest real estate portals</value></data>
+  <data name="CatFlatsBody" xml:space="preserve"><value>Browse apartments, houses and plots for sale or rent. Filter by city, price and area – results from Otodom and other portals.</value></data>
+  <data name="CatShoppingTitle" xml:space="preserve"><value>Online shopping</value></data>
+  <data name="CatShoppingPortals" xml:space="preserve"><value>Products and price monitoring</value></data>
+  <data name="CatShoppingBody" xml:space="preserve"><value>Search for products on Amazon and other shopping platforms. Track prices and get an alert when a product gets cheaper or a new offer appears.</value></data>
+  <data name="FaqHeading" xml:space="preserve"><value>Frequently asked questions</value></data>
+  <data name="FaqSub" xml:space="preserve"><value>Everything you need to know before your first login.</value></data>
+  <data name="Faq1Q" xml:space="preserve"><value>How does Wyszukiwacz work?</value></data>
+  <data name="Faq1A" xml:space="preserve"><value>Wyszukiwacz automatically searches dozens of Polish listing portals simultaneously. You enter a phrase, choose a category and filters – and we collect results from OLX, Otomoto, Otodom, Amazon and many others. Instead of visiting each portal separately, you see all results in one place.</value></data>
+  <data name="Faq2Q" xml:space="preserve"><value>Which listing portals are supported?</value></data>
+  <data name="Faq2A" xml:space="preserve"><value>We support the largest Polish listing portals: cars – Otomoto, OLX, Gratka, Sprzedajemy, AutoScout24, Autocentrum; real estate – Otodom and OLX; shopping – Amazon. The portal list is regularly expanded.</value></data>
+  <data name="Faq3Q" xml:space="preserve"><value>How do I set an alert for new listings?</value></data>
+  <data name="Faq3A" xml:space="preserve"><value>After logging in, go to the Notifications section in the sidebar. Enter the phrase you are looking for, choose a category and portal. From that moment the system automatically monitors portals and notifies you when a new matching listing appears.</value></data>
+  <data name="Faq4Q" xml:space="preserve"><value>Is Wyszukiwacz free?</value></data>
+  <data name="Faq4A" xml:space="preserve"><value>Yes, registration and use of Wyszukiwacz is completely free. You can search listings on all supported portals and set an unlimited number of alerts at no cost.</value></data>
+  <data name="Faq5Q" xml:space="preserve"><value>Can I search Otomoto and OLX at the same time?</value></data>
+  <data name="Faq5A" xml:space="preserve"><value>Yes – that's the main advantage of Wyszukiwacz. One query in the Cars category searches Otomoto, OLX, Gratka and other automotive portals in parallel, showing results in one unified view.</value></data>
+  <data name="Faq6Q" xml:space="preserve"><value>How quickly will I get a notification about a new listing?</value></data>
+  <data name="Faq6A" xml:space="preserve"><value>Notifications are generated as soon as the system detects a new listing matching your alert. This lets you react as one of the first interested parties – which is crucial especially in popular categories such as apartments or cars.</value></data>
+  <data name="CtaHeading" xml:space="preserve"><value>Start searching for free</value></data>
+  <data name="CtaSub" xml:space="preserve"><value>Join and never miss a good deal again. Registration takes 30 seconds.</value></data>
+  <data name="CtaCTA1" xml:space="preserve"><value>Sign up now</value></data>
+  <data name="CtaCTA2" xml:space="preserve"><value>I already have an account</value></data>
+
+  <!-- Public nav -->
+  <data name="NavPricing" xml:space="preserve"><value>Pricing</value></data>
+  <data name="NavSignIn" xml:space="preserve"><value>Sign in</value></data>
+  <data name="NavSignUpFree" xml:space="preserve"><value>Sign up for free</value></data>
 </root>

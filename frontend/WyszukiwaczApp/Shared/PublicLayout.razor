@@ -1,4 +1,6 @@
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> Loc
 
 <style>
     .public-layout {
@@ -179,15 +181,48 @@
             display: none;
         }
     }
+
+    .lang-switch-pub {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .lang-btn-pub {
+        color: #555;
+        text-decoration: none;
+        padding: 0.2rem 0.45rem;
+        border-radius: 4px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: 1px solid #ddd;
+        transition: all 0.2s;
+    }
+
+    .lang-btn-pub:hover {
+        border-color: #667eea;
+        color: #667eea;
+        text-decoration: none;
+    }
+
+    .lang-btn-pub.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
 </style>
 
 <div class="public-layout">
     <nav class="public-nav" role="navigation" aria-label="Nawigacja główna">
         <a href="/" class="public-nav-logo" aria-label="Wyszukiwacz – strona główna">Wyszukiwacz</a>
         <div class="public-nav-actions">
-            <a href="/cennik" class="nav-btn-pricing">Cennik</a>
-            <a href="/login" class="nav-btn-login">Zaloguj się</a>
-            <a href="/register" class="nav-btn-register">Zarejestruj się bezpłatnie</a>
+            <div class="lang-switch-pub">
+                <a href="@CultureLink("pl-PL")" class="lang-btn-pub @(IsActive("pl-PL") ? "active" : "")">PL</a>
+                <a href="@CultureLink("en-US")" class="lang-btn-pub @(IsActive("en-US") ? "active" : "")">EN</a>
+            </div>
+            <a href="/cennik" class="nav-btn-pricing">@Loc["NavPricing"]</a>
+            <a href="/login" class="nav-btn-login">@Loc["NavSignIn"]</a>
+            <a href="/register" class="nav-btn-register">@Loc["NavSignUpFree"]</a>
         </div>
     </nav>
 
@@ -225,3 +260,15 @@
         </div>
     </footer>
 </div>
+
+@code {
+    private string CultureLink(string culture)
+    {
+        var uri = new Uri(Navigation.Uri);
+        var redirect = uri.PathAndQuery;
+        return $"/setculture?culture={culture}&redirectUri={Uri.EscapeDataString(redirect)}";
+    }
+
+    private bool IsActive(string culture) =>
+        System.Globalization.CultureInfo.CurrentUICulture.Name.Equals(culture, StringComparison.OrdinalIgnoreCase);
+}

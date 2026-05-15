@@ -60,18 +60,17 @@
                         Placeholder="@(Loc["ChooseFuel"].Value)"
                         Style="width: 300px"
                         Name="FuelType" />
-        <RadzenDropDown TValue="int?"
-                        @bind-Value="@selectedHorsepower"
-                        Data="@horsepowerValues"
-                        Placeholder="@(Loc["ChooseHorsepower"].Value)"
-                        Style="width: 300px"
-                        Name="Horsepower" />
-        <RadzenDropDown TValue="int?"
-                        @bind-Value="@selectedCapacity"
-                        Data="@capacityValues"
-                        Placeholder="@(Loc["ChooseCapacity"].Value)"
-                        Style="width: 300px"
-                        Name="EngineCapacity" />
+        <RadzenFormField Text="@(Loc["EngineLabel"].Value)" Variant="Variant.Flat" Style="width: 200px;">
+            <RadzenTextBox @bind-Value="@selectedEngine" Placeholder="@(Loc["EnginePlaceholder"].Value)" Style="border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenDropDown TValue="string"
+                        @bind-Value="@selectedGearbox"
+                        Data="@gearboxTypes"
+                        TextProperty="DisplayText"
+                        ValueProperty="Value"
+                        Placeholder="@(Loc["ChooseGearbox"].Value)"
+                        Style="width: 250px"
+                        Name="Gearbox" />
         <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
             <RadzenButton Click=LoadData Text="@(Loc["Load"].Value)" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(SearchPhrase)" />
         </RadzenFormField>
@@ -561,29 +560,30 @@
     private IEnumerable<ScrapedItem>? autocentrumData;
     private IEnumerable<ScrapedItem>? samochodyData;
 
-    private List<FuelType> fuelTypes => new()
+    private List<FilterOption> fuelTypes => new()
     {
-        new FuelType { DisplayText = Loc["FuelPetrol"],    Value = "petrol" },
-        new FuelType { DisplayText = Loc["FuelPetrolCng"], Value = "petrol-cng" },
-        new FuelType { DisplayText = Loc["FuelPetrolLng"], Value = "petrol-lng" },
-        new FuelType { DisplayText = Loc["FuelDiesel"],    Value = "diesel" },
-        new FuelType { DisplayText = Loc["FuelElectric"],  Value = "electric" },
-        new FuelType { DisplayText = Loc["FuelHybrid"],    Value = "hybrid" }
+        new FilterOption { DisplayText = Loc["FuelPetrol"],    Value = "benzyna" },
+        new FilterOption { DisplayText = Loc["FuelPetrolLpg"], Value = "benzyna lpg" },
+        new FilterOption { DisplayText = Loc["FuelDiesel"],    Value = "diesel" },
+        new FilterOption { DisplayText = Loc["FuelElectric"],  Value = "elektryczny" },
+        new FilterOption { DisplayText = Loc["FuelHybrid"],    Value = "hybryda" }
+    };
+
+    private List<FilterOption> gearboxTypes => new()
+    {
+        new FilterOption { DisplayText = Loc["GearboxManual"],    Value = "manualna" },
+        new FilterOption { DisplayText = Loc["GearboxAutomatic"], Value = "automatyczna" }
     };
 
     private string selectedFuelType = string.Empty;
+    private string selectedEngine = string.Empty;
+    private string selectedGearbox = string.Empty;
 
-    public class FuelType
+    public class FilterOption
     {
         public string DisplayText { get; set; } = string.Empty;
         public string Value { get; set; } = string.Empty;
     }
-
-    private List<int> horsepowerValues = new() { 50, 80, 120, 150, 200, 300, 500 };
-    private int? selectedHorsepower;
-
-    private List<int> capacityValues = new() { 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000, 6000 };
-    private int? selectedCapacity;
 
     DataModel model = new();
 
@@ -611,12 +611,15 @@
         if (setAutocentrumGrid) websites.Add("autocentrum");
         if (setSamochodyGrid)   websites.Add("samochody");
 
+        var extras = new[] { selectedFuelType, selectedEngine?.Trim(), selectedGearbox }
+            .Where(x => !string.IsNullOrWhiteSpace(x));
+
         model = new DataModel
         {
             websites = websites,
             phrase = SearchPhrase,
             request_number = "30",
-            additional_phrase = selectedFuelType ?? ""
+            additional_phrase = string.Join(" ", extras)
         };
 
         try
