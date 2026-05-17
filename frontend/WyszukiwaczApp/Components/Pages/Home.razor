@@ -201,9 +201,10 @@
     /* ===== PLATFORMS ===== */
     .lp-platforms {
         background: white;
-        padding: 2.5rem 1.5rem;
+        padding: 2.5rem 0;
         text-align: center;
         border-bottom: 1px solid #f0f0f0;
+        overflow: hidden;
     }
 
     .lp-platforms p {
@@ -215,24 +216,56 @@
         margin: 0 0 1.5rem;
     }
 
-    .platforms-logos {
+    .platforms-ticker-wrap {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .platforms-ticker-wrap::before,
+    .platforms-ticker-wrap::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 120px;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .platforms-ticker-wrap::before {
+        left: 0;
+        background: linear-gradient(to right, white, transparent);
+    }
+
+    .platforms-ticker-wrap::after {
+        right: 0;
+        background: linear-gradient(to left, white, transparent);
+    }
+
+    .platforms-ticker {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
         align-items: center;
-        gap: 1.5rem 2.5rem;
-        max-width: 900px;
-        margin: 0 auto;
+        gap: 3rem;
+        width: max-content;
+        animation: ticker-scroll 30s linear infinite;
+    }
+
+    .platforms-ticker:hover {
+        animation-play-state: paused;
+    }
+
+    @@keyframes ticker-scroll {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
     }
 
     .platform-logo-item {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: #888;
-        font-weight: 700;
-        font-size: 1rem;
-        opacity: 0.7;
+        flex-shrink: 0;
+        opacity: 0.6;
         transition: opacity 0.2s;
     }
 
@@ -241,7 +274,7 @@
     }
 
     .platform-logo-item img {
-        height: 28px;
+        height: 32px;
         width: auto;
         object-fit: contain;
         filter: grayscale(100%);
@@ -428,9 +461,9 @@
 
     .categories-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 1.5rem;
-        max-width: 1100px;
+        max-width: 1200px;
         margin: 0 auto;
     }
 
@@ -603,6 +636,12 @@
     }
 
     /* ===== RESPONSIVE ===== */
+    @@media (max-width: 1100px) {
+        .categories-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
     @@media (max-width: 900px) {
         .steps-grid {
             grid-template-columns: 1fr;
@@ -644,33 +683,38 @@
 <!-- PLATFORM LOGOS -->
 <section class="lp-platforms" aria-label="Obsługiwane portale">
     <p>@Loc["PlatformsLabel"]</p>
-    <div class="platforms-logos" role="list">
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/otomoto.gif" alt="Otomoto" loading="lazy" />
-        </div>
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/olx.png" alt="OLX" loading="lazy" />
-        </div>
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/otoDom.png" alt="Otodom" loading="lazy" />
-        </div>
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/amazon.png" alt="Amazon" loading="lazy" />
-        </div>
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/gratka.png" alt="Gratka" loading="lazy" />
-        </div>
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/sprzedajemy.jpg" alt="Sprzedajemy.pl" loading="lazy" />
-        </div>
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/autocentrum.png" alt="Autocentrum" loading="lazy" />
-        </div>
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/autoscout.png" alt="AutoScout24" loading="lazy" />
-        </div>
-        <div class="platform-logo-item" role="listitem">
-            <img src="/images/samochody_pl.svg" alt="Samochody" loading="lazy" />
+    <div class="platforms-ticker-wrap">
+        <div class="platforms-ticker" aria-hidden="true">
+            <!-- set 1 -->
+            <div class="platform-logo-item"><img src="/images/otomoto.gif" alt="Otomoto" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/olx.png" alt="OLX" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/otoDom.png" alt="Otodom" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/amazon.png" alt="Amazon" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/gratka.png" alt="Gratka" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/sprzedajemy.jpg" alt="Sprzedajemy.pl" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/autocentrum.png" alt="Autocentrum" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/autoscout.png" alt="AutoScout24" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/samochody_pl.svg" alt="Samochody" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/pracuj.svg" alt="Pracuj.pl" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/justjoinit.png" alt="JustJoin.IT" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/nofluffjobs.png" alt="NoFluffJobs" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/theprotocolit.png" alt="TheProtocol.IT" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/bulldogjob.svg" alt="BulldogJob" loading="lazy" /></div>
+            <!-- set 2 — duplicate for seamless loop -->
+            <div class="platform-logo-item"><img src="/images/otomoto.gif" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/olx.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/otoDom.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/amazon.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/gratka.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/sprzedajemy.jpg" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/autocentrum.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/autoscout.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/samochody_pl.svg" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/pracuj.svg" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/justjoinit.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/nofluffjobs.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/theprotocolit.png" alt="" loading="lazy" /></div>
+            <div class="platform-logo-item"><img src="/images/bulldogjob.svg" alt="" loading="lazy" /></div>
         </div>
     </div>
 </section>
@@ -679,11 +723,11 @@
 <section class="lp-stats" aria-label="Kluczowe informacje">
     <div class="stats-grid">
         <div class="stat-item">
-            <strong>8+</strong>
+            <strong>14+</strong>
             <span>@Loc["StatPortalsLabel"]</span>
         </div>
         <div class="stat-item">
-            <strong>3</strong>
+            <strong>4</strong>
             <span>@Loc["StatCategoriesLabel"]</span>
         </div>
         <div class="stat-item">
@@ -815,6 +859,27 @@
                 <p>@Loc["CatShoppingBody"]</p>
                 <div class="category-portals">
                     <span class="portal-tag">Amazon</span>
+                    <span class="portal-tag">OLX</span>
+                </div>
+            </div>
+        </a>
+
+        <a href="/work" class="category-card-lp">
+            <div class="category-card-header">
+                <span class="category-emoji" aria-hidden="true">💼</span>
+                <div>
+                    <h3>@Loc["CatWorkTitle"]</h3>
+                    <span>@Loc["CatWorkPortals"]</span>
+                </div>
+            </div>
+            <div class="category-card-body">
+                <p>@Loc["CatWorkBody"]</p>
+                <div class="category-portals">
+                    <span class="portal-tag">Pracuj.pl</span>
+                    <span class="portal-tag">JustJoin.IT</span>
+                    <span class="portal-tag">NoFluffJobs</span>
+                    <span class="portal-tag">TheProtocol.IT</span>
+                    <span class="portal-tag">BulldogJob</span>
                 </div>
             </div>
         </a>

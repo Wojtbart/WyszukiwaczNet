@@ -24,6 +24,69 @@
         </div>
     </div>
 
+    <!-- ACTIVE JOBS — top section -->
+    <div class="notif-jobs-top">
+        <div class="notif-jobs-top-header">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                <RadzenIcon Icon="work_history" style="color:#007bff;" />
+                <span class="notif-jobs-top-title">@Loc["ActiveJobs"]</span>
+                @if (userJobs != null)
+                {
+                    <span class="jobs-count-badge">@userJobs.Count</span>
+                }
+            </div>
+            <RadzenButton Click="LoadJobs" Icon="refresh" ButtonStyle="ButtonStyle.Light"
+                          Size="ButtonSize.Small" />
+        </div>
+
+        @if (userJobs == null)
+        {
+            <span class="jobs-loading">@Loc["Loading"]</span>
+        }
+        else if (!userJobs.Any())
+        {
+            <div class="jobs-empty">
+                <RadzenIcon Icon="check_circle" style="font-size:2rem;color:#d1d5db;" />
+                <span>@Loc["NoActiveJobs"]</span>
+            </div>
+        }
+        else
+        {
+            <div class="jobs-grid">
+                @foreach (var job in userJobs)
+                {
+                    var (stateLabel, stateCss) = StateDisplay(job.LastState);
+                    <div class="job-card-top">
+                        <div class="job-card-header">
+                            <span class="job-card-phrase">@(string.IsNullOrWhiteSpace(job.Phrase) ? "—" : job.Phrase)</span>
+                            <span class="job-state @stateCss">@stateLabel</span>
+                        </div>
+                        <div class="job-card-rows">
+                            <div class="job-card-row">
+                                <span class="job-card-label">⏱ Harmonogram</span>
+                                <span class="job-card-value">@CronToHuman(job.Cron)</span>
+                            </div>
+                            @if (job.NextExecution.HasValue)
+                            {
+                                <div class="job-card-row">
+                                    <span class="job-card-label">→ Następne</span>
+                                    <span class="job-card-value job-card-value--next">@job.NextExecution.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                                </div>
+                            }
+                            @if (job.LastExecution.HasValue)
+                            {
+                                <div class="job-card-row">
+                                    <span class="job-card-label">✓ Ostatnie</span>
+                                    <span class="job-card-value job-card-value--last">@job.LastExecution.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
     <div class="notif-grid">
 
         <!-- LEFT COLUMN -->
@@ -321,46 +384,6 @@
                               class="n-btn-full" />
             </div>
 
-            <!-- Active jobs card -->
-            <div class="n-card" style="margin-top: 1rem;">
-                <div class="n-card-header">
-                    <RadzenIcon Icon="work_history" class="n-card-icon" />
-                    <span>@Loc["ActiveJobs"]</span>
-                    <RadzenButton Click="LoadJobs" Icon="refresh" ButtonStyle="ButtonStyle.Light"
-                                  Size="ButtonSize.Small" style="margin-left:auto;" />
-                </div>
-                <div class="n-card-body">
-                    @if (userJobs == null)
-                    {
-                        <span style="color:#888;font-size:0.85rem;">@Loc["Loading"]</span>
-                    }
-                    else if (!userJobs.Any())
-                    {
-                        <span style="color:#888;font-size:0.85rem;">@Loc["NoActiveJobs"]</span>
-                    }
-                    else
-                    {
-                        @foreach (var job in userJobs)
-                        {
-                            <div class="job-item">
-                                <div class="job-phrase">@(string.IsNullOrWhiteSpace(job.Phrase) ? job.Id : job.Phrase)</div>
-                                <div class="job-meta">
-                                    <span class="job-cron" title="Cron">⏱ @job.Cron</span>
-                                    @if (job.NextExecution.HasValue)
-                                    {
-                                        <span class="job-next">→ @job.NextExecution.Value.ToLocalTime().ToString("dd.MM HH:mm")</span>
-                                    }
-                                    @if (!string.IsNullOrEmpty(job.LastState))
-                                    {
-                                        var stateClass = job.LastState == "Succeeded" ? "job-state--ok" : "job-state--err";
-                                        <span class="job-state @stateClass">@job.LastState</span>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    }
-                </div>
-            </div>
         </div>
 
     </div>
@@ -611,6 +634,32 @@
         userJobs = result?.Data ?? new();
         StateHasChanged();
     }
+
+    private static string CronToHuman(string cron)
+    {
+        if (string.IsNullOrWhiteSpace(cron)) return "—";
+        var parts = cron.Trim().Split(' ');
+        if (parts.Length >= 5)
+        {
+            if (parts[0].StartsWith("*/") && int.TryParse(parts[0][2..], out var mins))
+                return $"Co {mins} min";
+            if (parts[0] == "0" && int.TryParse(parts[1], out var hour)
+                && parts[2] == "*" && parts[3] == "*" && parts[4] == "*")
+                return $"Codziennie o {hour:D2}:00";
+            if (parts[0] == "0" && parts[1] == "0" && parts[2] == "*")
+                return "Codziennie o północy";
+        }
+        return cron;
+    }
+
+    private static (string label, string css) StateDisplay(string? state) => state?.ToLower() switch
+    {
+        "succeeded" => ("OK", "job-state--ok"),
+        "failed"    => ("Błąd", "job-state--err"),
+        "enqueued"  => ("W kolejce", "job-state--queued"),
+        "processing"=> ("W toku", "job-state--processing"),
+        _           => (state ?? "—", "job-state--unknown")
+    };
 
     private async Task SaveConfiguration()
     {

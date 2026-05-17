@@ -16,12 +16,15 @@ public interface IPythonScriptService
 public class PythonScriptService : IPythonScriptService
 {
     private readonly string _pythonPath;
+    private readonly string? _dbConfigKey;
     private readonly ILogger<PythonScriptService> _logger;
     private readonly IOfferRepository _offerRepository;
 
     public PythonScriptService(IConfiguration configuration, ILogger<PythonScriptService> logger, IOfferRepository offerRepository)
     {
         _pythonPath = configuration.GetValue<string>("PythonPath") ?? "python";
+        _dbConfigKey = configuration.GetValue<string>("DbConfigKey")
+            ?? Environment.GetEnvironmentVariable("DB_CONFIG_KEY");
         _logger = logger;
         _offerRepository = offerRepository;
     }
@@ -50,6 +53,9 @@ public class PythonScriptService : IPythonScriptService
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
         };
+
+        if (!string.IsNullOrEmpty(_dbConfigKey))
+            startInfo.EnvironmentVariables["DB_CONFIG_KEY"] = _dbConfigKey;
         startInfo.ArgumentList.Add(scriptPath);
         startInfo.ArgumentList.Add(phrase);
         if (extraArgs != null)

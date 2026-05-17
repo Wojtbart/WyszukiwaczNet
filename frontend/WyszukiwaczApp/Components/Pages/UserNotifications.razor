@@ -9,171 +9,456 @@
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <style>
-    .feed-header {
+    @@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    .nf-wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 0 1rem 3rem;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* ── Header ── */
+    .nf-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 1.75rem 0 1.5rem;
+        border-bottom: 2px solid #f0f2f7;
         margin-bottom: 1.5rem;
     }
 
-    .feed-header h2 {
-        margin: 0;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .btn-mark-read {
-        padding: 0.5rem 1rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: opacity 0.2s;
-    }
-
-    .btn-mark-read:hover {
-        opacity: 0.85;
-    }
-
-    .feed-empty {
-        text-align: center;
-        padding: 3rem;
-        color: #999;
-        font-size: 1.1rem;
-    }
-
-    .feed-list {
+    .nf-header-left {
         display: flex;
-        flex-direction: column;
+        align-items: center;
         gap: 0.75rem;
     }
 
-    .feed-item {
+    .nf-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        letter-spacing: -0.3px;
+    }
+
+    .nf-unread-badge {
+        background: #3b82f6;
+        color: white;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 0;
+    }
+
+    .nf-btn-markall {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1.1rem;
+        background: #f8fafc;
+        color: #374151;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+        white-space: nowrap;
+    }
+
+    .nf-btn-markall:hover {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #2563eb;
+    }
+
+    /* ── Loading skeleton ── */
+    .nf-skeleton-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .nf-skeleton-item {
         background: white;
         border-radius: 12px;
         padding: 1rem 1.25rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        border: 1.5px solid #f1f5f9;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .nf-skel {
+        background: linear-gradient(90deg, #f1f5f9 25%, #e8edf3 50%, #f1f5f9 75%);
+        background-size: 200% 100%;
+        border-radius: 6px;
+        animation: nf-shimmer 1.4s infinite;
+    }
+
+    @@keyframes nf-shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* ── Empty state ── */
+    .nf-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+        gap: 1rem;
+        color: #94a3b8;
+    }
+
+    .nf-empty-icon {
+        font-size: 3rem;
+        opacity: 0.5;
+    }
+
+    .nf-empty-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .nf-empty-sub {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        margin: 0;
+        text-align: center;
+        max-width: 300px;
+    }
+
+    /* ── Feed list ── */
+    .nf-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    /* ── Feed card ── */
+    .nf-card {
+        background: white;
+        border-radius: 12px;
+        border: 1.5px solid #f1f5f9;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-rows: auto auto;
+        column-gap: 0.85rem;
+        row-gap: 0.3rem;
+        align-items: start;
+    }
+
+    .nf-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    }
+
+    .nf-card.nf-unread {
+        border-left: 3px solid #3b82f6;
+        background: #fafbff;
+    }
+
+    /* Unread dot */
+    .nf-dot-col {
+        grid-column: 1;
+        grid-row: 1 / span 2;
         display: flex;
         align-items: center;
-        gap: 1rem;
-        border-left: 4px solid transparent;
-        transition: box-shadow 0.2s;
+        padding-top: 0.15rem;
     }
 
-    .feed-item.unread {
-        border-left-color: #667eea;
-        background: #f7f8ff;
+    .nf-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #3b82f6;
+        flex-shrink: 0;
     }
 
-    .feed-item:hover {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    .nf-dot.nf-dot-read {
+        background: transparent;
+        border: 1.5px solid #e2e8f0;
     }
 
-    .feed-item-platform {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #764ba2;
-        background: #f0ecff;
-        padding: 0.2rem 0.6rem;
-        border-radius: 20px;
-        white-space: nowrap;
-    }
-
-    .feed-item-body {
-        flex: 1;
+    /* Body */
+    .nf-body-col {
+        grid-column: 2;
+        grid-row: 1;
         min-width: 0;
     }
 
-    .feed-item-title {
-        font-weight: 500;
-        color: #222;
-        white-space: nowrap;
+    .nf-title-row {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .nf-offer-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
         overflow: hidden;
         text-overflow: ellipsis;
+        word-break: break-word;
+        line-height: 1.4;
     }
 
-    .feed-item-meta {
-        font-size: 0.82rem;
-        color: #888;
-        margin-top: 0.2rem;
+    .nf-unread .nf-offer-title {
+        color: #1e3a8a;
     }
 
-    .feed-item-price {
-        font-weight: 600;
-        color: #333;
+    .nf-platform-badge {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
         white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
     }
 
-    .feed-item-link {
-        color: #667eea;
-        text-decoration: none;
+    .nf-meta-row {
+        grid-column: 2;
+        grid-row: 2;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        min-width: 0;
+    }
+
+    .nf-location {
+        font-size: 0.8rem;
+        color: #64748b;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 240px;
+    }
+
+    /* Right column */
+    .nf-right-col {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.5rem;
+        min-width: 0;
+        flex-shrink: 0;
+    }
+
+    .nf-price {
+        font-family: 'JetBrains Mono', monospace;
         font-size: 0.9rem;
+        font-weight: 600;
+        color: #15803d;
         white-space: nowrap;
     }
 
-    .feed-item-link:hover {
-        text-decoration: underline;
+    .nf-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: nowrap;
     }
 
-    .feed-item-date {
+    .nf-open-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
         font-size: 0.78rem;
-        color: #bbb;
+        font-weight: 600;
+        color: #2563eb;
+        text-decoration: none;
+        padding: 0.25rem 0.65rem;
+        border: 1.5px solid #bfdbfe;
+        border-radius: 6px;
+        background: #eff6ff;
         white-space: nowrap;
+        transition: background 0.15s, border-color 0.15s;
+    }
+
+    .nf-open-link:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+    }
+
+    .nf-open-link:hover { text-decoration: none; }
+
+    .nf-date {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        color: #94a3b8;
+        white-space: nowrap;
+    }
+
+    /* Platform badge colors */
+    .nf-plat-olx        { background: #fff3e0; color: #e65100; }
+    .nf-plat-otomoto    { background: #e3f2fd; color: #1565c0; }
+    .nf-plat-otodom     { background: #e8f5e9; color: #2e7d32; }
+    .nf-plat-amazon     { background: #fff8e1; color: #f57f17; }
+    .nf-plat-gratka     { background: #fce4ec; color: #c62828; }
+    .nf-plat-sprzedajemy { background: #f3e5f5; color: #6a1b9a; }
+    .nf-plat-autocentrum { background: #e0f7fa; color: #00695c; }
+    .nf-plat-pracuj     { background: #ffebee; color: #b71c1c; }
+    .nf-plat-justjoin   { background: #e8f5e9; color: #1b5e20; }
+    .nf-plat-nofluff    { background: #e8eaf6; color: #283593; }
+    .nf-plat-default    { background: #f0ecff; color: #5b21b6; }
+
+    /* ── Responsive ── */
+    @@media (max-width: 600px) {
+        .nf-card {
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto auto auto;
+        }
+
+        .nf-right-col {
+            grid-column: 2;
+            grid-row: 3;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding-top: 0.4rem;
+        }
+
+        .nf-location {
+            max-width: 160px;
+        }
+
+        .nf-title {
+            font-size: 1.25rem;
+        }
     }
 </style>
 
-<div class="feed-header">
-    <h2>Powiadomienia</h2>
-    @if (unreadCount > 0)
-    {
-        <button class="btn-mark-read" @onclick="MarkAllRead">Oznacz jako przeczytane (@unreadCount)</button>
-    }
-</div>
+<div class="nf-wrap">
 
-@if (isLoading)
-{
-    <p>Ładowanie...</p>
-}
-else if (items == null || items.Count == 0)
-{
-    <div class="feed-empty">Brak powiadomień</div>
-}
-else
-{
-    <div class="feed-list">
-        @foreach (var item in items)
+    <div class="nf-header">
+        <div class="nf-header-left">
+            <h2 class="nf-title">Powiadomienia</h2>
+            @if (unreadCount > 0)
+            {
+                <span class="nf-unread-badge">@unreadCount nowych</span>
+            }
+        </div>
+        @if (unreadCount > 0)
         {
-            <div class="feed-item @(item.Status == "new" ? "unread" : "")" @onclick="() => MarkItemRead(item)">
-                @if (!string.IsNullOrEmpty(item.PlatformName))
-                {
-                    <span class="feed-item-platform">@item.PlatformName</span>
-                }
-                <div class="feed-item-body">
-                    <div class="feed-item-title">@(item.OfferTitle ?? "Oferta")</div>
-                    <div class="feed-item-meta">
-                        @if (!string.IsNullOrEmpty(item.OfferLocation))
-                        {
-                            <span>@item.OfferLocation</span>
-                        }
-                    </div>
-                </div>
-                @if (item.OfferPrice.HasValue)
-                {
-                    <span class="feed-item-price">@item.OfferPrice.Value.ToString("N0") PLN</span>
-                }
-                @if (!string.IsNullOrEmpty(item.OfferUrl))
-                {
-                    <a class="feed-item-link" href="@item.OfferUrl" target="_blank">Otwórz</a>
-                }
-                <span class="feed-item-date">@item.CreatedAt.ToLocalTime().ToString("dd.MM HH:mm")</span>
-            </div>
+            <button class="nf-btn-markall" @onclick="MarkAllRead">
+                ✓ Oznacz wszystkie jako przeczytane
+            </button>
         }
     </div>
-}
+
+    @if (isLoading)
+    {
+        <div class="nf-skeleton-list">
+            @for (int i = 0; i < 5; i++)
+            {
+                <div class="nf-skeleton-item">
+                    <div class="nf-skel" style="height:14px; width:55%;"></div>
+                    <div class="nf-skel" style="height:11px; width:30%;"></div>
+                </div>
+            }
+        </div>
+    }
+    else if (items == null || items.Count == 0)
+    {
+        <div class="nf-empty">
+            <div class="nf-empty-icon">🔔</div>
+            <p class="nf-empty-title">Brak powiadomień</p>
+            <p class="nf-empty-sub">Gdy pojawią się nowe oferty pasujące do Twoich alertów, znajdziesz je tutaj.</p>
+        </div>
+    }
+    else
+    {
+        <div class="nf-list">
+            @foreach (var item in items)
+            {
+                var isUnread = item.Status == "new";
+                var platformCss = GetPlatformCss(item.PlatformName);
+
+                <div class="nf-card @(isUnread ? "nf-unread" : "")" @onclick="() => MarkItemRead(item)">
+
+                    <div class="nf-dot-col">
+                        <span class="nf-dot @(isUnread ? "" : "nf-dot-read")"></span>
+                    </div>
+
+                    <div class="nf-body-col">
+                        <div class="nf-title-row">
+                            <span class="nf-offer-title">@(item.OfferTitle ?? "Oferta")</span>
+                            @if (!string.IsNullOrEmpty(item.PlatformName))
+                            {
+                                <span class="nf-platform-badge @platformCss">@item.PlatformName</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="nf-meta-row">
+                        @if (!string.IsNullOrEmpty(item.OfferLocation))
+                        {
+                            <span class="nf-location">📍 @item.OfferLocation</span>
+                        }
+                    </div>
+
+                    <div class="nf-right-col">
+                        @if (item.OfferPrice.HasValue)
+                        {
+                            <span class="nf-price">@item.OfferPrice.Value.ToString("N0") PLN</span>
+                        }
+                        <div class="nf-actions">
+                            @if (!string.IsNullOrEmpty(item.OfferUrl))
+                            {
+                                <a class="nf-open-link" href="@item.OfferUrl" target="_blank" @onclick:stopPropagation="true">
+                                    ↗ Otwórz
+                                </a>
+                            }
+                            <span class="nf-date">@item.CreatedAt.ToLocalTime().ToString("dd.MM HH:mm")</span>
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </div>
+    }
+
+</div>
 
 @code {
+    private static string GetPlatformCss(string? name) => name?.ToLower() switch
+    {
+        var n when n?.Contains("olx") == true          => "nf-plat-olx",
+        var n when n?.Contains("otomoto") == true      => "nf-plat-otomoto",
+        var n when n?.Contains("otodom") == true       => "nf-plat-otodom",
+        var n when n?.Contains("amazon") == true       => "nf-plat-amazon",
+        var n when n?.Contains("gratka") == true       => "nf-plat-gratka",
+        var n when n?.Contains("sprzedajemy") == true  => "nf-plat-sprzedajemy",
+        var n when n?.Contains("autocentrum") == true  => "nf-plat-autocentrum",
+        var n when n?.Contains("pracuj") == true       => "nf-plat-pracuj",
+        var n when n?.Contains("justjoin") == true     => "nf-plat-justjoin",
+        var n when n?.Contains("nofluff") == true      => "nf-plat-nofluff",
+        _                                               => "nf-plat-default"
+    };
+
     private List<NotificationFeedItemDto>? items;
     private int unreadCount;
     private bool isLoading = true;

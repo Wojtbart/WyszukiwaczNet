@@ -14,6 +14,7 @@
   <data name="Notifications" xml:space="preserve"><value>Powiadomienia</value></data>
   <data name="History" xml:space="preserve"><value>Historia</value></data>
   <data name="NotificationSettings" xml:space="preserve"><value>Ustawienia powiadomień</value></data>
+  <data name="SetRecurringNotifications" xml:space="preserve"><value>Ustaw powiadomienia cykliczne</value></data>
   <data name="Login" xml:space="preserve"><value>Logowanie</value></data>
   <data name="Register" xml:space="preserve"><value>Rejestracja</value></data>
   <data name="Logout" xml:space="preserve"><value>Wyloguj</value></data>
@@ -152,7 +153,7 @@
   <data name="Channels" xml:space="preserve"><value>Kanały</value></data>
   <data name="None" xml:space="preserve"><value>Brak</value></data>
   <data name="SaveSettings" xml:space="preserve"><value>Zapisz ustawienia</value></data>
-  <data name="DeleteScheduledJobs" xml:space="preserve"><value>Usuń zaplanowane joby</value></data>
+  <data name="DeleteScheduledJobs" xml:space="preserve"><value>Usuń zaplanowane zadania</value></data>
   <data name="ActiveJobs" xml:space="preserve"><value>Aktywne zadania</value></data>
   <data name="Loading" xml:space="preserve"><value>Ładowanie...</value></data>
   <data name="NoActiveJobs" xml:space="preserve"><value>Brak aktywnych zadań.</value></data>
@@ -226,7 +227,7 @@
   <data name="HeroCTA2" xml:space="preserve"><value>Mam już konto</value></data>
   <data name="PlatformsLabel" xml:space="preserve"><value>Przeszukujemy dla Ciebie</value></data>
   <data name="StatPortalsLabel" xml:space="preserve"><value>portali ogłoszeniowych w jednym miejscu</value></data>
-  <data name="StatCategoriesLabel" xml:space="preserve"><value>kategorie: auta, mieszkania, zakupy</value></data>
+  <data name="StatCategoriesLabel" xml:space="preserve"><value>kategorie: auta, mieszkania, zakupy, oferty pracy</value></data>
   <data name="StatFreeLabel" xml:space="preserve"><value>całkowicie bezpłatny dostęp</value></data>
   <data name="StatFreeValue" xml:space="preserve"><value>0 zł</value></data>
   <data name="HowHeading" xml:space="preserve"><value>Jak to działa?</value></data>
@@ -252,7 +253,7 @@
   <data name="Feature6Title" xml:space="preserve"><value>Bezpieczne konto</value></data>
   <data name="Feature6Body" xml:space="preserve"><value>Twoje dane i ustawienia alertów są bezpiecznie przechowywane na serwerze i dostępne po zalogowaniu z każdego urządzenia.</value></data>
   <data name="CategoriesHeading" xml:space="preserve"><value>Kategorie ogłoszeń</value></data>
-  <data name="CategoriesSub" xml:space="preserve"><value>Trzy główne rynki objęte przez Wyszukiwacz – każdy z osobnym zestawem portali i filtrów.</value></data>
+  <data name="CategoriesSub" xml:space="preserve"><value>Cztery główne rynki objęte przez Wyszukiwacz – każdy z osobnym zestawem portali i filtrów.</value></data>
   <data name="CatCarsTitle" xml:space="preserve"><value>Samochody używane</value></data>
   <data name="CatCarsPortals" xml:space="preserve"><value>6 portali motoryzacyjnych</value></data>
   <data name="CatCarsBody" xml:space="preserve"><value>Szukaj aut używanych i nowych na największych polskich portalach motoryzacyjnych jednocześnie. Porównuj ceny i filtry w jednym miejscu.</value></data>
@@ -262,6 +263,9 @@
   <data name="CatShoppingTitle" xml:space="preserve"><value>Zakupy online</value></data>
   <data name="CatShoppingPortals" xml:space="preserve"><value>Produkty i monitoring cen</value></data>
   <data name="CatShoppingBody" xml:space="preserve"><value>Wyszukuj produkty na Amazon i innych platformach zakupowych. Śledź ceny i dostaj alert gdy produkt potanieje lub pojawi się nowa oferta.</value></data>
+  <data name="CatWorkTitle" xml:space="preserve"><value>Oferty pracy</value></data>
+  <data name="CatWorkPortals" xml:space="preserve"><value>5 portali z pracą</value></data>
+  <data name="CatWorkBody" xml:space="preserve"><value>Szukaj pracy na Pracuj.pl, JustJoin.IT, NoFluffJobs i innych. Filtruj po stanowisku, lokalizacji, poziomie i rodzaju umowy – wyniki z wielu portali naraz.</value></data>
   <data name="FaqHeading" xml:space="preserve"><value>Najczęstsze pytania</value></data>
   <data name="FaqSub" xml:space="preserve"><value>Wszystko co musisz wiedzieć przed pierwszym logowaniem.</value></data>
   <data name="Faq1Q" xml:space="preserve"><value>Jak działa Wyszukiwacz?</value></data>
