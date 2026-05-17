@@ -69,7 +69,7 @@
         <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
             <RadzenButton Click=LoadData Text="@(Loc["Load"].Value)" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" />
         </RadzenFormField>
-        <a href="/notification_settings" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0 1.2rem; height:3.25rem; background:#a04ba7; color:white; text-decoration:none; border-radius:15px; font-size:0.875rem; font-weight:600; border:1px solid #7c658b; cursor:pointer; white-space:nowrap; transition:background 0.2s; vertical-align:middle; margin-left:0.5rem;">
+        <a href="/notification_settings?category=Zakupy" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0 1.2rem; height:3.25rem; background:#a04ba7; color:white; text-decoration:none; border-radius:15px; font-size:0.875rem; font-weight:600; border:1px solid #7c658b; cursor:pointer; white-space:nowrap; transition:background 0.2s; vertical-align:middle; margin-left:0.5rem;">
             🔔 @Loc["SetRecurringNotifications"]
         </a>
     </RadzenColumn>
@@ -122,7 +122,7 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Price" Title="@(Loc["PricePLN"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">@(context.Price?.ToString("0.##"))</Template>
+                <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["AdditionalInfo"].Value)" TextAlign="TextAlign.Left" />
         </Columns>
@@ -159,7 +159,7 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Price" Title="@(Loc["PricePLN"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">@(context.Price?.ToString("0.##"))</Template>
+                <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">

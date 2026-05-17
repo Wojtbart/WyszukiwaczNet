@@ -197,6 +197,7 @@ public class DataController : ControllerBase
         "otodom" => "apartment/otodom_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",
+        "olxciagniki" => "agriculture/olx_ciagniki_scrapper.py",
         _ => null
     };
 }

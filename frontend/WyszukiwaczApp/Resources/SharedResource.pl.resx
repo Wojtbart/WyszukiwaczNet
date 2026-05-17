@@ -11,6 +11,8 @@
 
   <!-- NavMenu / Categories -->
   <data name="Categories" xml:space="preserve"><value>Kategorie</value></data>
+  <data name="Tractors" xml:space="preserve"><value>Ciągniki</value></data>
+  <data name="SearchPhrase" xml:space="preserve"><value>Szukana fraza</value></data>
   <data name="Notifications" xml:space="preserve"><value>Powiadomienia</value></data>
   <data name="History" xml:space="preserve"><value>Historia</value></data>
   <data name="NotificationSettings" xml:space="preserve"><value>Ustawienia powiadomień</value></data>

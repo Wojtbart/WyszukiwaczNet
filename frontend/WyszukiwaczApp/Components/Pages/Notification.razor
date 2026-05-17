@@ -2,7 +2,6 @@
 @using WyszukiwaczAppDTO
 @using WyszukiwaczApp.Proxies
 @using WyszukiwaczApp.Services
-
 @inject NotificationService NotificationService
 @inject NavigationManager Navigation
 @inject NotificationProxy NotificationProxy
@@ -606,15 +605,32 @@
             .Where(name => !string.IsNullOrEmpty(name))
             .ToList();
 
-        // Auto-detect category from loaded platforms so user doesn't have to click
-        if (selectedPlatforms.Any(p => _carPlatforms.Any(c => c.Equals(p, StringComparison.OrdinalIgnoreCase))))
-            _selectedCategory = "Motoryzacja";
-        else if (selectedPlatforms.Any(p => _flatPlatforms.Any(f => f.Equals(p, StringComparison.OrdinalIgnoreCase))))
-            _selectedCategory = "Nieruchomości";
-        else if (selectedPlatforms.Any(p => _shopPlatforms.Any(s => s.Equals(p, StringComparison.OrdinalIgnoreCase))))
-            _selectedCategory = "Zakupy";
+        // Check query param ?category= (set by category pages)
+        var uriObj = new Uri(Navigation.Uri);
+        var catParam = string.Empty;
+        foreach (var pair in uriObj.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var kv = pair.Split('=');
+            if (kv.Length == 2 && kv[0] == "category")
+            { catParam = Uri.UnescapeDataString(kv[1]); break; }
+        }
 
-        // Keep only platforms belonging to detected category
+        if (!string.IsNullOrEmpty(catParam))
+        {
+            _selectedCategory = catParam;
+        }
+        else
+        {
+            // Auto-detect category from loaded platforms so user doesn't have to click
+            if (selectedPlatforms.Any(p => _carPlatforms.Any(c => c.Equals(p, StringComparison.OrdinalIgnoreCase))))
+                _selectedCategory = "Motoryzacja";
+            else if (selectedPlatforms.Any(p => _flatPlatforms.Any(f => f.Equals(p, StringComparison.OrdinalIgnoreCase))))
+                _selectedCategory = "Nieruchomości";
+            else if (selectedPlatforms.Any(p => _shopPlatforms.Any(s => s.Equals(p, StringComparison.OrdinalIgnoreCase))))
+                _selectedCategory = "Zakupy";
+        }
+
+        // Keep only platforms belonging to detected/selected category
         if (!string.IsNullOrEmpty(_selectedCategory))
             selectedPlatforms = selectedPlatforms
                 .Where(p => ActivePlatforms.Any(a => a.Equals(p, StringComparison.OrdinalIgnoreCase)))

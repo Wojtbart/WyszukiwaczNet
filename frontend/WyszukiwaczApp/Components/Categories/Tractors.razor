@@ -1,0 +1,167 @@
+@page "/tractors"
+
+@using WyszukiwaczAppDTO
+@using System.Threading.Tasks
+@inject DataProxy DataProxy
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> Loc
+
+<style>
+    .link {
+        background-color: #4a7c4e;
+        border: none;
+        color: white;
+        padding: 6px 19px;
+        text-decoration: none !important;
+        display: inline-block;
+        border: 1px solid #3a6040;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .link:hover, .link:visited {
+        color: #3a6040;
+        text-decoration: none !important;
+        background-color: white;
+        border: 2px solid #3a6040;
+    }
+
+    .link:active {
+        box-shadow: none;
+        color: white;
+        text-decoration: none !important;
+    }
+
+    .rz-form-field-content {
+        outline: none !important;
+        border-radius: 15px;
+    }
+
+    .grid-margin {
+        margin-bottom: 20px;
+        box-shadow: 0 0 50px #ccc;
+    }
+</style>
+
+<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
+    <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
+        <RadzenFormField Text="@(Loc["SearchPhrase"].Value)" Variant="Variant.Flat" Style="width:60%;">
+            <RadzenTextBox @bind-Value="@searchPhrase" Style="width: 100%; border-radius:15px;" Placeholder="np. Ursus C-330" />
+        </RadzenFormField>
+        <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
+            <RadzenButton Click=LoadData Text="@(Loc["Load"].Value)" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(searchPhrase)" />
+        </RadzenFormField>
+    </RadzenColumn>
+</RadzenRow>
+
+<RadzenText TextStyle="TextStyle.H4" Text="@(Loc["ChoosePagesAds"].Value)" Style="color:red; margin-bottom:20px;" />
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+    <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
+    <RadzenLabel Text="Olx" Component="CheckBoxOlx" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setOlxGrid Name="CheckBoxOlx" />
+</RadzenButton>
+
+@if (setOlxGrid)
+{
+    <RadzenDataGrid Data="@olxData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/olx.png" Style="width: 4rem; height:4rem;" AlternateText="Olx" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Olx – Ciągniki</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Title"].Value)" Frozen="true" Width="300px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="@(Loc["OpenLink"].Value)" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="@(Loc["PricePLN"].Value)" TextAlign="TextAlign.Center">
+                <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @(context.Location?.Contains(" - ") == true ? context.Location.Substring(0, context.Location.IndexOf(" - ")) : context.Location)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="@(Loc["AddedDate"].Value)" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @(context.Location?.Contains(" - ") == true ? context.Location.Substring(context.Location.IndexOf(" - ") + 3) : "")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="@(Loc["MileageKm"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="@(Loc["ProductionYear"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    private string searchPhrase = string.Empty;
+    private bool isLoading = false;
+    private bool setOlxGrid = false;
+
+    private IEnumerable<ScrapedItem>? olxData;
+
+    DataModel model = new();
+
+    private async Task LoadData()
+    {
+        if (string.IsNullOrWhiteSpace(searchPhrase))
+        {
+            await DialogService.Alert(Loc["FillBrandOrModel"]);
+            return;
+        }
+        if (!Globals.IsPhraseValid(searchPhrase))
+        {
+            await DialogService.Alert(Loc["InvalidPhrase"]);
+            return;
+        }
+
+        isLoading = true;
+
+        var websites = new List<string>();
+        if (setOlxGrid) websites.Add("olxciagniki");
+
+        model = new DataModel
+        {
+            websites = websites,
+            phrase = searchPhrase,
+            request_number = "30",
+            additional_phrase = ""
+        };
+
+        try
+        {
+            var result = await DataProxy.getData(model);
+            olxData = result?.Data?.OlxciagnikiData?.Output;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await DialogService.Alert($"{Loc["ErrorFetching"]} {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

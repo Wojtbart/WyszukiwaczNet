@@ -67,6 +67,7 @@ public class DataWrapper
     public PlatformData? NofluffjobsData { get; set; }
     public PlatformData? TheprotocolitData { get; set; }
     public PlatformData? BulldogjobData { get; set; }
+    public PlatformData? OlxciagnikiData { get; set; }
 }
 
 public class GetDataResponse

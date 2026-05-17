@@ -152,7 +152,7 @@ else
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Price" Title="@(Loc["Price"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">@((int?)context.Price)</Template>
+                <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center" />
             <RadzenDataGridColumn Property="CreatedAt" Title="@(Loc["AddedDate"].Value)" TextAlign="TextAlign.Center">
