@@ -24,7 +24,13 @@ def offer_exists(cnx, platform_id, url):
 def parse_price(text):
     if not text:
         return None, None
-    cleaned = text.replace("\xa0", "").replace(" ", "").replace("zł", "").strip()
+    cleaned = re.sub(r"[^\d,.]", "", text)
+    if not cleaned:
+        return None, None
+    if "," in cleaned:
+        cleaned = cleaned.replace(".", "").replace(",", ".")
+    else:
+        cleaned = cleaned.replace(".", "")
     try:
         return float(cleaned), "PLN"
     except ValueError:

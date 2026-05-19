@@ -28,14 +28,17 @@ def offer_exists(cnx, platform_id, url):
 def parse_price(text):
     if not text:
         return None, None
-
-    # usuń wszystko oprócz cyfr
-    digits_only = re.sub(r"[^\d]", "", text)
-
-    if not digits_only:
+    cleaned = re.sub(r"[^\d,.]", "", text)
+    if not cleaned:
         return None, None
-
-    return float(digits_only), "PLN"
+    if "," in cleaned:
+        cleaned = cleaned.replace(".", "").replace(",", ".")
+    else:
+        cleaned = cleaned.replace(".", "")
+    try:
+        return float(cleaned), "PLN"
+    except ValueError:
+        return None, None
 
 def parse_mileage(text):
     if not text:

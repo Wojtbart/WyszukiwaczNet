@@ -32,10 +32,15 @@ def parse_year(text):
 def parse_price(text):
     if not text:
         return None, None
-
-    clean = re.sub(r"[^\d,\.]", "", text).replace(",", ".")
+    cleaned = re.sub(r"[^\d,.]", "", text)
+    if not cleaned:
+        return None, None
+    if "," in cleaned:
+        cleaned = cleaned.replace(".", "").replace(",", ".")
+    else:
+        cleaned = cleaned.replace(".", "")
     try:
-        return float(clean), "PLN"
+        return float(cleaned), "PLN"
     except ValueError:
         return None, None
 

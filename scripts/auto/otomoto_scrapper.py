@@ -88,10 +88,15 @@ def insert_vehicle_details(cnx, offer_id, vehicle):
 def parse_price(price_text):
     if not price_text:
         return None, None
-
-    price_text = price_text.replace(" ", "").replace("zł", "")
+    cleaned = re.sub(r"[^\d,.]", "", price_text)
+    if not cleaned:
+        return None, None
+    if "," in cleaned:
+        cleaned = cleaned.replace(".", "").replace(",", ".")
+    else:
+        cleaned = cleaned.replace(".", "")
     try:
-        return float(price_text), "PLN"
+        return float(cleaned), "PLN"
     except ValueError:
         return None, None
 
