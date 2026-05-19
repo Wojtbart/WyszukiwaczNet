@@ -52,25 +52,36 @@
         <RadzenFormField Text="@(Loc["Model"].Value)" Variant="Variant.Flat" Style="width:50%">
             <RadzenTextBox @bind-Value="@searchedModel" Style="width: 50%; border-radius:15px;" />
         </RadzenFormField>
-        <RadzenDropDown TValue="string"
+        <RadzenDropDown TValue="string?"
                         @bind-Value="@selectedFuelType"
                         Data="@fuelTypes"
                         TextProperty="DisplayText"
                         ValueProperty="Value"
                         Placeholder="@(Loc["ChooseFuel"].Value)"
+                        AllowClear="true"
                         Style="width: 300px"
                         Name="FuelType" />
-        <RadzenFormField Text="@(Loc["EngineLabel"].Value)" Variant="Variant.Flat" Style="width: 200px;">
-            <RadzenTextBox @bind-Value="@selectedEngine" Placeholder="@(Loc["EnginePlaceholder"].Value)" Style="border-radius:15px;" />
-        </RadzenFormField>
-        <RadzenDropDown TValue="string"
+        <RadzenDropDown TValue="string?"
                         @bind-Value="@selectedGearbox"
                         Data="@gearboxTypes"
                         TextProperty="DisplayText"
                         ValueProperty="Value"
                         Placeholder="@(Loc["ChooseGearbox"].Value)"
-                        Style="width: 250px"
+                        AllowClear="true"
+                        Style="width: 250px;border-radius:15px;"
                         Name="Gearbox" />
+        <RadzenFormField Text="@(Loc["CapacityFrom"].Value)" Variant="Variant.Flat" Style="width: 155px;">
+            <RadzenNumeric @bind-Value="@selectedEngineCapacityFrom" TValue="int?" Style="border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="@(Loc["CapacityTo"].Value)" Variant="Variant.Flat" Style="width: 155px;">
+            <RadzenNumeric @bind-Value="@selectedEngineCapacityTo" TValue="int?" Style="border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="@(Loc["PriceFrom"].Value)" Variant="Variant.Flat" Style="width: 155px;">
+            <RadzenNumeric @bind-Value="@selectedPriceFrom" TValue="decimal?" Style="border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="@(Loc["PriceTo"].Value)" Variant="Variant.Flat" Style="width: 155px;">
+            <RadzenNumeric @bind-Value="@selectedPriceTo" TValue="decimal?" Style="border-radius:15px;" />
+        </RadzenFormField>
         <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
             <RadzenButton Click=LoadData Text="@(Loc["Load"].Value)" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(SearchPhrase)" />
         </RadzenFormField>
@@ -565,22 +576,25 @@
 
     private List<FilterOption> fuelTypes => new()
     {
-        new FilterOption { DisplayText = Loc["FuelPetrol"],    Value = "benzyna" },
-        new FilterOption { DisplayText = Loc["FuelPetrolLpg"], Value = "benzyna lpg" },
-        new FilterOption { DisplayText = Loc["FuelDiesel"],    Value = "diesel" },
-        new FilterOption { DisplayText = Loc["FuelElectric"],  Value = "elektryczny" },
-        new FilterOption { DisplayText = Loc["FuelHybrid"],    Value = "hybryda" }
+        new FilterOption { DisplayText = Loc["FuelPetrol"],   Value = "petrol" },
+        new FilterOption { DisplayText = Loc["FuelLpg"],      Value = "lpg" },
+        new FilterOption { DisplayText = Loc["FuelDiesel"],   Value = "diesel" },
+        new FilterOption { DisplayText = Loc["FuelElectric"], Value = "electric" },
+        new FilterOption { DisplayText = Loc["FuelHybrid"],   Value = "plugin-hybrid" }
     };
 
     private List<FilterOption> gearboxTypes => new()
     {
-        new FilterOption { DisplayText = Loc["GearboxManual"],    Value = "manualna" },
-        new FilterOption { DisplayText = Loc["GearboxAutomatic"], Value = "automatyczna" }
+        new FilterOption { DisplayText = Loc["GearboxManual"],    Value = "manual" },
+        new FilterOption { DisplayText = Loc["GearboxAutomatic"], Value = "automatic" }
     };
 
-    private string selectedFuelType = string.Empty;
-    private string selectedEngine = string.Empty;
-    private string selectedGearbox = string.Empty;
+    private string? selectedFuelType;
+    private string? selectedGearbox;
+    private int? selectedEngineCapacityFrom;
+    private int? selectedEngineCapacityTo;
+    private decimal? selectedPriceFrom;
+    private decimal? selectedPriceTo;
 
     public class FilterOption
     {
@@ -614,15 +628,17 @@
         if (setAutocentrumGrid) websites.Add("autocentrum");
         if (setSamochodyGrid)   websites.Add("samochody");
 
-        var extras = new[] { selectedFuelType, selectedEngine?.Trim(), selectedGearbox }
-            .Where(x => !string.IsNullOrWhiteSpace(x));
-
         model = new DataModel
         {
             websites = websites,
             phrase = SearchPhrase,
             request_number = "30",
-            additional_phrase = string.Join(" ", extras)
+            fuel = string.IsNullOrEmpty(selectedFuelType) ? null : selectedFuelType,
+            gearbox = string.IsNullOrEmpty(selectedGearbox) ? null : selectedGearbox,
+            engine_capacity_from = selectedEngineCapacityFrom,
+            engine_capacity_to = selectedEngineCapacityTo,
+            price_from = selectedPriceFrom,
+            price_to = selectedPriceTo,
         };
 
         try

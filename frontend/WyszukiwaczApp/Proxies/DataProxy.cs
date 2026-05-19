@@ -62,6 +62,14 @@ public class DataProxy
                 WorkLocation = model.work_location,
                 EmploymentLevel = model.employment_level,
                 ContractType = model.contract_type,
+                Fuel = model.fuel,
+                Gearbox = model.gearbox,
+                EngineCapacityFrom = model.engine_capacity_from,
+                EngineCapacityTo = model.engine_capacity_to,
+                PriceFrom = model.price_from,
+                PriceTo = model.price_to,
+                AreaFrom = model.area_from,
+                AreaTo = model.area_to,
             };
 
             var response = await _httpClient.PostAsJsonAsync("data/getData", request);

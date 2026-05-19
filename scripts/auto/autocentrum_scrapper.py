@@ -5,7 +5,9 @@ from dbconfig import read_db_config
 import psycopg2
 from psycopg2 import Error
 import sys
+import argparse
 from datetime import datetime, timezone
+from urllib.parse import urlencode
 import re
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -94,11 +96,52 @@ def insert_vehicle_details(cnx, offer_id, vehicle):
             vehicle["body_type"],
         ))
 
-def get_data_and_insert(cnx, phrase):
+FUEL_TYPE_MAP = {
+    "petrol":       9,
+    "lpg":          10,
+    "diesel":       1,
+    "electric":     8,
+    "plugin-hybrid": 5,
+}
+
+
+def build_url(phrase, filters=None):
+    parts = [p.lower() for p in phrase[:2]]
+    path = "/".join(parts)
+    base = f"https://www.autocentrum.pl/ogloszenia/{path}/"
+
+    params = {"order": "date-desc"}
+    has_filter = False
+
+    if filters:
+        fuel_id = FUEL_TYPE_MAP.get(filters.get("fuel", ""))
+        if fuel_id:
+            params["engineType[]"] = fuel_id
+            has_filter = True
+        if filters.get("capacity_from") is not None:
+            params["engineCapacityFrom"] = filters["capacity_from"]
+            has_filter = True
+        if filters.get("capacity_to") is not None:
+            params["engineCapacityTo"] = filters["capacity_to"]
+            has_filter = True
+        if filters.get("price_from") is not None:
+            params["priceFrom"] = int(filters["price_from"])
+            has_filter = True
+        if filters.get("price_to") is not None:
+            params["priceTo"] = int(filters["price_to"])
+            has_filter = True
+
+    if has_filter:
+        params["s"] = 1
+
+    return base + "?" + urlencode(params)
+
+
+def get_data_and_insert(cnx, phrase, filters=None):
     global COUNTER
 
-    final_phrase = "/".join(phrase).lower()
-    URL = f"https://www.autocentrum.pl/ogloszenia/{final_phrase}/?order=date-desc" # szukamy po dacie dodania od najnowszego
+    URL = build_url(phrase, filters)
+    print(URL)
 
     page = requests.get(URL, headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -219,22 +262,35 @@ def get_data_and_insert(cnx, phrase):
 if __name__ == "__main__":
     print("Autocentrum scraper starting...")
 
-    db_config = read_db_config()
-    cnx = None
-
-    if len(sys.argv) <= 1:
-        print("Incorrect number of arguments!")
-        sys.exit()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("phrase", nargs="+")
+    parser.add_argument("--fuel", default=None)
+    parser.add_argument("--capacity-from", type=int, default=None)
+    parser.add_argument("--capacity-to", type=int, default=None)
+    parser.add_argument("--price-from", type=float, default=None)
+    parser.add_argument("--price-to", type=float, default=None)
+    args = parser.parse_args()
 
     phrase = []
-    for arg in sys.argv[1:]:
-        phrase.extend(arg.split())
+    for token in args.phrase:
+        phrase.extend(token.split())
+
+    filters = {
+        "fuel": args.fuel,
+        "capacity_from": args.capacity_from,
+        "capacity_to": args.capacity_to,
+        "price_from": args.price_from,
+        "price_to": args.price_to,
+    }
+
+    db_config = read_db_config()
+    cnx = None
 
     try:
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connected")
 
-        get_data_and_insert(cnx, phrase)
+        get_data_and_insert(cnx, phrase, filters)
         print("Inserted:", COUNTER)
 
     except Error as e:

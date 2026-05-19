@@ -5,8 +5,10 @@ from dbconfig import read_db_config
 import psycopg2
 from psycopg2 import Error
 import sys
+import argparse
 from datetime import datetime, timezone
 import re
+from urllib.parse import urlencode
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -63,11 +65,21 @@ def insert_offer(cnx, platform_id, offer):
         ))
         return cursor.fetchone()[0]
 
-def get_data_and_insert(cnx, phrase):
+def build_url(phrase, filters=None):
+    final_phrase = "+".join(phrase)
+    params = {"k": final_phrase}
+    if filters:
+        if filters.get("price_from") is not None:
+            params["low-price"] = int(filters["price_from"])
+        if filters.get("price_to") is not None:
+            params["high-price"] = int(filters["price_to"])
+    return "https://www.amazon.pl/s?" + urlencode(params)
+
+
+def get_data_and_insert(cnx, phrase, filters=None):
     global COUNTER
 
-    final_phrase = "+".join(phrase)
-    URL = f"https://www.amazon.pl/s?k={final_phrase}&s=date-desc-rank"
+    URL = build_url(phrase, filters)
     print(URL)
 
     page = requests.get(URL, headers={
@@ -145,22 +157,29 @@ if __name__ == "__main__":
 
     print("Amazon scraper starting...")
 
-    db_config = read_db_config()
-    cnx = None
-
-    if len(sys.argv) <= 1:
-        print("Incorrect number of arguments!")
-        sys.exit()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("phrase", nargs="+")
+    parser.add_argument("--price-from", type=float, default=None)
+    parser.add_argument("--price-to", type=float, default=None)
+    args = parser.parse_args()
 
     phrase = []
-    for arg in sys.argv[1:]:
-        phrase.extend(arg.split())
+    for token in args.phrase:
+        phrase.extend(token.split())
+
+    filters = {
+        "price_from": args.price_from,
+        "price_to": args.price_to,
+    }
+
+    db_config = read_db_config()
+    cnx = None
 
     try:
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connected")
 
-        get_data_and_insert(cnx, phrase)
+        get_data_and_insert(cnx, phrase, filters)
         print("Inserted:", COUNTER)
 
     except Error as e:

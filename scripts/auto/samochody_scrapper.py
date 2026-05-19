@@ -3,13 +3,23 @@ from bs4 import BeautifulSoup
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
 import re
+import argparse
 from datetime import datetime, timezone
+from urllib.parse import urlencode
 import psycopg2
 from psycopg2 import Error
 
 sys.stdout.reconfigure(encoding='utf-8')
 
 BASE_URL = "https://samochody.pl"
+
+FUEL_MAP = {
+    "petrol":       "benzyna",
+    "lpg":          "gaz",
+    "diesel":       "diesel",
+    "electric":     "elektro",
+    "plugin-hybrid": "hybryda",
+}
 PLATFORM_ID = 13
 COUNTER = 0
 
@@ -185,16 +195,39 @@ def parse_listing(a_tag):
     }
 
 
-def get_data_and_insert(cnx, phrase):
-    global COUNTER
-    platform_id = get_platform_id(cnx, PLATFORM_ID)
-
-    # phrase: [brand, model, ...] e.g. ["hyundai", "i30"]
+def build_url(phrase, filters=None):
     brand = phrase[0].lower() if len(phrase) > 0 else ""
     model = phrase[1].lower() if len(phrase) > 1 else ""
     path = f"{brand}/{model}" if model else brand
 
-    url = f"{BASE_URL}/samochody-osobowe/{path}?sortuj=najnowsze"
+    params = {"sortuj": "najnowsze"}
+
+    if filters:
+        fuel = FUEL_MAP.get(filters.get("fuel", ""))
+        if fuel:
+            params["paliwo"] = fuel
+        gearbox = filters.get("gearbox")
+        if gearbox == "manual":
+            params["skrzynia-biegow-manualna"] = "true"
+        elif gearbox == "automatic":
+            params["skrzynia-biegow-automatyczna"] = "true"
+        if filters.get("capacity_from") is not None:
+            params["pojemnosc-od"] = filters["capacity_from"]
+        if filters.get("capacity_to") is not None:
+            params["pojemnosc-do"] = filters["capacity_to"]
+        if filters.get("price_from") is not None:
+            params["cena-od"] = int(filters["price_from"])
+        if filters.get("price_to") is not None:
+            params["cena-do"] = int(filters["price_to"])
+
+    return f"{BASE_URL}/samochody-osobowe/{path}?" + urlencode(params)
+
+
+def get_data_and_insert(cnx, phrase, filters=None):
+    global COUNTER
+    platform_id = get_platform_id(cnx, PLATFORM_ID)
+
+    url = build_url(phrase, filters)
     print(f"Fetching: {url}")
 
     response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
@@ -246,26 +279,37 @@ def get_data_and_insert(cnx, phrase):
 
 if __name__ == "__main__":
     print("Samochody.pl scrapper starting...")
-    db_config = read_db_config()
-    cnx = None
 
-    if len(sys.argv) < 2:
-        print("Usage: python samochody_scrapper.py <brand> [<model>]")
-        print("  e.g. python samochody_scrapper.py hyundai i30")
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("phrase", nargs="+")
+    parser.add_argument("--fuel", default=None)
+    parser.add_argument("--gearbox", default=None)
+    parser.add_argument("--capacity-from", type=int, default=None)
+    parser.add_argument("--capacity-to", type=int, default=None)
+    parser.add_argument("--price-from", type=float, default=None)
+    parser.add_argument("--price-to", type=float, default=None)
+    args = parser.parse_args()
 
     phrase = []
-    for arg in sys.argv[1:]:
-        arg = arg.replace("'", "")
-        if " " in arg:
-            phrase.extend(arg.split())
-        else:
-            phrase.append(arg)
+    for token in args.phrase:
+        phrase.extend(token.replace("'", "").split())
+
+    filters = {
+        "fuel": args.fuel,
+        "gearbox": args.gearbox,
+        "capacity_from": args.capacity_from,
+        "capacity_to": args.capacity_to,
+        "price_from": args.price_from,
+        "price_to": args.price_to,
+    }
+
+    db_config = read_db_config()
+    cnx = None
 
     try:
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connection OK")
-        get_data_and_insert(cnx, phrase)
+        get_data_and_insert(cnx, phrase, filters)
         print(f"Records inserted: {COUNTER}")
 
     except Error as e:

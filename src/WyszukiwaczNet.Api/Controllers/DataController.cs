@@ -61,7 +61,81 @@ public class DataController : ControllerBase
             try
             {
                 var extraArgs = new List<string>();
-                if (website == "pracuj")
+                if (website == "olx")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.Fuel)) { extraArgs.Add("--fuel"); extraArgs.Add(request.Fuel!); }
+                    if (!string.IsNullOrWhiteSpace(request.Gearbox)) { extraArgs.Add("--gearbox"); extraArgs.Add(request.Gearbox!); }
+                    if (request.EngineCapacityFrom.HasValue) { extraArgs.Add("--capacity-from"); extraArgs.Add(request.EngineCapacityFrom.Value.ToString()); }
+                    if (request.EngineCapacityTo.HasValue) { extraArgs.Add("--capacity-to"); extraArgs.Add(request.EngineCapacityTo.Value.ToString()); }
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
+                }
+                else if (website.Equals("otomoto", StringComparison.OrdinalIgnoreCase))
+                {
+                    var otoFuel = request.Fuel switch
+                    {
+                        "lpg"          => "petrol-lpg",
+                        "plugin-hybrid" => "hybrid",
+                        _              => request.Fuel
+                    };
+                    if (!string.IsNullOrWhiteSpace(otoFuel)) { extraArgs.Add("--fuel"); extraArgs.Add(otoFuel!); }
+                    if (!string.IsNullOrWhiteSpace(request.Gearbox)) { extraArgs.Add("--gearbox"); extraArgs.Add(request.Gearbox!); }
+                    if (request.EngineCapacityFrom.HasValue) { extraArgs.Add("--capacity-from"); extraArgs.Add(request.EngineCapacityFrom.Value.ToString()); }
+                    if (request.EngineCapacityTo.HasValue) { extraArgs.Add("--capacity-to"); extraArgs.Add(request.EngineCapacityTo.Value.ToString()); }
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
+                }
+                else if (website == "sprzedajemy")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.Fuel)) { extraArgs.Add("--fuel"); extraArgs.Add(request.Fuel!); }
+                    if (!string.IsNullOrWhiteSpace(request.Gearbox)) { extraArgs.Add("--gearbox"); extraArgs.Add(request.Gearbox!); }
+                    if (request.EngineCapacityFrom.HasValue) { extraArgs.Add("--capacity-from"); extraArgs.Add(request.EngineCapacityFrom.Value.ToString()); }
+                    if (request.EngineCapacityTo.HasValue) { extraArgs.Add("--capacity-to"); extraArgs.Add(request.EngineCapacityTo.Value.ToString()); }
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
+                }
+                else if (website == "samochody")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.Fuel)) { extraArgs.Add("--fuel"); extraArgs.Add(request.Fuel!); }
+                    if (!string.IsNullOrWhiteSpace(request.Gearbox)) { extraArgs.Add("--gearbox"); extraArgs.Add(request.Gearbox!); }
+                    if (request.EngineCapacityFrom.HasValue) { extraArgs.Add("--capacity-from"); extraArgs.Add(request.EngineCapacityFrom.Value.ToString()); }
+                    if (request.EngineCapacityTo.HasValue) { extraArgs.Add("--capacity-to"); extraArgs.Add(request.EngineCapacityTo.Value.ToString()); }
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
+                }
+                else if (website == "autocentrum")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.Fuel)) { extraArgs.Add("--fuel"); extraArgs.Add(request.Fuel!); }
+                    if (request.EngineCapacityFrom.HasValue) { extraArgs.Add("--capacity-from"); extraArgs.Add(request.EngineCapacityFrom.Value.ToString()); }
+                    if (request.EngineCapacityTo.HasValue) { extraArgs.Add("--capacity-to"); extraArgs.Add(request.EngineCapacityTo.Value.ToString()); }
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
+                }
+                else if (website == "gratka")
+                {
+                    var gratkaFuel = request.Fuel switch
+                    {
+                        "petrol"        => "benzyna",
+                        "lpg"           => "lpg",
+                        "diesel"        => "diesel",
+                        "electric"      => "elektryczne",
+                        "plugin-hybrid" => "hybryda",
+                        _               => request.Fuel
+                    };
+                    var gratkaGearbox = request.Gearbox switch
+                    {
+                        "manual"    => "manualna",
+                        "automatic" => "automatyczna",
+                        _           => request.Gearbox
+                    };
+                    if (!string.IsNullOrWhiteSpace(gratkaFuel)) { extraArgs.Add("--fuel"); extraArgs.Add(gratkaFuel!); }
+                    if (!string.IsNullOrWhiteSpace(gratkaGearbox)) { extraArgs.Add("--gearbox"); extraArgs.Add(gratkaGearbox!); }
+                    if (request.EngineCapacityFrom.HasValue) { extraArgs.Add("--capacity-from"); extraArgs.Add(request.EngineCapacityFrom.Value.ToString()); }
+                    if (request.EngineCapacityTo.HasValue) { extraArgs.Add("--capacity-to"); extraArgs.Add(request.EngineCapacityTo.Value.ToString()); }
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
+                }
+                else if (website == "pracuj")
                 {
                     if (!string.IsNullOrWhiteSpace(request.WorkLocation)) { extraArgs.Add("--loc"); extraArgs.Add(request.WorkLocation!); }
                     if (request.EmploymentLevel.HasValue) { extraArgs.Add("--et"); extraArgs.Add(request.EmploymentLevel.Value.ToString()); }
@@ -161,6 +235,43 @@ public class DataController : ControllerBase
                         if (level != null) { extraArgs.Add("--level"); extraArgs.Add(level); }
                     }
                 }
+                else if (website == "solidjobs")
+                {
+                    if (!string.IsNullOrWhiteSpace(request.WorkLocation)) { extraArgs.Add("--loc"); extraArgs.Add(request.WorkLocation!); }
+                    if (request.EmploymentLevel.HasValue)
+                    {
+                        var level = request.EmploymentLevel.Value switch
+                        {
+                            17 => "junior",
+                            4  => "regular",
+                            18 => "senior",
+                            _  => (string?)null
+                        };
+                        if (level != null) { extraArgs.Add("--level"); extraArgs.Add(level); }
+                    }
+                    if (request.ContractType.HasValue)
+                    {
+                        var contract = request.ContractType.Value switch
+                        {
+                            3 => "b2b",
+                            0 => "uop",
+                            _ => (string?)null
+                        };
+                        if (contract != null) { extraArgs.Add("--contract"); extraArgs.Add(contract); }
+                    }
+                }
+                else if (website == "amazon")
+                {
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
+                }
+                else if (website.Equals("otodom", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
+                    if (request.AreaFrom.HasValue) { extraArgs.Add("--area-from"); extraArgs.Add(request.AreaFrom.Value.ToString()); }
+                    if (request.AreaTo.HasValue) { extraArgs.Add("--area-to"); extraArgs.Add(request.AreaTo.Value.ToString()); }
+                }
                 var (count, output) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase, website, request.RequestNumber, extraArgs);
                 string key = website[0].ToString().ToUpper() + website.Substring(1);
                 results[$"{key}Data"] = new { count, output };
@@ -194,10 +305,14 @@ public class DataController : ControllerBase
         "nofluffjobs" => "work/nofluffjobs_scrapper.py",
         "theprotocolit" => "work/theprotocolit_scrapper.py",
         "bulldogjob" => "work/bulldogjob_scrapper.py",
+        "solidjobs" => "work/solidjobs_scrapper.py",
         "otodom" => "apartment/otodom_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",
         "olxciagniki" => "agriculture/olx_ciagniki_scrapper.py",
+        "brzozowiak" => "agriculture/brzozowiak_scrapper.py",
+        "sprzedajemyciagniki" => "agriculture/sprzedajemy_ciagniki_scrapper.py",
+        "otomotorolnicze" => "agriculture/otomoto_rolnicze_scrapper.py",
         _ => null
     };
 }

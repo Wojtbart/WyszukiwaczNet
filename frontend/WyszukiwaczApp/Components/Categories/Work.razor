@@ -101,6 +101,12 @@
     <RadzenCheckBox @bind-Value=@setBulldogGrid Name="CheckBox5" />
 </RadzenButton>
 
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
+    <RadzenImage Path="images/solidjobs.svg" Style="width:5rem;height:3rem;" AlternateText="SolidJobs" />
+    <RadzenLabel Text="Solid.Jobs" Component="CheckBox6" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
+    <RadzenCheckBox @bind-Value=@setSolidJobsGrid Name="CheckBox6" />
+</RadzenButton>
+
 
 @if (setPracujGrid)
 {
@@ -427,6 +433,69 @@
     </RadzenDataGrid>
 }
 
+@if (setSolidJobsGrid)
+{
+    <RadzenDataGrid Data="@solidJobsData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <h3 style="display: inline-block; color:#1a73e8; font-weight:bold;">💼 Solid.Jobs</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Position"].Value)" Frozen="true" Width="260px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="170px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="@(Loc["ViewOffer"].Value)" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="SellerName" Title="@(Loc["Company"].Value)" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.SellerName</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="@(Loc["Salary"].Value)" TextAlign="TextAlign.Center" Width="220px">
+                <Template Context="context">
+                    @if (context.JobDetail?.SalaryRaw != null)
+                    {
+                        <RadzenText style="white-space:pre-wrap; font-weight:bold; color:#2e7d32;">@context.JobDetail.SalaryRaw</RadzenText>
+                    }
+                    else
+                    {
+                        <RadzenText style="color:#aaa;">—</RadzenText>
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="@(Loc["Technologies"].Value)" TextAlign="TextAlign.Center" Width="220px">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap; font-size:0.85rem;">@(context.JobDetail?.Technologies ?? "—")</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="@(Loc["WorkMode"].Value)" TextAlign="TextAlign.Center" Width="130px">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@(context.Location ?? "—")</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Title="@(Loc["HQ"].Value)" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@(context.JobDetail?.HqLocation ?? "—")</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
 @code {
     private string searchedKeyword = string.Empty;
     private string workLocation = string.Empty;
@@ -438,11 +507,13 @@
     private bool setNFJGrid = false;
     private bool setTPGrid = false;
     private bool setBulldogGrid = false;
+    private bool setSolidJobsGrid = false;
     private IEnumerable<ScrapedItem>? pracujData;
     private IEnumerable<ScrapedItem>? jjiData;
     private IEnumerable<ScrapedItem>? nfjData;
     private IEnumerable<ScrapedItem>? tpData;
     private IEnumerable<ScrapedItem>? bulldogData;
+    private IEnumerable<ScrapedItem>? solidJobsData;
 
     private record FilterOption(string Label, int? Value);
     private List<FilterOption> employmentLevels => new()
@@ -483,6 +554,7 @@
         if (setNFJGrid) websites.Add("nofluffjobs");
         if (setTPGrid) websites.Add("theprotocolit");
         if (setBulldogGrid) websites.Add("bulldogjob");
+        if (setSolidJobsGrid) websites.Add("solidjobs");
 
         model = new DataModel
         {
@@ -503,6 +575,7 @@
             nfjData = result?.Data?.NofluffjobsData?.Output;
             tpData = result?.Data?.TheprotocolitData?.Output;
             bulldogData = result?.Data?.BulldogjobData?.Output;
+            solidJobsData = result?.Data?.SolidjobsData?.Output;
             StateHasChanged();
         }
         catch (Exception ex)

@@ -6,11 +6,21 @@ import psycopg2
 from psycopg2 import Error
 import sys
 import re
+import argparse
 from datetime import datetime, timezone
+from urllib.parse import urlencode
 
 sys.stdout.reconfigure(encoding='utf-8')
 
 COUNTER = 0
+
+FUEL_MAP = {
+    "petrol":        1996,
+    "lpg":           2001,
+    "diesel":        2011,
+    "plugin-hybrid": 2016,
+    "electric":      20700,
+}
 
 # ========================
 # HELPERS
@@ -103,13 +113,39 @@ def insert_vehicle_details(cnx, offer_id, vehicle):
 # ========================
 # SCRAPER LOGIC
 # ========================
-def get_data_and_insert(cnx, phrase):
+def build_url(phrase, filters=None):
+    parts = [p.lower() for p in phrase[:2]]
+    path = "/".join(parts)
+    params = {"sort": "inp_srt_date_d", "offset": 0}
+
+    if filters:
+        if filters.get("price_from") is not None:
+            params["inp_price[from]"] = int(filters["price_from"])
+        if filters.get("price_to") is not None:
+            params["inp_price[to]"] = int(filters["price_to"])
+        if filters.get("capacity_from") is not None:
+            params["inp_attribute_476[from]"] = filters["capacity_from"]
+        if filters.get("capacity_to") is not None:
+            params["inp_attribute_476[to]"] = filters["capacity_to"]
+        gearbox = filters.get("gearbox")
+        if gearbox == "manual":
+            params["inp_attribute_491"] = 2036
+        elif gearbox == "automatic":
+            params["inp_attribute_491"] = 2041
+        fuel_id = FUEL_MAP.get(filters.get("fuel", ""))
+        if fuel_id:
+            params["inp_attribute_481[0]"] = fuel_id
+
+    return f"https://sprzedajemy.pl/motoryzacja/samochody-osobowe/{path}?" + urlencode(params)
+
+
+def get_data_and_insert(cnx, phrase, filters=None):
     global COUNTER
 
     platform_id = get_platform_id(cnx, "sprzedajemy")
 
-    final_phrase = "/".join(phrase).lower()
-    URL = f"https://sprzedajemy.pl/motoryzacja/samochody-osobowe/{final_phrase}?offset=0&sort=inp_srt_date_d" #bierzemy najnowsze oferty
+    URL = build_url(phrase, filters)
+    print(URL)
 
     response = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(response.content, "html.parser")
@@ -242,21 +278,36 @@ def get_data_and_insert(cnx, phrase):
 if __name__ == "__main__":
     print("Sprzedajemy_scrapper starting...")
 
-    db_config = read_db_config()
-
-    if len(sys.argv) <= 1:
-        print("Incorrect number of arguments specified!")
-        sys.exit()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("phrase", nargs="+")
+    parser.add_argument("--fuel", default=None)
+    parser.add_argument("--gearbox", default=None)
+    parser.add_argument("--capacity-from", type=int, default=None)
+    parser.add_argument("--capacity-to", type=int, default=None)
+    parser.add_argument("--price-from", type=float, default=None)
+    parser.add_argument("--price-to", type=float, default=None)
+    args = parser.parse_args()
 
     phrase = []
-    for arg in sys.argv[1:]:
-        phrase.extend(arg.split())
+    for token in args.phrase:
+        phrase.extend(token.split())
+
+    filters = {
+        "fuel": args.fuel,
+        "gearbox": args.gearbox,
+        "capacity_from": args.capacity_from,
+        "capacity_to": args.capacity_to,
+        "price_from": args.price_from,
+        "price_to": args.price_to,
+    }
+
+    db_config = read_db_config()
 
     try:
         cnx = psycopg2.connect(**db_config)
         print("Connection to PostgreSQL successful!")
 
-        get_data_and_insert(cnx, phrase)
+        get_data_and_insert(cnx, phrase, filters)
         print("Records inserted:", COUNTER)
 
     except Error as e:

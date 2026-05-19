@@ -5,8 +5,10 @@ from dbconfig import read_db_config
 import psycopg2
 from psycopg2 import Error
 import sys
+import argparse
 from datetime import datetime, timezone
 import re
+from urllib.parse import urlencode
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -92,11 +94,34 @@ def insert_offer(cnx, platform_id, offer):
         return cursor.fetchone()[0]
 
 
-def get_data_and_insert(cnx, phrase):
+def build_url(phrase, filters=None):
+    final_phrase = "-".join(w.lower() for w in phrase)
+    is_auto = filters and any(filters.get(k) for k in ("fuel", "gearbox", "capacity_from", "capacity_to"))
+    if is_auto:
+        base = f"https://www.olx.pl/motoryzacja/samochody/q-{final_phrase}/"
+    else:
+        base = f"https://www.olx.pl/oferty/q-{final_phrase}/"
+    params = {"search[order]": "created_at:desc"}
+    if filters:
+        if filters.get("fuel"):
+            params["search[filter_enum_petrol][0]"] = filters["fuel"]
+        if filters.get("gearbox"):
+            params["search[filter_enum_transmission][0]"] = filters["gearbox"]
+        if filters.get("capacity_from") is not None:
+            params["search[filter_float_enginesize:from]"] = filters["capacity_from"]
+        if filters.get("capacity_to") is not None:
+            params["search[filter_float_enginesize:to]"] = filters["capacity_to"]
+        if filters.get("price_from") is not None:
+            params["search[filter_float_price:from]"] = filters["price_from"]
+        if filters.get("price_to") is not None:
+            params["search[filter_float_price:to]"] = filters["price_to"]
+    return base + "?" + urlencode(params)
+
+
+def get_data_and_insert(cnx, phrase, filters=None):
     global COUNTER
 
-    final_phrase = "-".join(phrase).lower()
-    URL = f"https://www.olx.pl/motoryzacja/q-{final_phrase}/?search%5Border%5D=created_at%3Adesc" # bierzemy najnowsze oferty
+    URL = build_url(phrase, filters)
     print(URL)
 
     page = requests.get(URL, headers={
@@ -181,22 +206,37 @@ def get_data_and_insert(cnx, phrase):
 if __name__ == "__main__":
     print("OLX scraper starting...")
 
-    db_config = read_db_config()
-    cnx = None
-
-    if len(sys.argv) <= 1:
-        print("Incorrect number of arguments!")
-        sys.exit()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("phrase", nargs="+")
+    parser.add_argument("--fuel", default=None)
+    parser.add_argument("--gearbox", default=None)
+    parser.add_argument("--capacity-from", type=int, default=None)
+    parser.add_argument("--capacity-to", type=int, default=None)
+    parser.add_argument("--price-from", type=float, default=None)
+    parser.add_argument("--price-to", type=float, default=None)
+    args = parser.parse_args()
 
     phrase = []
-    for arg in sys.argv[1:]:
-        phrase.extend(arg.split())
+    for token in args.phrase:
+        phrase.extend(token.split())
+
+    filters = {
+        "fuel": args.fuel,
+        "gearbox": args.gearbox,
+        "capacity_from": args.capacity_from,
+        "capacity_to": args.capacity_to,
+        "price_from": args.price_from,
+        "price_to": args.price_to,
+    }
+
+    db_config = read_db_config()
+    cnx = None
 
     try:
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connected")
 
-        get_data_and_insert(cnx, phrase)
+        get_data_and_insert(cnx, phrase, filters)
         print("Inserted:", COUNTER)
 
     except Error as e:

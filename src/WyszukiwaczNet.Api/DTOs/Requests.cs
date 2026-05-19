@@ -45,7 +45,15 @@ public record GetDataRequest(
     int RequestNumber,
     string? WorkLocation = null,
     int? EmploymentLevel = null,
-    int? ContractType = null
+    int? ContractType = null,
+    string? Fuel = null,
+    string? Gearbox = null,
+    int? EngineCapacityFrom = null,
+    int? EngineCapacityTo = null,
+    decimal? PriceFrom = null,
+    decimal? PriceTo = null,
+    int? AreaFrom = null,
+    int? AreaTo = null
 );
 
 public record NotificationRequest(

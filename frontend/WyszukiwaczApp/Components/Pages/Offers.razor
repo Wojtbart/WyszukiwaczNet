@@ -101,11 +101,38 @@
                     TValue="bool" Change="@(v => OnPlatformChange(v, "amazon"))" />
 </RadzenButton>
 
-<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
     <RadzenImage Path="images/otoDom.png" Style="width: 4rem;height:2rem;" AlternateText="OtoDom" />
     <RadzenLabel Text="OtoDom" Component="cbOtodom" Style="margin:0.3rem; vertical-align: middle;" />
     <RadzenCheckBox Name="cbOtodom" Value="@(selectedPlatform == "otodom")"
                     TValue="bool" Change="@(v => OnPlatformChange(v, "otodom"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
+    <RadzenLabel Text="OLX Ciągniki" Component="cbOlxciagniki" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbOlxciagniki" Value="@(selectedPlatform == "olxciagniki")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "olxciagniki"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenLabel Text="Brzozowiak.pl" Component="cbBrzozowiak" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
+    <RadzenCheckBox Name="cbBrzozowiak" Value="@(selectedPlatform == "brzozowiak")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "brzozowiak"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
+    <RadzenImage Path="images/sprzedajemy.jpg" Style="width: 4rem;height:2rem;" AlternateText="Sprzedajemy" />
+    <RadzenLabel Text="Sprzedajemy Ciągniki" Component="cbSprzedajemyciagniki" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbSprzedajemyciagniki" Value="@(selectedPlatform == "sprzedajemyciagniki")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "sprzedajemyciagniki"))" />
+</RadzenButton>
+
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+    <RadzenImage Path="images/otomoto.gif" Style="width: 3rem;height:2rem;" AlternateText="OtoMoto" />
+    <RadzenLabel Text="OtoMoto Rolnicze" Component="cbOtomotorolnicze" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox Name="cbOtomotorolnicze" Value="@(selectedPlatform == "otomotorolnicze")"
+                    TValue="bool" Change="@(v => OnPlatformChange(v, "otomotorolnicze"))" />
 </RadzenButton>
 
 @if (selectedPlatform == null)

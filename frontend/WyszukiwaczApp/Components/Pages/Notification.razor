@@ -131,6 +131,14 @@
                                 @(_categoryEnabled.GetValueOrDefault("Praca") ? Loc["Active"] : Loc["Inactive"])
                             </span>
                         </div>
+                        <div class="cat-btn @(_selectedCategory == "Ciągniki" ? "cat-btn--active" : "")"
+                             @onclick='async () => await SelectCategory("Ciągniki")'>
+                            <span class="cat-btn-emoji">🚜</span>
+                            <span>@Loc["CatTractors"]</span>
+                            <span class="cat-status @(_categoryEnabled.GetValueOrDefault("Ciągniki") ? "cat-status--on" : "cat-status--off")">
+                                @(_categoryEnabled.GetValueOrDefault("Ciągniki") ? Loc["Active"] : Loc["Inactive"])
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -425,17 +433,19 @@
 
     private string _selectedCategory = string.Empty;
     private Dictionary<string, bool> _categoryEnabled = new();
-    private List<string> _carPlatforms  = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum", "Samochody" };
-    private List<string> _flatPlatforms = new() { "OtoDom" };
-    private List<string> _shopPlatforms = new() { "Amazon", "Olx" };
-    private List<string> _workPlatforms = new() { "Pracuj", "JustJoinIt", "NoFluffJobs", "TheProtocolIt", "BulldogJob" };
-    private List<string> availablePlatforms => _carPlatforms.Concat(_flatPlatforms).Concat(_shopPlatforms).Concat(_workPlatforms).ToList();
+    private List<string> _carPlatforms     = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum", "Samochody" };
+    private List<string> _flatPlatforms    = new() { "OtoDom" };
+    private List<string> _shopPlatforms    = new() { "Amazon", "Olx" };
+    private List<string> _workPlatforms    = new() { "Pracuj", "JustJoinIt", "NoFluffJobs", "TheProtocolIt", "BulldogJob" };
+    private List<string> _tractorPlatforms = new() { "Olxciagniki", "Brzozowiak", "Sprzedajemyciagniki", "Otomotorolnicze" };
+    private List<string> availablePlatforms => _carPlatforms.Concat(_flatPlatforms).Concat(_shopPlatforms).Concat(_workPlatforms).Concat(_tractorPlatforms).ToList();
     private List<string> ActivePlatforms => _selectedCategory switch
     {
         "Motoryzacja"   => _carPlatforms,
         "Nieruchomości" => _flatPlatforms,
         "Zakupy"        => _shopPlatforms,
         "Praca"         => _workPlatforms,
+        "Ciągniki"      => _tractorPlatforms,
         _               => new()
     };
     private string SearchPlaceholder => _selectedCategory switch
@@ -444,6 +454,7 @@
         "Nieruchomości" => Loc["PlaceholderRealEstate"],
         "Zakupy"        => Loc["PlaceholderShopping"],
         "Praca"         => Loc["PlaceholderWork"],
+        "Ciągniki"      => Loc["PlaceholderTractors"],
         _               => Loc["PlaceholderDefault"]
     };
 
@@ -453,6 +464,7 @@
         "Nieruchomości" => Loc["CatRealEstate"],
         "Zakupy"        => Loc["CatShopping"],
         "Praca"         => Loc["CatWork"],
+        "Ciągniki"      => Loc["CatTractors"],
         _               => cat ?? ""
     };
     private List<string> selectedPlatforms = new();
@@ -628,6 +640,8 @@
                 _selectedCategory = "Nieruchomości";
             else if (selectedPlatforms.Any(p => _shopPlatforms.Any(s => s.Equals(p, StringComparison.OrdinalIgnoreCase))))
                 _selectedCategory = "Zakupy";
+            else if (selectedPlatforms.Any(p => _tractorPlatforms.Any(t => t.Equals(p, StringComparison.OrdinalIgnoreCase))))
+                _selectedCategory = "Ciągniki";
         }
 
         // Keep only platforms belonging to detected/selected category

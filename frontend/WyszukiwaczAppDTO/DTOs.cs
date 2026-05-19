@@ -53,6 +53,14 @@ public class GetDataRequest
     public string? WorkLocation { get; set; }
     public int? EmploymentLevel { get; set; }
     public int? ContractType { get; set; }
+    public string? Fuel { get; set; }
+    public string? Gearbox { get; set; }
+    public int? EngineCapacityFrom { get; set; }
+    public int? EngineCapacityTo { get; set; }
+    public decimal? PriceFrom { get; set; }
+    public decimal? PriceTo { get; set; }
+    public int? AreaFrom { get; set; }
+    public int? AreaTo { get; set; }
 }
 
 public class NotificationRequest

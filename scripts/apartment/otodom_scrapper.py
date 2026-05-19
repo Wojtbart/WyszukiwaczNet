@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import psycopg2
 from psycopg2 import Error
 import sys
+import argparse
 import urllib.parse
 import unicodedata
 import re
@@ -78,7 +79,7 @@ def generate_otodom_url(transaction_type, city):
 
     return f"https://www.otodom.pl/pl/wyniki/{transaction_type}/mieszkanie/{province}/{city}"
 
-def scrape_otodom(cnx, phrase):
+def scrape_otodom(cnx, phrase, filters=None):
     global COUNTER
 
     transaction_type = "wynajem"
@@ -112,6 +113,17 @@ def scrape_otodom(cnx, phrase):
         elif is_publiczne:
             params["ownerTypeSingleSelect"] = "ALL"
 
+    if filters:
+        if filters.get("price_from") is not None:
+            params["priceMin"] = int(filters["price_from"])
+        if filters.get("price_to") is not None:
+            params["priceMax"] = int(filters["price_to"])
+        if filters.get("area_from") is not None:
+            params["areaMin"] = int(filters["area_from"])
+        if filters.get("area_to") is not None:
+            params["areaMax"] = int(filters["area_to"])
+
+    params["limit"] = 36
     params["by"] = "LATEST"
     params["direction"] = "DESC"
 
@@ -207,22 +219,33 @@ if __name__ == "__main__":
 
     print("Otodom scraper starting...")
 
-    db_config = read_db_config()
-
-    if len(sys.argv) <= 1:
-        print("Incorrect arguments")
-        sys.exit()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("phrase", nargs="+")
+    parser.add_argument("--price-from", type=int, default=None)
+    parser.add_argument("--price-to", type=int, default=None)
+    parser.add_argument("--area-from", type=int, default=None)
+    parser.add_argument("--area-to", type=int, default=None)
+    args = parser.parse_args()
 
     phrase = []
+    for token in args.phrase:
+        phrase.extend(token.split())
 
-    for arg in sys.argv[1:]:
-        phrase.extend(arg.split())
+    filters = {
+        "price_from": args.price_from,
+        "price_to": args.price_to,
+        "area_from": args.area_from,
+        "area_to": args.area_to,
+    }
+
+    db_config = read_db_config()
+    cnx = None
 
     try:
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connected")
 
-        scrape_otodom(cnx, phrase)
+        scrape_otodom(cnx, phrase, filters)
 
         print("Inserted:", COUNTER)
 

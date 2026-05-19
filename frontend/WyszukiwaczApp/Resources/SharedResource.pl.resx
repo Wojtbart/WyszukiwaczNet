@@ -73,6 +73,11 @@
   <data name="FuelHybrid" xml:space="preserve"><value>Hybrydowy</value></data>
   <data name="GearboxManual" xml:space="preserve"><value>Manualna</value></data>
   <data name="GearboxAutomatic" xml:space="preserve"><value>Automatyczna</value></data>
+  <data name="FuelLpg" xml:space="preserve"><value>LPG</value></data>
+  <data name="CapacityFrom" xml:space="preserve"><value>Pojemność od (cm³)</value></data>
+  <data name="CapacityTo" xml:space="preserve"><value>Pojemność do (cm³)</value></data>
+  <data name="PriceFrom" xml:space="preserve"><value>Cena od (PLN)</value></data>
+  <data name="PriceTo" xml:space="preserve"><value>Cena do (PLN)</value></data>
   <data name="MileageKm" xml:space="preserve"><value>Przebieg (km)</value></data>
   <data name="ProductionYear" xml:space="preserve"><value>Rok produkcji</value></data>
   <data name="Fuel" xml:space="preserve"><value>Paliwo</value></data>
@@ -118,6 +123,7 @@
   <data name="CatRealEstate" xml:space="preserve"><value>Nieruchomości</value></data>
   <data name="CatShopping" xml:space="preserve"><value>Zakupy</value></data>
   <data name="CatWork" xml:space="preserve"><value>Praca</value></data>
+  <data name="CatTractors" xml:space="preserve"><value>Ciągniki</value></data>
   <data name="Active" xml:space="preserve"><value>aktywne</value></data>
   <data name="Inactive" xml:space="preserve"><value>nieaktywne</value></data>
   <data name="Search" xml:space="preserve"><value>Wyszukiwanie</value></data>
@@ -163,6 +169,7 @@
   <data name="PlaceholderRealEstate" xml:space="preserve"><value>np. Warszawa, Kraków...</value></data>
   <data name="PlaceholderShopping" xml:space="preserve"><value>np. iPhone 14, karta graficzna...</value></data>
   <data name="PlaceholderWork" xml:space="preserve"><value>np. developer, kierowca, manager...</value></data>
+  <data name="PlaceholderTractors" xml:space="preserve"><value>np. Ursus C-330, Zetor...</value></data>
   <data name="PlaceholderDefault" xml:space="preserve"><value>Wpisz szukany tekst...</value></data>
   <data name="PageTitleOffers" xml:space="preserve"><value>Oferty - Wyszukiwacz</value></data>
 

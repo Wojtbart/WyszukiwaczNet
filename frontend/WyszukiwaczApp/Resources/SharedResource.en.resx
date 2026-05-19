@@ -70,6 +70,11 @@
   <data name="FuelHybrid" xml:space="preserve"><value>Hybrid</value></data>
   <data name="GearboxManual" xml:space="preserve"><value>Manual</value></data>
   <data name="GearboxAutomatic" xml:space="preserve"><value>Automatic</value></data>
+  <data name="FuelLpg" xml:space="preserve"><value>LPG</value></data>
+  <data name="CapacityFrom" xml:space="preserve"><value>Capacity from (cc)</value></data>
+  <data name="CapacityTo" xml:space="preserve"><value>Capacity to (cc)</value></data>
+  <data name="PriceFrom" xml:space="preserve"><value>Price from (PLN)</value></data>
+  <data name="PriceTo" xml:space="preserve"><value>Price to (PLN)</value></data>
   <data name="MileageKm" xml:space="preserve"><value>Mileage (km)</value></data>
   <data name="ProductionYear" xml:space="preserve"><value>Year</value></data>
   <data name="Fuel" xml:space="preserve"><value>Fuel</value></data>
@@ -113,6 +118,7 @@
   <data name="CatRealEstate" xml:space="preserve"><value>Real estate</value></data>
   <data name="CatShopping" xml:space="preserve"><value>Shopping</value></data>
   <data name="CatWork" xml:space="preserve"><value>Work</value></data>
+  <data name="CatTractors" xml:space="preserve"><value>Tractors</value></data>
   <data name="Active" xml:space="preserve"><value>active</value></data>
   <data name="Inactive" xml:space="preserve"><value>inactive</value></data>
   <data name="Search" xml:space="preserve"><value>Search</value></data>
@@ -158,6 +164,7 @@
   <data name="PlaceholderRealEstate" xml:space="preserve"><value>e.g. Warsaw, Krakow...</value></data>
   <data name="PlaceholderShopping" xml:space="preserve"><value>e.g. iPhone 14, graphics card...</value></data>
   <data name="PlaceholderWork" xml:space="preserve"><value>e.g. developer, driver, manager...</value></data>
+  <data name="PlaceholderTractors" xml:space="preserve"><value>e.g. Ursus C-330, Zetor...</value></data>
   <data name="PlaceholderDefault" xml:space="preserve"><value>Enter search text...</value></data>
   <data name="PageTitleOffers" xml:space="preserve"><value>Offers - Wyszukiwacz</value></data>
 

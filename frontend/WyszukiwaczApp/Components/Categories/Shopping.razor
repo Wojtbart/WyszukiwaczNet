@@ -66,6 +66,12 @@
         <RadzenFormField Text="@(Loc["SearchedText"].Value)" Variant="Variant.Flat" Style="width:50%;margin-right:50px;">
             <RadzenTextBox @bind-Value="@searchedText" Style="width: 100%; border-radius:15px;" />
         </RadzenFormField>
+        <RadzenFormField Text="@(Loc["PriceFrom"].Value)" Variant="Variant.Flat" Style="width:130px;">
+            <RadzenNumeric @bind-Value="@selectedPriceFrom" TValue="decimal?" Min="0" Style="width:100%;border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="@(Loc["PriceTo"].Value)" Variant="Variant.Flat" Style="width:130px;">
+            <RadzenNumeric @bind-Value="@selectedPriceTo" TValue="decimal?" Min="0" Style="width:100%;border-radius:15px;" />
+        </RadzenFormField>
         <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
             <RadzenButton Click=LoadData Text="@(Loc["Load"].Value)" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" />
         </RadzenFormField>
@@ -178,6 +184,8 @@
 
 @code {
     private string searchedText = string.Empty;
+    private decimal? selectedPriceFrom;
+    private decimal? selectedPriceTo;
 
     private bool isLoading = false;
     private bool setAmazonGrid = false;
@@ -212,7 +220,9 @@
             websites = websites,
             phrase = searchedText,
             request_number = "30",
-            additional_phrase = ""
+            additional_phrase = "",
+            price_from = selectedPriceFrom,
+            price_to = selectedPriceTo
         };
 
         try

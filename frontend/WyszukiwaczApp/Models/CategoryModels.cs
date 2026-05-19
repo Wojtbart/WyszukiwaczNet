@@ -67,7 +67,11 @@ public class DataWrapper
     public PlatformData? NofluffjobsData { get; set; }
     public PlatformData? TheprotocolitData { get; set; }
     public PlatformData? BulldogjobData { get; set; }
+    public PlatformData? SolidjobsData { get; set; }
     public PlatformData? OlxciagnikiData { get; set; }
+    public PlatformData? BrzozowiakData { get; set; }
+    public PlatformData? SprzedajemyciagnikiData { get; set; }
+    public PlatformData? OtomotorolniczeData { get; set; }
 }
 
 public class GetDataResponse
@@ -86,4 +90,12 @@ public class DataModel
     public string? work_location { get; set; }
     public int? employment_level { get; set; }
     public int? contract_type { get; set; }
+    public string? fuel { get; set; }
+    public string? gearbox { get; set; }
+    public int? engine_capacity_from { get; set; }
+    public int? engine_capacity_to { get; set; }
+    public decimal? price_from { get; set; }
+    public decimal? price_to { get; set; }
+    public int? area_from { get; set; }
+    public int? area_to { get; set; }
 }

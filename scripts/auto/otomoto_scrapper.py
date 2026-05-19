@@ -4,7 +4,9 @@ import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..",
 from dbconfig import read_db_config
 import sys
 import re
+import argparse
 from datetime import datetime, timezone
+from urllib.parse import urlencode
 import psycopg2
 from psycopg2 import Error
 sys.stdout.reconfigure(encoding='utf-8')
@@ -101,13 +103,32 @@ def get_third_div(section):
     divs = section.find_all("div", recursive=False)
     return divs[2] if len(divs) >= 3 else None
 
-def get_data_and_insert(cnx, phrase):
+def build_url(phrase, filters=None):
+    parts = [p.lower() for p in phrase[:2]]
+    path = "/".join(parts)
+    base = f"https://www.otomoto.pl/osobowe/{path}/"
+    params = {"search[order]": "created_at_first:desc"}
+    if filters:
+        if filters.get("fuel"):
+            params["search[filter_enum_fuel_type]"] = filters["fuel"]
+        if filters.get("gearbox"):
+            params["search[filter_enum_gearbox]"] = filters["gearbox"]
+        if filters.get("capacity_from") is not None:
+            params["search[filter_float_engine_capacity:from]"] = filters["capacity_from"]
+        if filters.get("capacity_to") is not None:
+            params["search[filter_float_engine_capacity:to]"] = filters["capacity_to"]
+        if filters.get("price_from") is not None:
+            params["search[filter_float_price:from]"] = filters["price_from"]
+        if filters.get("price_to") is not None:
+            params["search[filter_float_price:to]"] = filters["price_to"]
+    return base + "?" + urlencode(params)
+
+
+def get_data_and_insert(cnx, phrase, filters=None):
     global COUNTER
     platform_id = get_platform_id(cnx, "otomoto")
 
-    # (URL building zostaje prawie bez zmian)
-    final_phrase = "/".join(phrase[:2]).lower()
-    URL = f"https://www.otomoto.pl/osobowe/{final_phrase}?search%5Border%5D=created_at_first%3Adesc" #bierzemy najnowsze oferty
+    URL = build_url(phrase, filters)
 
     page = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(page.content, "html.parser")
@@ -206,29 +227,38 @@ def get_data_and_insert(cnx, phrase):
 
 if __name__ == "__main__":
     print("Oto_moto_scrapper starting...")
-    db_config = read_db_config()
-    cnx=None
 
-    if len(sys.argv) <= 1:
-        print("Incorrect number of arguments specified!")
-        sys.exit()
-    else:
-        phrase=[]
-        n = len(sys.argv)
-        for item in sys.argv:
-            item = item.replace('\'', '')
-        for i in range(1, n):
-            if " " in  sys.argv[i]:
-                phrase.append(sys.argv[i].split())
-                output_array = [item for sublist in phrase for item in sublist]
-                phrase= output_array
-            else:
-                phrase.append(sys.argv[i])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("phrase", nargs="+")
+    parser.add_argument("--fuel", default=None)
+    parser.add_argument("--gearbox", default=None)
+    parser.add_argument("--capacity-from", type=int, default=None)
+    parser.add_argument("--capacity-to", type=int, default=None)
+    parser.add_argument("--price-from", type=float, default=None)
+    parser.add_argument("--price-to", type=float, default=None)
+    args = parser.parse_args()
+
+    phrase = []
+    for token in args.phrase:
+        phrase.extend(token.split())
+
+    filters = {
+        "fuel": args.fuel,
+        "gearbox": args.gearbox,
+        "capacity_from": args.capacity_from,
+        "capacity_to": args.capacity_to,
+        "price_from": args.price_from,
+        "price_to": args.price_to,
+    }
+
+    db_config = read_db_config()
+    cnx = None
+
     try:
         cnx = psycopg2.connect(**db_config)
         print("Connection to PostgreSQL from script successful!")
 
-        get_data_and_insert(cnx, phrase)
+        get_data_and_insert(cnx, phrase, filters)
         print("Records inserted:", COUNTER)
 
     except Error as e:

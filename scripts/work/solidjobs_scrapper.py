@@ -1,8 +1,8 @@
 import requests
-from bs4 import BeautifulSoup
+import json
+import re
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
-import re
 import argparse
 import urllib.parse
 from datetime import datetime, timezone
@@ -43,151 +43,67 @@ def build_url(keyword, location=None, experience=None, contract_type=None):
     return BASE_URL + path + "?sort=PublishDate"
 
 
-def parse_salary(salary_text):
-    if not salary_text:
-        return None, None, "PLN", "monthly", None
+def extract_offers_from_ng_state(html):
+    m = re.search(r'<script id="ng-state" type="application/json">(.*?)</script>', html, re.DOTALL)
+    if not m:
+        return []
 
-    salary_text = salary_text.strip()
-
-    currency_match = re.search(r'\b(PLN|EUR|USD)\b', salary_text)
-    currency = currency_match.group(0) if currency_match else "PLN"
-
-    def to_int(s):
-        s = s.strip()
-        if s.endswith('k'):
-            return int(float(s[:-1]) * 1000)
-        return int(float(s.replace(',', '.')))
-
-    sep = "–" if "–" in salary_text else ("-" if "-" in salary_text else None)
-    if sep:
-        parts = salary_text.split(sep, 1)
-        m1 = re.search(r'[\d.,]+k?', parts[0])
-        m2 = re.search(r'[\d.,]+k?', parts[1])
-        if m1 and m2:
-            try:
-                salary_min = to_int(m1.group(0))
-                salary_max = to_int(m2.group(0))
-                salary_raw = f"{salary_min} – {salary_max} {currency}"
-                return salary_min, salary_max, currency, "monthly", salary_raw
-            except ValueError:
-                pass
-    else:
-        m = re.search(r'[\d.,]+k?', salary_text)
-        if m:
-            try:
-                val = to_int(m.group(0))
-                return val, val, currency, "monthly", f"{val} {currency}"
-            except ValueError:
-                pass
-
-    return None, None, currency, "monthly", None
-
-
-def parse_offer(card):
     try:
-        href = card.get("href", "")
-        if not href:
-            return None
-        url = BASE_URL + href if href.startswith("/") else href
+        state = json.loads(m.group(1))
+    except json.JSONDecodeError as e:
+        print(f"JSON parse error: {e}")
+        return []
 
-        h2 = card.find("h2", class_=lambda c: c and "h5" in c.split())
-        if not h2:
-            return None
-        title = h2.get_text(strip=True)
+    for key, val in state.items():
+        if isinstance(val, dict) and "b" in val and isinstance(val["b"], list):
+            offers = val["b"]
+            if offers and isinstance(offers[0], dict) and "jobTitle" in offers[0]:
+                return offers
 
-        img_wrapper = card.find("div", class_=lambda c: c and "img-wrapper" in c.split())
-        image_url = None
-        if img_wrapper:
-            img = img_wrapper.find("img")
-            image_url = img.get("src") if img else None
+    return []
 
-        company_a = card.find("a", attrs={"mattooltip": re.compile(r"pozostałe oferty firmy")})
-        company = None
-        if company_a:
-            span = company_a.find("span")
-            if span:
-                company = span.get_text(strip=True).lstrip('\xa0').strip()
 
-        desktop_section = card.find(
-            "div",
-            class_=lambda c: c and "ml-auto" in c.split() and "d-none" in c.split() and "d-md-flex" in c.split()
-        )
+def map_offer(raw):
+    offer_id = raw.get("id")
+    slug = raw.get("jobOfferUrl", "")
+    url = f"{BASE_URL}/offer/{offer_id}/{slug}"
 
-        salary_min, salary_max, salary_currency, salary_type, salary_raw = None, None, "PLN", "monthly", None
-        contract_info = None
+    salary = raw.get("salaryRange") or {}
+    salary_min = salary.get("lowerBound")
+    salary_max = salary.get("upperBound")
+    salary_currency = salary.get("currency", "PLN")
+    employment_type = salary.get("employmentType", "")
+    salary_period = salary.get("salaryPeriod", "Month")
 
-        if desktop_section:
-            sj_salary = desktop_section.find("sj-salary-display")
-            if sj_salary:
-                salary_text = sj_salary.get_text(strip=True)
-                salary_min, salary_max, salary_currency, salary_type, salary_raw = parse_salary(salary_text)
+    if salary_min and salary_max:
+        salary_raw = f"{salary_min} – {salary_max} {salary_currency} {employment_type}/mies."
+    elif salary_min:
+        salary_raw = f"{salary_min} {salary_currency} {employment_type}/mies."
+    else:
+        salary_raw = None
 
-            contracts = []
-            primary = desktop_section.find("span", attrs={"mattooltip": "Rodzaj umowy"})
-            if primary:
-                contracts.append(primary.get_text(strip=True))
-            alt = desktop_section.find("span", attrs={"mattooltip": "Alternatywny rodzaj umowy"})
-            if alt:
-                contracts.append(alt.get_text(strip=True))
-            contract_info = " / ".join(contracts) if contracts else None
+    skills = [s["name"] for s in raw.get("requiredSkills", []) if s.get("name")]
+    technologies = ", ".join(skills) if skills else None
 
-        loc_a_desktop = card.find(
-            "a",
-            class_=lambda c: c and "d-none" in c.split() and "d-md-inline" in c.split()
-        )
-        work_mode = None
-        hq_location = None
+    remote = raw.get("remotePossible")
+    city = raw.get("companyCity")
 
-        if loc_a_desktop:
-            loc_span = loc_a_desktop.find("span")
-            if loc_span:
-                loc_text = loc_span.get_text(strip=True).lstrip('\xa0').strip()
-                tooltip = loc_span.get("mattooltip", "")
-                if "pracy zdalnej" in tooltip:
-                    work_mode = "Zdalnie"
-                    m = re.search(r'\(([^)]+)\)', loc_text)
-                    hq_location = m.group(1) if m else None
-                else:
-                    hq_location = loc_text
-                    loc_a_mobile = card.find(
-                        "a",
-                        class_=lambda c: c and "d-inline" in c.split() and "d-md-none" in c.split()
-                    )
-                    if loc_a_mobile:
-                        mobile_text = loc_a_mobile.get_text(strip=True)
-                        work_mode = "Hybrydowo" if "Zdalnie" in mobile_text else "Stacjonarnie"
-                    else:
-                        work_mode = "Stacjonarnie"
-
-        skill_displays = card.find_all("solidjobs-skill-display")
-        techs = []
-        for sd in skill_displays:
-            inner_spans = sd.find_all("span")
-            if len(inner_spans) >= 2:
-                name = inner_spans[-1].get_text(strip=True)
-                if name:
-                    techs.append(name)
-        technologies = ", ".join(techs) if techs else None
-
-        return {
-            "title": title,
-            "url": url,
-            "image_url": image_url,
-            "company": company,
-            "salary_min": salary_min,
-            "salary_max": salary_max,
-            "salary_currency": salary_currency,
-            "salary_type": salary_type,
-            "salary_raw": salary_raw,
-            "technologies": technologies,
-            "location": work_mode,
-            "work_location": work_mode,
-            "hq_location": hq_location,
-            "additional_info": contract_info,
-        }
-    except Exception as e:
-        print(f"  parse error: {e}")
-        return None
+    return {
+        "title": raw.get("jobTitle"),
+        "url": url,
+        "image_url": raw.get("companyLogoUrl"),
+        "company": raw.get("companyName"),
+        "salary_min": salary_min,
+        "salary_max": salary_max,
+        "salary_currency": salary_currency,
+        "salary_type": salary_period.lower() if salary_period else "monthly",
+        "salary_raw": salary_raw,
+        "technologies": technologies,
+        "location": remote,
+        "work_location": remote,
+        "hq_location": city,
+        "additional_info": employment_type if employment_type else None,
+    }
 
 
 def get_platform_id(cnx):
@@ -272,24 +188,21 @@ def get_data_and_insert(cnx, keyword, location=None, experience=None, contract_t
     }
 
     response = requests.get(url, headers=headers, timeout=20)
-    print(response.status_code)
-    print(response.text[:3000])
-    soup = BeautifulSoup(response.content, "html.parser")
+    print(f"Status: {response.status_code}")
 
-    cards = soup.find_all("a", href=re.compile(r"^/offer/\d+/"))
-    if not cards:
-        print("No offer cards found — site may require JS rendering")
+    raw_offers = extract_offers_from_ng_state(response.text)
+    if not raw_offers:
+        print("No offers found in ng-state — page may not use SSR transfer state")
         return
 
-    print(f"Found {len(cards)} offers")
+    print(f"Found {len(raw_offers)} offers in page state")
 
-    for card in cards:
-        data = parse_offer(card)
-        if not data:
+    for raw in raw_offers:
+        data = map_offer(raw)
+        if not data["title"] or not data["url"]:
             continue
 
         if offer_exists(cnx, platform_id, data["url"]):
-            print(f"  SKIP (exists): {data['url']}")
             continue
 
         offer_id = insert_offer(cnx, platform_id, data)
