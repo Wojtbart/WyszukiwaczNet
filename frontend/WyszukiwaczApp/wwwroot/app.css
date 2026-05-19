@@ -64,6 +64,14 @@ tr.rz-data-row:nth-child(even) {
     background-color: #ebeef2 !important;
 }
 
+html.dark-mode tr.rz-data-row:nth-child(even) {
+    background-color: #2a2a3e !important;
+}
+
+html.dark-mode .main-content {
+    background: var(--rz-body-background-color, #1e1e2e) !important;
+}
+
 #app-loading-overlay {
     position: fixed;
     inset: 0;

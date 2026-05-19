@@ -2,6 +2,7 @@
 @inject ILocalStorageService LocalStorage
 @inject UserService UserService
 @inject IStringLocalizer<SharedResource> Loc
+@inject IJSRuntime JS
 @using WyszukiwaczApp
 @implements IDisposable
 
@@ -108,6 +109,26 @@
         padding: 0 5px;
     }
 
+    .theme-toggle {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 20px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        transition: background 0.2s;
+        width: calc(100% - 2rem);
+        margin: 0 1rem 0.5rem;
+    }
+
+    .theme-toggle:hover {
+        background: rgba(255,255,255,0.25);
+    }
+
 </style>
 
 <div class="nav-menu d-flex flex-column">
@@ -183,12 +204,19 @@
 
     </ul>
 
-    @if (Globals.IsLogged)
-    {
-        <div class="user-info mt-auto">
-            @Loc["LoggedAs"] @Globals.Login
-        </div>
-    }
+    <div class="mt-auto">
+        <button class="theme-toggle" @onclick="ToggleTheme">
+            <span>@(_isDark ? "☀️" : "🌙")</span>
+            <span>@(_isDark ? "Jasny motyw" : "Ciemny motyw")</span>
+        </button>
+
+        @if (Globals.IsLogged)
+        {
+            <div class="user-info">
+                @Loc["LoggedAs"] @Globals.Login
+            </div>
+        }
+    </div>
 </div>
 
 @code {
@@ -196,11 +224,13 @@
 
     private int unreadCount;
     private Timer? _timer;
+    private bool _isDark = false;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            _isDark = await JS.InvokeAsync<bool>("getRadzenThemeDark");
             Globals.NotificationsChanged += OnNotificationsChanged;
 
             _timer = new Timer(async _ =>
@@ -216,7 +246,15 @@
                     }
                 }
             }, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+
+            StateHasChanged();
         }
+    }
+
+    private async Task ToggleTheme()
+    {
+        _isDark = !_isDark;
+        await JS.InvokeVoidAsync("setRadzenTheme", _isDark);
     }
 
     private async void OnNotificationsChanged()
