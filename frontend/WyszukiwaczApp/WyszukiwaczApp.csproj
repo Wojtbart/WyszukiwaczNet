@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>$(NoWarn);CS8669</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,10 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WyszukiwaczAppDTO\WyszukiwaczAppDTO.csproj" />
+    <ProjectReference Include="..\WyszukiwaczAppOther\WyszukiwaczAppOther.csproj" />
   </ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\WyszukiwaczAppDTO\WyszukiwaczAppDTO.csproj" />
-		<ProjectReference Include="..\WyszukiwaczAppOther\WyszukiwaczAppOther.csproj" />
-	</ItemGroup>
 
 </Project>

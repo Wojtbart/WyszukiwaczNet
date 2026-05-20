@@ -149,6 +149,7 @@ public class UserRepository : IUserRepository
             existing.RequestCount = config.RequestCount;
             existing.Schedule = config.Schedule;
             existing.Enabled = config.Enabled;
+            existing.FiltersJson = config.FiltersJson;
             existing.UpdatedAt = DateTime.UtcNow;
             _context.UserNotificationConfigs.Update(existing);
         }

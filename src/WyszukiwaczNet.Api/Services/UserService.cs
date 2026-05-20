@@ -157,7 +157,8 @@ public class UserService : IUserService
             RequestCount = config.RequestCount,
             Schedule = config.Schedule,
             Category = config.Category,
-            Enabled = config.Enabled
+            Enabled = config.Enabled,
+            FiltersJson = config.FiltersJson
         };
     }
 
@@ -170,7 +171,8 @@ public class UserService : IUserService
             RequestCount = c.RequestCount,
             Schedule = c.Schedule,
             Category = c.Category,
-            Enabled = c.Enabled
+            Enabled = c.Enabled,
+            FiltersJson = c.FiltersJson
         }).ToList();
     }
 
@@ -186,7 +188,8 @@ public class UserService : IUserService
             RequestCount = request.RequestCount,
             Schedule = request.Schedule,
             Category = request.Category,
-            Enabled = true
+            Enabled = true,
+            FiltersJson = request.FiltersJson
         };
 
         await _userRepository.SaveNotificationConfigAsync(config);

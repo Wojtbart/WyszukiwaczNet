@@ -23,8 +23,7 @@ public class PythonScriptService : IPythonScriptService
     public PythonScriptService(IConfiguration configuration, ILogger<PythonScriptService> logger, IOfferRepository offerRepository)
     {
         _pythonPath = configuration.GetValue<string>("PythonPath") ?? "python";
-        _dbConfigKey = configuration.GetValue<string>("DbConfigKey")
-            ?? Environment.GetEnvironmentVariable("DB_CONFIG_KEY");
+        _dbConfigKey = configuration.GetValue<string>("DbConfigKey");
         _logger = logger;
         _offerRepository = offerRepository;
     }
@@ -53,7 +52,6 @@ public class PythonScriptService : IPythonScriptService
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
         };
-
         if (!string.IsNullOrEmpty(_dbConfigKey))
             startInfo.EnvironmentVariables["DB_CONFIG_KEY"] = _dbConfigKey;
         startInfo.ArgumentList.Add(scriptPath);
@@ -79,7 +77,7 @@ public class PythonScriptService : IPythonScriptService
                 errorBuilder.AppendLine(e.Data);
         };
 
-        _logger.LogInformation("Uruchomiono skrypt w jezyku Python: {Script} za pomoc� frazy: {Phrase}", scriptPath, phrase);
+        _logger.LogInformation("Uruchomiono skrypt Python: {Script}, fraza: {Phrase}", scriptPath, phrase);
 
         var startTime = DateTime.UtcNow;
         process.Start();
@@ -99,11 +97,11 @@ public class PythonScriptService : IPythonScriptService
         var error = errorBuilder.ToString();
 
         if (!string.IsNullOrEmpty(error))
-            _logger.LogWarning("SKrypt stderr: {Error}", error);
+            _logger.LogWarning("Skrypt stderr: {Error}", error);
 
         var recordsCount = ParseRecordsCount(output);
 
-        _logger.LogInformation("Skrypt {Script} zakobczono, uzyskujac {Count} rekordow", scriptPath, recordsCount);
+        _logger.LogInformation("Skrypt {Script} zakończono, uzyskano {Count} rekordów", scriptPath, recordsCount);
 
         if(recordsCount != 0)
         {

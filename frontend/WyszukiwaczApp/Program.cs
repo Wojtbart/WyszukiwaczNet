@@ -5,7 +5,6 @@ using Radzen;
 using WyszukiwaczApp.Components;
 using WyszukiwaczApp.Other;
 using WyszukiwaczApp.Services;
-using WyszukiwaczApp.Proxies;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 

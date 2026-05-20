@@ -76,6 +76,17 @@ public class NotificationRequest
     public bool Sms { get; set; }
     public bool Discord { get; set; }
     public bool InApp { get; set; }
+    public string? Fuel { get; set; }
+    public string? Gearbox { get; set; }
+    public int? EngineCapacityFrom { get; set; }
+    public int? EngineCapacityTo { get; set; }
+    public decimal? PriceFrom { get; set; }
+    public decimal? PriceTo { get; set; }
+    public int? AreaFrom { get; set; }
+    public int? AreaTo { get; set; }
+    public string? WorkLocation { get; set; }
+    public int? EmploymentLevel { get; set; }
+    public int? ContractType { get; set; }
 }
 
 public class UserNotificationSettingDto
@@ -162,6 +173,7 @@ public class UserNotificationConfigDto
     public string? Schedule { get; set; }
     public string? Category { get; set; }
     public bool Enabled { get; set; }
+    public string? FiltersJson { get; set; }
 }
 
 public class SaveNotificationConfigRequest
@@ -171,6 +183,7 @@ public class SaveNotificationConfigRequest
     public int RequestCount { get; set; }
     public string? Schedule { get; set; }
     public string? Category { get; set; }
+    public string? FiltersJson { get; set; }
 }
 
 public class SetConfigEnabledRequest

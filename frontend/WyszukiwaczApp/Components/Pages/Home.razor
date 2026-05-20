@@ -830,7 +830,7 @@
             </div>
         </a>
 
-        <a href="/flats" class="category-card-lp">
+        <a href="/apartments" class="category-card-lp">
             <div class="category-card-header">
                 <span class="category-emoji" aria-hidden="true">🏠</span>
                 <div>
@@ -966,10 +966,11 @@
 </script>
 
 @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender) return;
+        if (!firstRender) return Task.CompletedTask;
         if (Globals.IsLogged)
             Navigation.NavigateTo("/categories");
+        return Task.CompletedTask;
     }
 }

@@ -78,6 +78,12 @@ public class EmailService : IEmailService
             Text = html
         };
 
+        if (string.IsNullOrEmpty(senderHost) || string.IsNullOrEmpty(senderUsername) || string.IsNullOrEmpty(senderPassword))
+        {
+            _logger.LogError("Brak konfiguracji SMTP (Host/Username/Password)");
+            return;
+        }
+
         using var client = new SmtpClient();
 
         await client.ConnectAsync(senderHost, senderPort, MailKit.Security.SecureSocketOptions.StartTls);

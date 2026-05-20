@@ -51,7 +51,7 @@ public class OffersController : ControllerBase
     }
 
     [HttpGet("platform/{platformName}")]
-    public async Task<IActionResult> GetOffersByPlatform(string platformName, [FromQuery] int limit = 50)
+    public async Task<IActionResult> GetOffersByPlatform(string platformName, [FromQuery] int limit = 100)
     {
         var platform = await _offerRepository.GetPlatformByNameAsync(platformName);
         if (platform == null)

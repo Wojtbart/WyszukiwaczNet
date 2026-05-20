@@ -67,7 +67,18 @@ public record NotificationRequest(
     bool Email,
     bool Sms,
     bool Discord,
-    bool InApp
+    bool InApp,
+    string? Fuel = null,
+    string? Gearbox = null,
+    int? EngineCapacityFrom = null,
+    int? EngineCapacityTo = null,
+    decimal? PriceFrom = null,
+    decimal? PriceTo = null,
+    int? AreaFrom = null,
+    int? AreaTo = null,
+    string? WorkLocation = null,
+    int? EmploymentLevel = null,
+    int? ContractType = null
 );
 
 public record OfferResponse(
@@ -108,7 +119,8 @@ public record SaveNotificationConfigRequest(
     string Phrase,
     int RequestCount,
     string? Schedule,
-    string? Category
+    string? Category,
+    string? FiltersJson = null
 );
 
 public record SetConfigEnabledRequest(
@@ -124,6 +136,7 @@ public class UserNotificationConfigDto
     public string? Schedule { get; set; }
     public string? Category { get; set; }
     public bool Enabled { get; set; }
+    public string? FiltersJson { get; set; }
 }
 
 public class NotificationFeedItemDto

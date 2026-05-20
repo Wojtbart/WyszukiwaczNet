@@ -66,10 +66,11 @@ public class NotificationJob : INotificationJob
             if (string.IsNullOrEmpty(scriptName)) continue;
 
             var scriptPath = Path.Combine(scriptsPath, scriptName);
+            var extraArgs = BuildExtraArgs(website, request);
 
             try
             {
-                var (_, offers) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase, website, request.RequestNumber);
+                var (_, offers) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase, website, request.RequestNumber, extraArgs.Count > 0 ? extraArgs : null);
                 allOffers.AddRange(offers);
             }
             catch (Exception ex)
@@ -227,14 +228,78 @@ public class NotificationJob : INotificationJob
         "allegro" => "marketplace/allegro_scraper.py",
         "aliexpress" => "marketplace/aliexpress_scrapper.py",
         "ebay" => "marketplace/ebay_scrapper.py",
+        "samochody" => "auto/samochody_scrapper.py",
         "otomoto" => "auto/otomoto_scrapper.py",
         "autoscout" => "auto/autoscout_scrapper.py",
         "gratka" => "auto/gratka_scrapper.py",
         "sprzedajemy" => "auto/sprzedajemy_scrapper.py",
         "autocentrum" => "auto/autocentrum_scrapper.py",
         "otodom" => "apartment/otodom_scrapper.py",
+        "nieruchomoscionline" => "apartment/nieruchomosci_online_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",
+        "pracuj" => "work/pracuj_scrapper.py",
+        "justjoinit" => "work/justjoinit_scrapper.py",
+        "nofluffjobs" => "work/nofluffjobs_scrapper.py",
+        "theprotocolit" => "work/theprotocolit_scrapper.py",
+        "bulldogjob" => "work/bulldogjob_scrapper.py",
+        "solidjobs" => "work/solidjobs_scrapper.py",
+        "olxciagniki" => "agriculture/olx_ciagniki_scrapper.py",
+        "brzozowiak" => "agriculture/brzozowiak_scrapper.py",
+        "sprzedajemyciagniki" => "agriculture/sprzedajemy_ciagniki_scrapper.py",
+        "otomotorolnicze" => "agriculture/otomoto_rolnicze_scrapper.py",
         _ => null
     };
+
+    private static List<string> BuildExtraArgs(string website, NotificationRequest request)
+    {
+        var args = new List<string>();
+        var site = website.ToLower();
+
+        var isAuto = site is "otomoto" or "autoscout" or "gratka" or "sprzedajemy" or "autocentrum" or "samochody";
+        var isTractor = site is "olxciagniki" or "brzozowiak" or "sprzedajemyciagniki" or "otomotorolnicze";
+        var isFlat = site is "otodom" or "nieruchomoscionline";
+        var isWork = site is "pracuj" or "justjoinit" or "nofluffjobs" or "theprotocolit" or "bulldogjob" or "solidjobs";
+
+        if ((isAuto || isTractor) && !string.IsNullOrEmpty(request.Fuel))
+        { args.Add("--fuel"); args.Add(request.Fuel!); }
+
+        if ((isAuto || isTractor) && !string.IsNullOrEmpty(request.Gearbox))
+        { args.Add("--gearbox"); args.Add(request.Gearbox!); }
+
+        if (isAuto && request.EngineCapacityFrom.HasValue)
+        { args.Add("--capacity-from"); args.Add(request.EngineCapacityFrom.Value.ToString()); }
+
+        if (isAuto && request.EngineCapacityTo.HasValue)
+        { args.Add("--capacity-to"); args.Add(request.EngineCapacityTo.Value.ToString()); }
+
+        if (request.PriceFrom.HasValue)
+        { args.Add("--price-from"); args.Add(((int)request.PriceFrom.Value).ToString()); }
+
+        if (request.PriceTo.HasValue)
+        { args.Add("--price-to"); args.Add(((int)request.PriceTo.Value).ToString()); }
+
+        if (isFlat && request.AreaFrom.HasValue)
+        { args.Add("--area-from"); args.Add(request.AreaFrom.Value.ToString()); }
+
+        if (isFlat && request.AreaTo.HasValue)
+        { args.Add("--area-to"); args.Add(request.AreaTo.Value.ToString()); }
+
+        if (isWork && !string.IsNullOrEmpty(request.WorkLocation))
+        { args.Add("--loc"); args.Add(request.WorkLocation!); }
+
+        if (site == "pracuj" && request.EmploymentLevel.HasValue)
+        { args.Add("--et"); args.Add(request.EmploymentLevel.Value.ToString()); }
+        else if (site == "justjoinit" && request.EmploymentLevel.HasValue)
+        { args.Add("--el"); args.Add(request.EmploymentLevel.Value.ToString()); }
+        else if (isWork && request.EmploymentLevel.HasValue)
+        { args.Add("--level"); args.Add(request.EmploymentLevel.Value.ToString()); }
+
+        if (site == "pracuj" && request.ContractType.HasValue)
+        { args.Add("--tc"); args.Add(request.ContractType.Value.ToString()); }
+        else if (isWork && request.ContractType.HasValue)
+        { args.Add("--emp"); args.Add(request.ContractType.Value.ToString()); }
+
+        return args;
+    }
 }

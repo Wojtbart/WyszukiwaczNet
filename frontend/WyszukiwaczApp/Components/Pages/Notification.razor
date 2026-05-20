@@ -2,6 +2,7 @@
 @using WyszukiwaczAppDTO
 @using WyszukiwaczApp.Proxies
 @using WyszukiwaczApp.Services
+@using System.Text.Json
 @inject NotificationService NotificationService
 @inject NavigationManager Navigation
 @inject NotificationProxy NotificationProxy
@@ -152,13 +153,15 @@
                     <span>@Loc["Search"]</span>
                 </div>
                 <div class="n-card-body">
-                    <div class="n-field">
-                        <label class="n-label">@Loc["SearchedText"]</label>
-                        <RadzenTextBox @bind-Value="@searchedText" Placeholder="@SearchPlaceholder" class="n-input-full" />
-                    </div>
-                    <div class="n-field">
-                        <label class="n-label">@Loc["MaxResults"]</label>
-                        <RadzenNumeric Min="1" Max="30" @bind-Value="@requestNumbers" class="n-input-sm" />
+                    <div class="n-field-row">
+                        <div class="n-field" style="flex:3;">
+                            <label class="n-label">@Loc["SearchedText"]</label>
+                            <RadzenTextBox @bind-Value="@searchedText" Placeholder="@SearchPlaceholder" class="n-input-full" />
+                        </div>
+                        <div class="n-field" style="flex:1; min-width:110px;">
+                            <label class="n-label" title="Ile najnowszych ofert zostanie wysłanych w powiadomieniu (scraper pobiera więcej, tu wybierasz ile dostajesz)">Maks. ofert w powiadomieniu ⓘ</label>
+                            <RadzenNumeric Min="1" Max="30" @bind-Value="@requestNumbers" class="n-input-full" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -181,6 +184,85 @@
                             </div>
                         }
                     </div>
+                </div>
+            </div>
+
+            <!-- Filters card -->
+            <div class="n-card">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="tune" class="n-card-icon" />
+                    <span>Filtry</span>
+                </div>
+                <div class="n-card-body">
+                    @if (_selectedCategory is "Motoryzacja" or "Ciągniki")
+                    {
+                        <div class="n-field-row">
+                            <div class="n-field">
+                                <label class="n-label">Paliwo</label>
+                                <RadzenDropDown @bind-Value="_filterFuel" Data="@_fuelOptions" Placeholder="Dowolne" AllowClear="true" class="n-input-sm" />
+                            </div>
+                            <div class="n-field">
+                                <label class="n-label">Skrzynia</label>
+                                <RadzenDropDown @bind-Value="_filterGearbox" Data="@_gearboxOptions" Placeholder="Dowolna" AllowClear="true" class="n-input-sm" />
+                            </div>
+                        </div>
+                        @if (_selectedCategory == "Motoryzacja")
+                        {
+                            <div class="n-field-row">
+                                <div class="n-field">
+                                    <label class="n-label">Pojemność od (cm³)</label>
+                                    <RadzenNumeric TValue="int?" @bind-Value="_filterEngineCapFrom" Min="0" Placeholder="Min" class="n-input-sm" />
+                                </div>
+                                <div class="n-field">
+                                    <label class="n-label">Pojemność do (cm³)</label>
+                                    <RadzenNumeric TValue="int?" @bind-Value="_filterEngineCapTo" Min="0" Placeholder="Max" class="n-input-sm" />
+                                </div>
+                            </div>
+                        }
+                    }
+                    @if (_selectedCategory is "Motoryzacja" or "Ciągniki" or "Nieruchomości" or "Zakupy")
+                    {
+                        <div class="n-field-row">
+                            <div class="n-field">
+                                <label class="n-label">Cena od (PLN)</label>
+                                <RadzenNumeric TValue="decimal?" @bind-Value="_filterPriceFrom" Min="0" Placeholder="Min" class="n-input-sm" />
+                            </div>
+                            <div class="n-field">
+                                <label class="n-label">Cena do (PLN)</label>
+                                <RadzenNumeric TValue="decimal?" @bind-Value="_filterPriceTo" Min="0" Placeholder="Max" class="n-input-sm" />
+                            </div>
+                        </div>
+                    }
+                    @if (_selectedCategory == "Nieruchomości")
+                    {
+                        <div class="n-field-row">
+                            <div class="n-field">
+                                <label class="n-label">Powierzchnia od (m²)</label>
+                                <RadzenNumeric TValue="int?" @bind-Value="_filterAreaFrom" Min="0" Placeholder="Min" class="n-input-sm" />
+                            </div>
+                            <div class="n-field">
+                                <label class="n-label">Powierzchnia do (m²)</label>
+                                <RadzenNumeric TValue="int?" @bind-Value="_filterAreaTo" Min="0" Placeholder="Max" class="n-input-sm" />
+                            </div>
+                        </div>
+                    }
+                    @if (_selectedCategory == "Praca")
+                    {
+                        <div class="n-field">
+                            <label class="n-label">Lokalizacja</label>
+                            <RadzenTextBox @bind-Value="_filterWorkLocation" Placeholder="np. Warszawa" class="n-input-full" />
+                        </div>
+                        <div class="n-field-row">
+                            <div class="n-field">
+                                <label class="n-label">Poziom</label>
+                                <RadzenDropDown TValue="int?" @bind-Value="_filterEmploymentLevel" Data="@_levelOptions" TextProperty="Label" ValueProperty="Value" Placeholder="Dowolny" AllowClear="true" class="n-input-sm" />
+                            </div>
+                            <div class="n-field">
+                                <label class="n-label">Kontrakt</label>
+                                <RadzenDropDown TValue="int?" @bind-Value="_filterContractType" Data="@_contractOptions" TextProperty="Label" ValueProperty="Value" Placeholder="Dowolny" AllowClear="true" class="n-input-sm" />
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
             }
@@ -429,6 +511,31 @@
     private bool isOstatnie24h;
     private bool isDowolna;
 
+    // Filter fields (serialized to FiltersJson)
+    private string? _filterFuel;
+    private string? _filterGearbox;
+    private decimal? _filterPriceFrom;
+    private decimal? _filterPriceTo;
+    private int? _filterEngineCapFrom;
+    private int? _filterEngineCapTo;
+    private int? _filterAreaFrom;
+    private int? _filterAreaTo;
+    private string? _filterWorkLocation;
+    private int? _filterEmploymentLevel;
+    private int? _filterContractType;
+
+    private List<string> _fuelOptions = new() { "benzyna", "diesel", "hybryda", "elektryczny", "lpg" };
+    private List<string> _gearboxOptions = new() { "manualna", "automatyczna" };
+    private record LabelValue(string Label, int Value);
+    private List<LabelValue> _levelOptions = new()
+    {
+        new("Junior", 17), new("Mid", 4), new("Senior", 18), new("Expert / Lead", 19)
+    };
+    private List<LabelValue> _contractOptions = new()
+    {
+        new("Umowa o pracę", 0), new("B2B", 3)
+    };
+
     private string additional_phrase = string.Empty;
 
     private string _selectedCategory = string.Empty;
@@ -436,7 +543,7 @@
     private List<string> _carPlatforms     = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum", "Samochody" };
     private List<string> _flatPlatforms    = new() { "OtoDom" };
     private List<string> _shopPlatforms    = new() { "Amazon", "Olx" };
-    private List<string> _workPlatforms    = new() { "Pracuj", "JustJoinIt", "NoFluffJobs", "TheProtocolIt", "BulldogJob" };
+    private List<string> _workPlatforms    = new() { "Pracuj", "JustJoinIt", "NoFluffJobs", "TheProtocolIt", "BulldogJob", "Solidjobs" };
     private List<string> _tractorPlatforms = new() { "Olxciagniki", "Brzozowiak", "Sprzedajemyciagniki", "Otomotorolnicze" };
     private List<string> availablePlatforms => _carPlatforms.Concat(_flatPlatforms).Concat(_shopPlatforms).Concat(_workPlatforms).Concat(_tractorPlatforms).ToList();
     private List<string> ActivePlatforms => _selectedCategory switch
@@ -483,6 +590,11 @@
         minutesAfterSendingNotification = 0;
         isSprzedaz = isWynajem = isPrywatne = isPubliczne = isOstatnie24h = isDowolna = false;
         additional_phrase = string.Empty;
+        _filterFuel = _filterGearbox = _filterWorkLocation = null;
+        _filterPriceFrom = _filterPriceTo = null;
+        _filterEngineCapFrom = _filterEngineCapTo = null;
+        _filterAreaFrom = _filterAreaTo = null;
+        _filterEmploymentLevel = _filterContractType = null;
 
         // Re-filter platforms from loaded subscriptions for new category
         selectedPlatforms = platformSubscriptions
@@ -523,6 +635,7 @@
             isSendingHourChecked = true;
             dateSendingNotification = dt;
         }
+        ApplyFiltersFromJson(savedConfig.FiltersJson);
     }
 
     private DateTime? dateSendingNotification = null;
@@ -759,13 +872,16 @@
                     ? $"Co {minutesAfterSendingNotification} min"
                     : null;
 
+            var filtersJson = BuildFiltersJson();
+
             await UserService.SaveNotificationConfigAsync(new SaveNotificationConfigRequest
             {
                 UserId = userId,
                 Phrase = searchedText,
                 RequestCount = requestNumbers,
                 Schedule = scheduleString,
-                Category = _selectedCategory
+                Category = _selectedCategory,
+                FiltersJson = filtersJson
             });
 
             var request = new NotificationRequest
@@ -780,7 +896,18 @@
                 Sms = isSMSChecked,
                 Discord = isDiscordChecked,
                 InApp = isInAppChecked,
-                Websites = selectedPlatforms.Select(p => p.ToLower()).ToList()
+                Websites = selectedPlatforms.Select(p => p.ToLower()).ToList(),
+                Fuel = _filterFuel,
+                Gearbox = _filterGearbox,
+                EngineCapacityFrom = _filterEngineCapFrom,
+                EngineCapacityTo = _filterEngineCapTo,
+                PriceFrom = _filterPriceFrom,
+                PriceTo = _filterPriceTo,
+                AreaFrom = _filterAreaFrom,
+                AreaTo = _filterAreaTo,
+                WorkLocation = _filterWorkLocation,
+                EmploymentLevel = _filterEmploymentLevel,
+                ContractType = _filterContractType
             };
 
             await NotificationProxy.setCronJob(request);
@@ -793,6 +920,60 @@
         {
             NotificationService.Notify(NotificationSeverity.Error, $"Błąd: {ex.Message}");
         }
+    }
+
+    private string? BuildFiltersJson()
+    {
+        var dict = new Dictionary<string, object?>();
+        if (_selectedCategory is "Motoryzacja" or "Ciągniki")
+        {
+            if (!string.IsNullOrEmpty(_filterFuel)) dict["Fuel"] = _filterFuel;
+            if (!string.IsNullOrEmpty(_filterGearbox)) dict["Gearbox"] = _filterGearbox;
+        }
+        if (_selectedCategory == "Motoryzacja")
+        {
+            if (_filterEngineCapFrom.HasValue) dict["EngineCapacityFrom"] = _filterEngineCapFrom;
+            if (_filterEngineCapTo.HasValue) dict["EngineCapacityTo"] = _filterEngineCapTo;
+        }
+        if (_selectedCategory is "Motoryzacja" or "Ciągniki" or "Nieruchomości" or "Zakupy")
+        {
+            if (_filterPriceFrom.HasValue) dict["PriceFrom"] = _filterPriceFrom;
+            if (_filterPriceTo.HasValue) dict["PriceTo"] = _filterPriceTo;
+        }
+        if (_selectedCategory == "Nieruchomości")
+        {
+            if (_filterAreaFrom.HasValue) dict["AreaFrom"] = _filterAreaFrom;
+            if (_filterAreaTo.HasValue) dict["AreaTo"] = _filterAreaTo;
+        }
+        if (_selectedCategory == "Praca")
+        {
+            if (!string.IsNullOrEmpty(_filterWorkLocation)) dict["WorkLocation"] = _filterWorkLocation;
+            if (_filterEmploymentLevel.HasValue) dict["EmploymentLevel"] = _filterEmploymentLevel;
+            if (_filterContractType.HasValue) dict["ContractType"] = _filterContractType;
+        }
+        return dict.Count > 0 ? JsonSerializer.Serialize(dict) : null;
+    }
+
+    private void ApplyFiltersFromJson(string? json)
+    {
+        if (string.IsNullOrEmpty(json)) return;
+        try
+        {
+            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json);
+            if (dict == null) return;
+            if (dict.TryGetValue("Fuel", out var fuel)) _filterFuel = fuel.GetString();
+            if (dict.TryGetValue("Gearbox", out var gb)) _filterGearbox = gb.GetString();
+            if (dict.TryGetValue("PriceFrom", out var pf)) _filterPriceFrom = pf.GetDecimal();
+            if (dict.TryGetValue("PriceTo", out var pt)) _filterPriceTo = pt.GetDecimal();
+            if (dict.TryGetValue("EngineCapacityFrom", out var ecf)) _filterEngineCapFrom = ecf.GetInt32();
+            if (dict.TryGetValue("EngineCapacityTo", out var ect)) _filterEngineCapTo = ect.GetInt32();
+            if (dict.TryGetValue("AreaFrom", out var af)) _filterAreaFrom = af.GetInt32();
+            if (dict.TryGetValue("AreaTo", out var at2)) _filterAreaTo = at2.GetInt32();
+            if (dict.TryGetValue("WorkLocation", out var wl)) _filterWorkLocation = wl.GetString();
+            if (dict.TryGetValue("EmploymentLevel", out var el)) _filterEmploymentLevel = el.GetInt32();
+            if (dict.TryGetValue("ContractType", out var ct)) _filterContractType = ct.GetInt32();
+        }
+        catch { }
     }
 
     private async Task DeleteJobs()

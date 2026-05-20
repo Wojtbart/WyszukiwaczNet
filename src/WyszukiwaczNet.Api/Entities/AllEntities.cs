@@ -352,6 +352,9 @@ public class UserNotificationConfig
 
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("filters_json")]
+    public string? FiltersJson { get; set; }
 }
 
 [Table("subscription_plans")]

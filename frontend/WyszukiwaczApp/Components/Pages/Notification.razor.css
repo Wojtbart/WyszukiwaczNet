@@ -84,6 +84,17 @@
 }
 
 /* ── Form fields ─────────────────────────────────────────── */
+.n-field-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.n-field-row .n-field {
+    flex: 1;
+    min-width: 120px;
+}
+
 .n-field {
     margin-bottom: 1rem;
 }
