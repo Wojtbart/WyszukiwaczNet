@@ -418,6 +418,69 @@
     </RadzenDataGrid>
 }
 
+@if (setAutocentrumGrid)
+{
+
+    <RadzenDataGrid Data="@autocentrumData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/autocentrum.png" Style="width: 4rem; height:4rem;" AlternateText="Autocentrum" />
+            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Autocentrum</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="@(Loc["Title"].Value)" Frozen="true" Width="200px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="@(Loc["OpenLink"].Value)" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="@(Loc["Image"].Value)" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="@(Loc["NoImage"].Value)" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="@(Loc["PricePLN"].Value)" TextAlign="TextAlign.Center">
+                <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="@(Loc["MileageKm"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="@(Loc["ProductionYear"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.Gearbox" Title="@(Loc["Gearbox"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.Gearbox</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="VehicleDetail.BodyType" Title="@(Loc["BodyTypeShort"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                <Template Context="context">@context.VehicleDetail?.BodyType</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["Extra"].Value)" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.AdditionalInfo</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
 @if (setSamochodyGrid)
 {
     <RadzenDataGrid Data="@samochodyData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
@@ -478,69 +541,6 @@
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="VehicleDetail.Gearbox" Title="@(Loc["Gearbox"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
                 <Template Context="context">@context.VehicleDetail?.Gearbox</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["Extra"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    <RadzenText style="white-space:pre-wrap">@context.AdditionalInfo</RadzenText>
-                </Template>
-            </RadzenDataGridColumn>
-        </Columns>
-    </RadzenDataGrid>
-}
-
-@if (setAutocentrumGrid)
-{
-
-    <RadzenDataGrid Data="@autocentrumData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
-                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
-                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
-                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
-                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
-        <EmptyTemplate>
-            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
-        </EmptyTemplate>
-        <HeaderTemplate>
-            <RadzenImage Path="images/autocentrum.png" Style="width: 4rem; height:4rem;" AlternateText="Autocentrum" />
-            <h3 style="display: inline-block; margin-left:10px; color:red;font-weight:bold;">Autocentrum</h3>
-        </HeaderTemplate>
-        <Columns>
-            <RadzenDataGridColumn Property="Title" Title="@(Loc["Title"].Value)" Frozen="true" Width="200px" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="150px" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    <div class="rz-text-align-center" style="height:38px;">
-                        <RadzenLink Path="@context.Url" Text="@(Loc["OpenLink"].Value)" Target="_blank" class="link" />
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="ImageUrl" Title="@(Loc["Image"].Value)" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="@(Loc["NoImage"].Value)" />
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Price" Title="@(Loc["PricePLN"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="@(Loc["MileageKm"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="@(Loc["ProductionYear"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.Gearbox" Title="@(Loc["Gearbox"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.Gearbox</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.BodyType" Title="@(Loc["BodyTypeShort"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.BodyType</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["Extra"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">

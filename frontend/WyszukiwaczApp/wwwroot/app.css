@@ -94,3 +94,134 @@ html.dark-mode .main-content {
 @keyframes app-spin {
     to { transform: rotate(360deg); }
 }
+
+/* ── Dark mode: notification page cards ─────────────────── */
+html.dark-mode .n-card {
+    background: #1e1e2e !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35) !important;
+}
+html.dark-mode .n-card-header {
+    background: #16213e !important;
+    border-bottom-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+html.dark-mode .notif-jobs-top {
+    background: #1e1e2e !important;
+}
+html.dark-mode .notif-jobs-top-title { color: #e2e8f0 !important; }
+html.dark-mode .notif-title          { color: #e2e8f0 !important; }
+html.dark-mode .notif-subtitle       { color: #9ca3af !important; }
+html.dark-mode .n-label              { color: #9ca3af !important; }
+
+html.dark-mode .cat-btn {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+html.dark-mode .cat-btn:hover,
+html.dark-mode .cat-btn--active {
+    background: #1e3a5f !important;
+    border-color: #007bff !important;
+    color: #60a5fa !important;
+}
+
+html.dark-mode .platform-chip {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+html.dark-mode .platform-chip:hover,
+html.dark-mode .platform-chip--active {
+    background: #1e3a5f !important;
+    border-color: #007bff !important;
+    color: #60a5fa !important;
+}
+
+html.dark-mode .channel-item {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+}
+html.dark-mode .channel-item--active {
+    background: #1e3a5f !important;
+    border-color: #007bff !important;
+}
+html.dark-mode .channel-name { color: #e2e8f0 !important; }
+html.dark-mode .channel-desc { color: #6b7280 !important; }
+
+html.dark-mode .schedule-option {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+}
+html.dark-mode .schedule-option--active {
+    background: #1e3a5f !important;
+    border-color: #007bff !important;
+}
+html.dark-mode .schedule-option-title { color: #e2e8f0 !important; }
+html.dark-mode .schedule-option-desc  { color: #6b7280 !important; }
+
+html.dark-mode .filter-chip {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+html.dark-mode .filter-chip--active {
+    background: #1e3a5f !important;
+    border-color: #007bff !important;
+    color: #60a5fa !important;
+}
+
+html.dark-mode .summary-section   { border-bottom-color: #2d3748 !important; }
+html.dark-mode .summary-label     { color: #6b7280 !important; }
+html.dark-mode .summary-value     { color: #e2e8f0 !important; }
+html.dark-mode .summary-empty     { color: #4b5563 !important; }
+
+html.dark-mode .job-card-top {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+}
+html.dark-mode .job-card-header {
+    background: #1e1e2e !important;
+    border-bottom-color: #2d3748 !important;
+}
+html.dark-mode .job-card-phrase { color: #e2e8f0 !important; }
+html.dark-mode .job-card-label  { color: #6b7280 !important; }
+html.dark-mode .job-card-value  { color: #e2e8f0 !important; }
+html.dark-mode .jobs-empty      { color: #6b7280 !important; }
+
+/* ── Dark mode: account page ─────────────────────────────── */
+html.dark-mode .page-title { color: #e2e8f0 !important; }
+
+html.dark-mode .account-card {
+    background: #1e1e2e !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35) !important;
+}
+html.dark-mode .account-card h3 {
+    color: #e2e8f0 !important;
+    border-bottom-color: #2d3748 !important;
+}
+html.dark-mode .info-row   { border-bottom-color: #2d3748 !important; }
+html.dark-mode .info-label { color: #9ca3af !important; }
+html.dark-mode .info-value { color: #e2e8f0 !important; }
+
+html.dark-mode .form-group label { color: #9ca3af !important; }
+html.dark-mode .form-group input {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+html.dark-mode .form-group input:focus {
+    border-color: #667eea !important;
+}
+
+html.dark-mode .alert-success { background: #064e3b !important; color: #6ee7b7 !important; }
+html.dark-mode .alert-error   { background: #7f1d1d !important; color: #fca5a5 !important; }
+
+/* Make RadzenDropDown same height as text/numeric inputs globally */
+.rz-dropdown {
+    height: var(--rz-input-height) !important;
+}
+.rz-dropdown .rz-dropdown-label {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
