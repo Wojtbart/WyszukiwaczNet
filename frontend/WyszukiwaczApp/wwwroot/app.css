@@ -216,6 +216,90 @@ html.dark-mode .form-group input:focus {
 html.dark-mode .alert-success { background: #064e3b !important; color: #6ee7b7 !important; }
 html.dark-mode .alert-error   { background: #7f1d1d !important; color: #fca5a5 !important; }
 
+/* ── Dark mode: UserNotifications feed (/notification) ──────── */
+html.dark-mode .nf-header {
+    border-bottom-color: #2d3748 !important;
+}
+html.dark-mode .nf-title {
+    color: #e2e8f0 !important;
+}
+html.dark-mode .nf-btn-markall {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+    color: #9ca3af !important;
+}
+html.dark-mode .nf-btn-markall:hover {
+    background: #1e3a5f !important;
+    border-color: #3b82f6 !important;
+    color: #60a5fa !important;
+}
+html.dark-mode .nf-skeleton-item {
+    background: #1e1e2e !important;
+    border-color: #2d3748 !important;
+}
+html.dark-mode .nf-skel {
+    background: linear-gradient(90deg, #1e2a3a 25%, #243040 50%, #1e2a3a 75%) !important;
+}
+html.dark-mode .nf-card {
+    background: #1e1e2e !important;
+    border-color: #2d3748 !important;
+}
+html.dark-mode .nf-card:hover {
+    border-color: #4b5563 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+html.dark-mode .nf-card.nf-unread {
+    background: #1a2540 !important;
+    border-left-color: #3b82f6 !important;
+}
+html.dark-mode .nf-offer-title {
+    color: #e2e8f0 !important;
+}
+html.dark-mode .nf-unread .nf-offer-title {
+    color: #93c5fd !important;
+}
+html.dark-mode .nf-dot.nf-dot-read {
+    border-color: #374151 !important;
+}
+html.dark-mode .nf-location {
+    color: #6b7280 !important;
+}
+html.dark-mode .nf-price {
+    color: #34d399 !important;
+}
+html.dark-mode .nf-open-link {
+    background: #1e3a5f !important;
+    border-color: #1d4ed8 !important;
+    color: #93c5fd !important;
+}
+html.dark-mode .nf-open-link:hover {
+    background: #1e40af !important;
+    border-color: #3b82f6 !important;
+}
+html.dark-mode .nf-date {
+    color: #6b7280 !important;
+}
+html.dark-mode .nf-empty {
+    color: #6b7280 !important;
+}
+html.dark-mode .nf-empty-title {
+    color: #9ca3af !important;
+}
+html.dark-mode .nf-empty-sub {
+    color: #6b7280 !important;
+}
+html.dark-mode .nf-plat-olx        { background: #3d2000 !important; color: #fb923c !important; }
+html.dark-mode .nf-plat-otomoto    { background: #0c2340 !important; color: #60a5fa !important; }
+html.dark-mode .nf-plat-otodom     { background: #052e16 !important; color: #4ade80 !important; }
+html.dark-mode .nf-plat-amazon     { background: #3d2c00 !important; color: #fbbf24 !important; }
+html.dark-mode .nf-plat-gratka     { background: #3d0a0a !important; color: #f87171 !important; }
+html.dark-mode .nf-plat-sprzedajemy { background: #2d1140 !important; color: #c084fc !important; }
+html.dark-mode .nf-plat-autocentrum { background: #022c22 !important; color: #2dd4bf !important; }
+html.dark-mode .nf-plat-pracuj     { background: #3d0a0a !important; color: #fca5a5 !important; }
+html.dark-mode .nf-plat-justjoin   { background: #052e16 !important; color: #86efac !important; }
+html.dark-mode .nf-plat-nofluff    { background: #0f1640 !important; color: #a5b4fc !important; }
+html.dark-mode .nf-plat-default    { background: #1e1040 !important; color: #c4b5fd !important; }
+
 /* Make RadzenDropDown same height as text/numeric inputs globally */
 .rz-dropdown {
     height: var(--rz-input-height) !important;
@@ -224,4 +308,121 @@ html.dark-mode .alert-error   { background: #7f1d1d !important; color: #fca5a5 !
     display: flex;
     align-items: center;
     height: 100%;
+}
+
+/* ── Dark mode: Radzen label ────────────────────────────────── */
+html.dark-mode .rz-label,
+html.dark-mode label.rz-label {
+    color: #9ca3af !important;
+}
+
+/* ── Dark mode: Radzen inputs (global) ──────────────────────── */
+html.dark-mode .rz-textbox,
+html.dark-mode .rz-inputtext,
+html.dark-mode input.rz-inputtext {
+    background: #16213e !important;
+    color: #e2e8f0 !important;
+    border-color: #2d3748 !important;
+}
+
+html.dark-mode .rz-textbox::placeholder,
+html.dark-mode .rz-inputtext::placeholder,
+html.dark-mode input.rz-inputtext::placeholder {
+    color: #6b7280 !important;
+}
+
+html.dark-mode .rz-numeric,
+html.dark-mode .rz-numeric input {
+    background: #16213e !important;
+    color: #e2e8f0 !important;
+    border-color: #2d3748 !important;
+}
+
+html.dark-mode .rz-numeric input::placeholder {
+    color: #6b7280 !important;
+}
+
+/* FormField (Variant.Flat) — label floating */
+html.dark-mode .rz-form-field,
+html.dark-mode .rz-form-field.rz-variant-flat {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+}
+
+html.dark-mode .rz-form-field label,
+html.dark-mode .rz-form-field .rz-form-field-title,
+html.dark-mode .rz-float-label label {
+    color: #9ca3af !important;
+    background: transparent !important;
+}
+
+html.dark-mode .rz-form-field input,
+html.dark-mode .rz-form-field .rz-textbox {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+}
+
+/* Dropdown trigger button */
+html.dark-mode .rz-dropdown {
+    background: #16213e !important;
+    border-color: #2d3748 !important;
+    color: #e2e8f0 !important;
+}
+
+html.dark-mode .rz-dropdown .rz-dropdown-label,
+html.dark-mode .rz-dropdown-label {
+    color: #e2e8f0 !important;
+    background: transparent !important;
+}
+
+html.dark-mode .rz-dropdown .rz-placeholder,
+html.dark-mode .rz-dropdown-placeholder {
+    color: #6b7280 !important;
+}
+
+html.dark-mode .rz-dropdown .rz-dropdown-trigger,
+html.dark-mode .rz-dropdown-trigger {
+    background: transparent !important;
+    color: #9ca3af !important;
+}
+
+/* Dropdown open panel */
+html.dark-mode .rz-dropdown-panel {
+    background: #1e1e2e !important;
+    border-color: #2d3748 !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+}
+
+html.dark-mode .rz-dropdown-panel .rz-dropdown-filter-container input {
+    background: #16213e !important;
+    color: #e2e8f0 !important;
+    border-color: #2d3748 !important;
+}
+
+html.dark-mode .rz-dropdown-item {
+    color: #e2e8f0 !important;
+    background: transparent !important;
+}
+
+html.dark-mode .rz-dropdown-item:hover,
+html.dark-mode .rz-dropdown-item.rz-state-highlight {
+    background: #1e3a5f !important;
+    color: #93c5fd !important;
+}
+
+/* Autocomplete / multiselect panels */
+html.dark-mode .rz-autocomplete-panel,
+html.dark-mode .rz-multiselect-panel {
+    background: #1e1e2e !important;
+    border-color: #2d3748 !important;
+}
+
+html.dark-mode .rz-autocomplete-item,
+html.dark-mode .rz-multiselect-item {
+    color: #e2e8f0 !important;
+}
+
+html.dark-mode .rz-autocomplete-item:hover,
+html.dark-mode .rz-multiselect-item:hover {
+    background: #1e3a5f !important;
 }

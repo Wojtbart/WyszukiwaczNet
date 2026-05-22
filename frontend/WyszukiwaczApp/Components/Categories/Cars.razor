@@ -52,24 +52,28 @@
         <RadzenFormField Text="@(Loc["Model"].Value)" Variant="Variant.Flat" Style="width:50%">
             <RadzenTextBox @bind-Value="@searchedModel" Style="width: 50%; border-radius:15px;" />
         </RadzenFormField>
-        <RadzenDropDown TValue="string?"
-                        @bind-Value="@selectedFuelType"
-                        Data="@fuelTypes"
-                        TextProperty="DisplayText"
-                        ValueProperty="Value"
-                        Placeholder="@(Loc["ChooseFuel"].Value)"
-                        AllowClear="true"
-                        Style="width: 300px"
-                        Name="FuelType" />
-        <RadzenDropDown TValue="string?"
-                        @bind-Value="@selectedGearbox"
-                        Data="@gearboxTypes"
-                        TextProperty="DisplayText"
-                        ValueProperty="Value"
-                        Placeholder="@(Loc["ChooseGearbox"].Value)"
-                        AllowClear="true"
-                        Style="width: 250px;border-radius:15px;"
-                        Name="Gearbox" />
+        <RadzenFormField Variant="Variant.Flat" Style="width: 300px;">
+            <RadzenDropDown TValue="string?"
+                            @bind-Value="@selectedFuelType"
+                            Data="@fuelTypes"
+                            TextProperty="DisplayText"
+                            ValueProperty="Value"
+                            Placeholder="@(Loc["ChooseFuel"].Value)"
+                            AllowClear="true"
+                            Style="width: 100%;"
+                            Name="FuelType" />
+        </RadzenFormField>
+        <RadzenFormField Variant="Variant.Flat" Style="width: 250px;">
+            <RadzenDropDown TValue="string?"
+                            @bind-Value="@selectedGearbox"
+                            Data="@gearboxTypes"
+                            TextProperty="DisplayText"
+                            ValueProperty="Value"
+                            Placeholder="@(Loc["ChooseGearbox"].Value)"
+                            AllowClear="true"
+                            Style="width: 100%; border-radius:15px;"
+                            Name="Gearbox" />
+        </RadzenFormField>
         <RadzenFormField Text="@(Loc["CapacityFrom"].Value)" Variant="Variant.Flat" Style="width: 155px;">
             <RadzenNumeric @bind-Value="@selectedEngineCapacityFrom" TValue="int?" Style="border-radius:15px;" />
         </RadzenFormField>
