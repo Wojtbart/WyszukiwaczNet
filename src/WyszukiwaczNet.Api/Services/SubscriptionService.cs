@@ -137,8 +137,8 @@ public class SubscriptionService : ISubscriptionService
             existing.StripeCustomerId = session.CustomerId;
             existing.StripeSubscriptionId = session.SubscriptionId;
             existing.Status = "active";
-            existing.CurrentPeriodStart = stripeSub.CurrentPeriodStart.ToUniversalTime();
-            existing.CurrentPeriodEnd = stripeSub.CurrentPeriodEnd.ToUniversalTime();
+            existing.CurrentPeriodStart = (stripeSub.Items?.Data?.FirstOrDefault()?.CurrentPeriodStart ?? DateTime.UtcNow).ToUniversalTime();
+            existing.CurrentPeriodEnd = (stripeSub.Items?.Data?.FirstOrDefault()?.CurrentPeriodEnd ?? DateTime.UtcNow).ToUniversalTime();
             existing.UpdatedAt = DateTime.UtcNow;
         }
         else
@@ -150,8 +150,8 @@ public class SubscriptionService : ISubscriptionService
                 StripeCustomerId = session.CustomerId,
                 StripeSubscriptionId = session.SubscriptionId,
                 Status = "active",
-                CurrentPeriodStart = stripeSub.CurrentPeriodStart.ToUniversalTime(),
-                CurrentPeriodEnd = stripeSub.CurrentPeriodEnd.ToUniversalTime(),
+                CurrentPeriodStart = (stripeSub.Items?.Data?.FirstOrDefault()?.CurrentPeriodStart ?? DateTime.UtcNow).ToUniversalTime(),
+                CurrentPeriodEnd = (stripeSub.Items?.Data?.FirstOrDefault()?.CurrentPeriodEnd ?? DateTime.UtcNow).ToUniversalTime(),
             });
         }
 
@@ -165,8 +165,8 @@ public class SubscriptionService : ISubscriptionService
         if (dbSub == null) return;
 
         dbSub.Status = stripeSub.Status == "active" ? "active" : stripeSub.Status;
-        dbSub.CurrentPeriodStart = stripeSub.CurrentPeriodStart.ToUniversalTime();
-        dbSub.CurrentPeriodEnd = stripeSub.CurrentPeriodEnd.ToUniversalTime();
+        dbSub.CurrentPeriodStart = (stripeSub.Items?.Data?.FirstOrDefault()?.CurrentPeriodStart ?? DateTime.UtcNow).ToUniversalTime();
+        dbSub.CurrentPeriodEnd = (stripeSub.Items?.Data?.FirstOrDefault()?.CurrentPeriodEnd ?? DateTime.UtcNow).ToUniversalTime();
         dbSub.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync();
     }
@@ -184,8 +184,9 @@ public class SubscriptionService : ISubscriptionService
 
     private async Task HandlePaymentFailed(Invoice invoice)
     {
+        var subId = invoice.Parent?.SubscriptionDetails?.SubscriptionId;
         var dbSub = await _db.UserSubscriptions
-            .FirstOrDefaultAsync(s => s.StripeSubscriptionId == invoice.SubscriptionId);
+            .FirstOrDefaultAsync(s => s.StripeSubscriptionId == subId);
         if (dbSub == null) return;
 
         dbSub.Status = "past_due";

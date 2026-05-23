@@ -162,6 +162,7 @@ public class DataController : ControllerBase
                         {
                             3 => "b2b",
                             0 => "permanent",
+                            2 => "mandate-contract",
                             _ => (string?)null
                         };
                         if (empType != null) { extraArgs.Add("--emp"); extraArgs.Add(empType); }
@@ -188,6 +189,7 @@ public class DataController : ControllerBase
                         {
                             3 => "b2b",
                             0 => "permanent",
+                            2 => "zlecenie",
                             _ => (string?)null
                         };
                         if (empType != null) { extraArgs.Add("--employment"); extraArgs.Add(empType); }
@@ -214,6 +216,7 @@ public class DataController : ControllerBase
                         {
                             3 => "kontrakt-b2b",
                             0 => "umowa-o-prace",
+                            2 => "umowa-zlecenie",
                             _ => (string?)null
                         };
                         if (contract != null) { extraArgs.Add("--contract"); extraArgs.Add(contract); }
@@ -255,6 +258,7 @@ public class DataController : ControllerBase
                         {
                             3 => "b2b",
                             0 => "uop",
+                            2 => "zlecenie",
                             _ => (string?)null
                         };
                         if (contract != null) { extraArgs.Add("--contract"); extraArgs.Add(contract); }

@@ -28,8 +28,9 @@ def to_city_slug(text):
 
 def build_url(keyword, location=None, experience_level=None, employment_type=None):
     path = f"{BASE_URL}/job-offers"
-    if location:
-        path += f"/{to_city_slug(location)}"
+    path += f"/{to_city_slug(location)}" if location else "/all-locations"
+    keyword_slug = re.sub(r'[^a-z0-9\-]', '', to_city_slug(keyword))
+    path += f"/{keyword_slug}"
     params = []
     if employment_type:
         params.append(("employment-type", employment_type))

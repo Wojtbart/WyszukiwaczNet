@@ -30,16 +30,17 @@ def build_url(keyword, location=None, experience=None, contract_type=None):
 
     filters.append("categories=Programista")
 
-    if keyword:
-        filters.append("subcategories=" + urllib.parse.quote(keyword, safe=''))
-
     exp_list = [experience] if experience else DEFAULT_EXPERIENCES
     filters.append("experiences=" + urllib.parse.quote(",".join(exp_list), safe=','))
 
     ct_list = [contract_type] if contract_type else DEFAULT_CONTRACTS
     filters.append("contractTypes=" + urllib.parse.quote(",".join(ct_list), safe=','))
 
+    if keyword:
+        filters.append("parsedSearchTerm=" + urllib.parse.quote(keyword, safe=''))
+
     path = "/offers/it;" + ";".join(filters)
+    print(BASE_URL + path + "?sort=PublishDate")
     return BASE_URL + path + "?sort=PublishDate"
 
 
@@ -130,6 +131,7 @@ def insert_offer(cnx, platform_id, data):
         (platform_id, title, price, currency, url, image_url,
          seller_name, location, additional_info, created_at)
         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        ON CONFLICT (platform_id, url) DO UPDATE SET created_at = NOW()
         RETURNING id
     """
     with cnx.cursor() as cursor:
@@ -197,12 +199,17 @@ def get_data_and_insert(cnx, keyword, location=None, experience=None, contract_t
 
     print(f"Found {len(raw_offers)} offers in page state")
 
+    kw_lower = keyword.lower() if keyword else None
+    if kw_lower:
+        raw_offers = [
+            r for r in raw_offers
+            if kw_lower in (r.get("jobTitle") or "").lower()
+        ]
+        print(f"After keyword filter '{keyword}': {len(raw_offers)} offers")
+
     for raw in raw_offers:
         data = map_offer(raw)
         if not data["title"] or not data["url"]:
-            continue
-
-        if offer_exists(cnx, platform_id, data["url"]):
             continue
 
         offer_id = insert_offer(cnx, platform_id, data)
@@ -210,7 +217,6 @@ def get_data_and_insert(cnx, keyword, location=None, experience=None, contract_t
         cnx.commit()
 
         COUNTER += 1
-        print(f"  +inserted: {data['title']} | {data['company']} | {data.get('location')}")
 
 
 if __name__ == "__main__":

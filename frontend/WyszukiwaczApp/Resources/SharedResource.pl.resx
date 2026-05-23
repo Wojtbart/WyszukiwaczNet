@@ -101,6 +101,7 @@
   <data name="LevelExpert" xml:space="preserve"><value>Ekspert</value></data>
   <data name="ContractEmployment" xml:space="preserve"><value>Umowa o pracę</value></data>
   <data name="ContractB2B" xml:space="preserve"><value>B2B</value></data>
+  <data name="ContractMandate" xml:space="preserve"><value>Umowa zlecenia</value></data>
   <data name="Position" xml:space="preserve"><value>Stanowisko</value></data>
   <data name="Employer" xml:space="preserve"><value>Pracodawca</value></data>
   <data name="Company" xml:space="preserve"><value>Firma</value></data>
@@ -110,7 +111,7 @@
   <data name="CompanyHQ" xml:space="preserve"><value>Siedziba firmy</value></data>
   <data name="HQ" xml:space="preserve"><value>Siedziba</value></data>
   <data name="AdditionalInfoExt" xml:space="preserve"><value>Informacje dodatkowe</value></data>
-  <data name="Remaining" xml:space="preserve"><value>Pozostało</value></data>
+  <data name="Remaining" xml:space="preserve"><value>Umowa/Stanowisko</value></data>
   <data name="Contract" xml:space="preserve"><value>Umowa</value></data>
   <data name="Level" xml:space="preserve"><value>Poziom</value></data>
   <data name="WorkMode" xml:space="preserve"><value>Tryb pracy</value></data>

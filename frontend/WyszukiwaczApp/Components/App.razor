@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="WyszukiwaczApp.styles.css" />
 
-    <link id="radzen-theme-css" rel="stylesheet" href="_content/Radzen.Blazor/css/standard-base.css"/>
+    <link id="radzen-theme-css" rel="stylesheet" href="_content/Radzen.Blazor/css/standard.css"/>
     @* <link rel="stylesheet" href="_content/Radzen.Blazor/css/dark-base.css"/>  *@
     @* <link rel="stylesheet" href="_content/Radzen.Blazor/css/humanistic-base.css"/> *@
     @* <link rel="stylesheet" href="_content/Rakdzen.Blazor/css/software-base.css"/>  *@
@@ -22,7 +22,7 @@
             var isDark = localStorage.getItem('radzen-theme') === 'dark';
             if (isDark) {
                 var link = document.getElementById('radzen-theme-css');
-                if (link) link.href = '_content/Radzen.Blazor/css/fluent-dark-base.css';
+                if (link) link.href = '_content/Radzen.Blazor/css/standard-dark.css';
                 document.documentElement.classList.add('dark-mode');
             }
         })();
@@ -30,8 +30,8 @@
         window.setRadzenTheme = function (isDark) {
             var link = document.getElementById('radzen-theme-css');
             if (link) link.href = isDark
-                ? '_content/Radzen.Blazor/css/fluent-dark-base.css'
-                : '_content/Radzen.Blazor/css/standard-base.css';
+                ? '_content/Radzen.Blazor/css/standard-dark.css'
+                : '_content/Radzen.Blazor/css/standard.css';
             document.documentElement.classList.toggle('dark-mode', isDark);
             localStorage.setItem('radzen-theme', isDark ? 'dark' : 'standard');
         };

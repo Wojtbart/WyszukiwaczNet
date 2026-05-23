@@ -97,6 +97,7 @@
   <data name="LevelExpert" xml:space="preserve"><value>Expert</value></data>
   <data name="ContractEmployment" xml:space="preserve"><value>Employment contract</value></data>
   <data name="ContractB2B" xml:space="preserve"><value>B2B</value></data>
+  <data name="ContractMandate" xml:space="preserve"><value>Mandate contract</value></data>
   <data name="Position" xml:space="preserve"><value>Position</value></data>
   <data name="Employer" xml:space="preserve"><value>Employer</value></data>
   <data name="Company" xml:space="preserve"><value>Company</value></data>

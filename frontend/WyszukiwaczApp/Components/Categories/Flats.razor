@@ -6,7 +6,7 @@
 @inject DialogService DialogService
 @inject IStringLocalizer<SharedResource> Loc
 
-<RadzenRow AlignItems="AlignItems.Start" Wrap="FlexWrap.Wrap" Style="margin-bottom:20px;">
+<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Style="margin-bottom:10px;">
 
     <RadzenColumn Size="12" SizeMD="4" Style="padding:10px;">
         <RadzenLabel Text="Szukane miasto" />
@@ -47,27 +47,35 @@
                         Placeholder="Wybierz..." />
     </RadzenColumn>
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
-        <RadzenLabel Text="Cena od (PLN)" />
+</RadzenRow>
+
+<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Style="margin-bottom:10px;">
+
+    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; flex-direction:column;">
+        <RadzenLabel Text="Cena od (PLN)" Style="min-height:2.4rem; display:flex; align-items:flex-end;" />
         <RadzenNumeric @bind-Value="@selectedPriceFrom" TValue="int?" Min="0" Style="width:100%;border-radius:15px;" />
     </RadzenColumn>
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
-        <RadzenLabel Text="Cena do (PLN)" />
+    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; flex-direction:column;">
+        <RadzenLabel Text="Cena do (PLN)" Style="min-height:2.4rem; display:flex; align-items:flex-end;" />
         <RadzenNumeric @bind-Value="@selectedPriceTo" TValue="int?" Min="0" Style="width:100%;border-radius:15px;" />
     </RadzenColumn>
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
-        <RadzenLabel Text="Powierzchnia od (m²)" />
+    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; flex-direction:column;">
+        <RadzenLabel Text="Powierzchnia od (m²)" Style="min-height:2.4rem; display:flex; align-items:flex-end;" />
         <RadzenNumeric @bind-Value="@selectedAreaFrom" TValue="int?" Min="0" Style="width:100%;border-radius:15px;" />
     </RadzenColumn>
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
-        <RadzenLabel Text="Powierzchnia do (m²)" />
+    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; flex-direction:column;">
+        <RadzenLabel Text="Powierzchnia do (m²)" Style="min-height:2.4rem; display:flex; align-items:flex-end;" />
         <RadzenNumeric @bind-Value="@selectedAreaTo" TValue="int?" Min="0" Style="width:100%;border-radius:15px;" />
     </RadzenColumn>
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; align-items:flex-end;">
+</RadzenRow>
+
+<RadzenRow AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Style="margin-bottom:20px;">
+
+    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
         <RadzenButton Click=LoadData
                       Text="SZUKAJ"
                       Icon="search"
@@ -76,8 +84,8 @@
                       Style="width:100%; text-align:center;height:4rem; border-radius:15px;" />
     </RadzenColumn>
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; align-items:flex-end;">
-        <a href="/notification_settings?category=Nieruchomo%C5%9Bci" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0 1.2rem; height:3.25rem; background:#a04ba7; color:white; text-decoration:none; border-radius:15px; font-size:0.875rem; font-weight:600; border:1px solid #7c658b; cursor:pointer; white-space:nowrap; transition:background 0.2s; vertical-align:middle; margin-left:0.5rem;">
+    <RadzenColumn Size="12" SizeMD="3" Style="padding:10px;">
+        <a href="/notification_settings?category=Nieruchomo%C5%9Bci" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0 1.2rem; height:3.25rem; background:#a04ba7; color:white; text-decoration:none; border-radius:15px; font-size:0.875rem; font-weight:600; border:1px solid #7c658b; cursor:pointer; white-space:nowrap; transition:background 0.2s; vertical-align:middle;">
             🔔 @Loc["SetRecurringNotifications"]
         </a>
     </RadzenColumn>
@@ -95,6 +103,7 @@
 
 @if (setOtoDomGrid)
 {
+    <div style="width:100%; overflow-x:auto;">
     <RadzenDataGrid Data="@otoDomData"
                     AllowFiltering="true"
                     AllowSorting="true"
@@ -161,6 +170,7 @@
 
         </Columns>
     </RadzenDataGrid>
+    </div>
 }
 
 @code

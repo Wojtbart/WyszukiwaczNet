@@ -77,7 +77,8 @@ public class PythonScriptService : IPythonScriptService
                 errorBuilder.AppendLine(e.Data);
         };
 
-        _logger.LogInformation("Uruchomiono skrypt Python: {Script}, fraza: {Phrase}", scriptPath, phrase);
+        var extraArgsStr = extraArgs != null && extraArgs.Count > 0 ? string.Join(" ", extraArgs) : "(brak)";
+        _logger.LogInformation("Uruchomiono skrypt Python: {Script}, fraza: {Phrase}, args: {Args}", scriptPath, phrase, extraArgsStr);
 
         var startTime = DateTime.UtcNow;
         process.Start();
@@ -96,6 +97,8 @@ public class PythonScriptService : IPythonScriptService
         var output = outputBuilder.ToString();
         var error = errorBuilder.ToString();
 
+        if (!string.IsNullOrEmpty(output))
+            _logger.LogInformation("Skrypt stdout: {Output}", output);
         if (!string.IsNullOrEmpty(error))
             _logger.LogWarning("Skrypt stderr: {Error}", error);
 
@@ -144,7 +147,7 @@ public class PythonScriptService : IPythonScriptService
     {
         if (string.IsNullOrWhiteSpace(phrase) || phrase.Length > 200)
             return false;
-        return Regex.IsMatch(phrase, @"^[\p{L}\p{N}\s\-#.]+$");
+        return Regex.IsMatch(phrase, @"^[\p{L}\p{N}\s\-#.+]+$");
     }
 
     private static int ParseRecordsCount(string output)

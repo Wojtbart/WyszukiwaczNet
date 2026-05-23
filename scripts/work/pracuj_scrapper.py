@@ -1,4 +1,4 @@
-import requests
+import cloudscraper
 from bs4 import BeautifulSoup
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
@@ -194,18 +194,9 @@ def get_data_and_insert(cnx, phrase, location=None, employment_level=None, contr
     url = build_url(phrase, location, employment_level, contract_type)
     print(f"Fetching: {url}")
 
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Safari/537.36"
-        ),
-        "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
-        "Accept": "text/html,application/xhtml+xml,application/xhtml+xml,*/*;q=0.8",
-    }
-    response = requests.get(url, headers=headers, timeout=20)
+    scraper = cloudscraper.create_scraper(browser={"browser": "chrome", "platform": "windows", "mobile": False})
+    response = scraper.get(url, timeout=20)
     soup = BeautifulSoup(response.content, "html.parser")
-
     section = soup.find("div", attrs={"data-test": "section-offers"})
     if not section:
         print("section-offers not found — site may use JS rendering")
