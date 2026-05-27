@@ -13,7 +13,7 @@ using WyszukiwaczNet.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configKey = Environment.GetEnvironmentVariable("CONFIG_KEY", EnvironmentVariableTarget.User);
+var configKey = Environment.GetEnvironmentVariable("CONFIG_KEY");
 var encryptedConfigPath = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "..", "configuration.xml.enc"));
 if (!string.IsNullOrEmpty(configKey) && File.Exists(encryptedConfigPath))
 {
