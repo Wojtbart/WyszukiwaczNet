@@ -83,6 +83,9 @@
 
 <RadzenText TextStyle="TextStyle.H4" Text="@(Loc["ChoosePages"].Value)" Style="color:red; margin-bottom:20px;" />
 
+<RadzenButton Text="@(Loc["SelectAll"].Value)" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Style="margin-bottom:8px; margin-right:8px;" Click="SelectAll" />
+<RadzenButton Text="@(Loc["DeselectAll"].Value)" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="margin-bottom:8px; margin-right:8px;" Click="DeselectAll" />
+
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
     <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX" />
     <RadzenLabel Text="Olx" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
@@ -190,6 +193,9 @@
     private bool isLoading = false;
     private bool setAmazonGrid = false;
     private bool setOlxGrid = false;
+
+    private void SelectAll() => setAmazonGrid = setOlxGrid = true;
+    private void DeselectAll() => setAmazonGrid = setOlxGrid = false;
 
     private IEnumerable<ScrapedItem>? olxData;
     private IEnumerable<ScrapedItem>? amazonData;

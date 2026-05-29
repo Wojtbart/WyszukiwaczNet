@@ -33,9 +33,23 @@ public class OfferService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"B³¹d funkcji GetOffersByPlatformAsync: {ex.Message}");
+            Console.WriteLine($"Bï¿½ï¿½d funkcji GetOffersByPlatformAsync: {ex.Message}");
             return null;
         }
+    }
+
+    public async Task<List<OfferResponse>?> GetUserHistoryAsync(int userId, string? platform = null)
+    {
+        try
+        {
+            var url = $"offers/history/{userId}";
+            if (!string.IsNullOrEmpty(platform)) url += $"?platform={platform}";
+            var response = await _httpClient.GetAsync(url);
+            var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) return null;
+            return JsonConvert.DeserializeObject<List<OfferResponse>>(content);
+        }
+        catch { return null; }
     }
 
     public async Task<List<OfferResponse>?> GetOffersAsync(int? platformId = null, string? status = null)

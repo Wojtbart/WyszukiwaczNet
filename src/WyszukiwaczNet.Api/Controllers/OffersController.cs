@@ -105,6 +105,19 @@ public class OffersController : ControllerBase
         return Ok(new { success = true, data = response });
     }
 
+    [HttpGet("history/{userId}")]
+    public async Task<IActionResult> GetSearchHistory(int userId, [FromQuery] string? platform = null)
+    {
+        var offers = await _offerRepository.GetSearchHistoryByUserIdAsync(userId, platform: platform);
+        return Ok(offers.Select(o => new OfferResponse(
+            o.Id, o.PlatformId, o.Platform?.Name, o.Title, o.Price, o.Currency,
+            o.Url, o.ImageUrl, o.SellerName, o.Location, o.AdditionalInfo, o.CreatedAt, o.Status,
+            o.VehicleDetail != null ? new VehicleDetailResponse(
+                o.VehicleDetail.OfferId, o.VehicleDetail.ProductionYear, o.VehicleDetail.Mileage,
+                o.VehicleDetail.FuelType, o.VehicleDetail.Gearbox, o.VehicleDetail.EnginePower,
+                o.VehicleDetail.BodyType) : null)));
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOfferById(int id)
     {

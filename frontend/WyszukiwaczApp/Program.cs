@@ -38,7 +38,8 @@ builder.Services.AddHttpClient(string.Empty)
 builder.Services.AddScoped<ApiClient>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<SubscriptionService>();
-builder.Services.AddScoped<OfferService>();
+builder.Services.AddHttpClient<OfferService>()
+    .AddHttpMessageHandler<AuthTokenHandler>();
 builder.Services.AddScoped<NotificationServiceClient>();
 builder.Services.AddScoped<LoginProxy>();
 builder.Services.AddScoped<DataProxy>();

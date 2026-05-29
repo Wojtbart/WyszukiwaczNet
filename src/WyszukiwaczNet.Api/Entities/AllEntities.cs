@@ -455,6 +455,29 @@ public class UserSubscription
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 
+[Table("user_search_history")]
+public class UserSearchHistory
+{
+    [Key]
+    [Column("id")]
+    public int Id { get; set; }
+
+    [Column("user_id")]
+    public int UserId { get; set; }
+
+    [ForeignKey("UserId")]
+    public User? User { get; set; }
+
+    [Column("offer_id")]
+    public int OfferId { get; set; }
+
+    [ForeignKey("OfferId")]
+    public Offer? Offer { get; set; }
+
+    [Column("searched_at")]
+    public DateTime SearchedAt { get; set; } = DateTime.UtcNow;
+}
+
 [Table("background_jobs")]
 public class BackgroundJob
 {

@@ -71,6 +71,9 @@
 
 <RadzenText TextStyle="TextStyle.H4" Text="@(Loc["ChooseJobPortals"].Value)" Style="color:red; margin-bottom:20px;" />
 
+<RadzenButton Text="@(Loc["SelectAll"].Value)" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Style="margin-bottom:8px; margin-right:8px;" Click="SelectAll" />
+<RadzenButton Text="@(Loc["DeselectAll"].Value)" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="margin-bottom:8px; margin-right:8px;" Click="DeselectAll" />
+
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;margin-right:12px;">
     <RadzenImage Path="images/pracuj.svg" Style="width:5rem;height:3rem;" AlternateText="Pracuj" />
     <RadzenLabel Text="Pracuj" Component="CheckBox1" Style="margin:0.3rem; vertical-align: middle;" />
@@ -508,6 +511,10 @@
     private bool setTPGrid = false;
     private bool setBulldogGrid = false;
     private bool setSolidJobsGrid = false;
+
+    private void SelectAll() => setPracujGrid = setJJIGrid = setNFJGrid = setTPGrid = setBulldogGrid = setSolidJobsGrid = true;
+    private void DeselectAll() => setPracujGrid = setJJIGrid = setNFJGrid = setTPGrid = setBulldogGrid = setSolidJobsGrid = false;
+
     private IEnumerable<ScrapedItem>? pracujData;
     private IEnumerable<ScrapedItem>? jjiData;
     private IEnumerable<ScrapedItem>? nfjData;

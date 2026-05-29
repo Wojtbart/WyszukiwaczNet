@@ -42,6 +42,9 @@
   <data name="Load" xml:space="preserve"><value>LOAD</value></data>
   <data name="SearchedText" xml:space="preserve"><value>Search text</value></data>
   <data name="ChoosePagesAds" xml:space="preserve"><value>Choose sites to fetch listings from</value></data>
+  <data name="SearchHistory" xml:space="preserve"><value>Search history</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>Select all</value></data>
+  <data name="DeselectAll" xml:space="preserve"><value>Deselect all</value></data>
   <data name="ChoosePages" xml:space="preserve"><value>Choose sites to fetch the listing from</value></data>
   <data name="ChooseJobPortals" xml:space="preserve"><value>Choose job portals</value></data>
   <data name="ChoosePlatformLast100" xml:space="preserve"><value>Choose platform to view its 100 most recent offers</value></data>

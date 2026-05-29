@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WyszukiwaczNet.Api.DTOs;
+using WyszukiwaczNet.Api.Repositories;
 using WyszukiwaczNet.Api.Services;
 
 namespace WyszukiwaczNet.Api.Controllers;
@@ -13,15 +15,18 @@ public class DataController : ControllerBase
     private readonly IPythonScriptService _pythonScriptService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<DataController> _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public DataController(
         IPythonScriptService pythonScriptService,
         IConfiguration configuration,
-        ILogger<DataController> logger)
+        ILogger<DataController> logger,
+        IServiceScopeFactory scopeFactory)
     {
         _pythonScriptService = pythonScriptService;
         _configuration = configuration;
         _logger = logger;
+        _scopeFactory = scopeFactory;
     }
 
     [HttpPost("getData")]
@@ -279,6 +284,17 @@ public class DataController : ControllerBase
                 var (count, output) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase, website, request.RequestNumber, extraArgs);
                 string key = website[0].ToString().ToUpper() + website.Substring(1);
                 results[$"{key}Data"] = new { count, output };
+
+                if (output.Count > 0 && int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+                {
+                    var offerIds = output.Select(o => o.Id).ToList();
+                    _ = Task.Run(async () =>
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        var repo = scope.ServiceProvider.GetRequiredService<IOfferRepository>();
+                        await repo.SaveSearchHistoryAsync(userId, offerIds);
+                    });
+                }
             }
             catch (Exception ex)
             {

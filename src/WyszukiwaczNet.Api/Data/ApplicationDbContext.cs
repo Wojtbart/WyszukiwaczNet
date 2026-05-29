@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserNotificationConfig> UserNotificationConfigs => Set<UserNotificationConfig>();
     public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    public DbSet<UserSearchHistory> UserSearchHistories => Set<UserSearchHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

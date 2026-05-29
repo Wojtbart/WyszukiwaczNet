@@ -3,6 +3,7 @@
 @using WyszukiwaczAppDTO
 @inject OfferService OfferService
 @inject IStringLocalizer<SharedResource> Loc
+@inject ILocalStorageService LocalStorage
 
 <PageTitle>@Loc["PageTitleOffers"]</PageTitle>
 
@@ -212,6 +213,7 @@
     </RadzenButton>
 </div>
 
+
 @if (selectedPlatform == null)
 {
     <div class="empty-state">
@@ -271,38 +273,59 @@ else
     private bool isLoading = false;
     private string? selectedPlatform = null;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || Globals.UserId.HasValue) return;
+        var token = await LocalStorage.GetItemAsync<string>("authToken");
+        if (!string.IsNullOrEmpty(token))
+            Globals.UserId = GetUserIdFromToken(token);
+    }
+
+    private static int? GetUserIdFromToken(string token)
+    {
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length != 3) return null;
+            var payload = parts[1];
+            var padded = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+            var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(padded));
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", out var el)
+                && int.TryParse(el.GetString(), out var id))
+                return id;
+            return null;
+        }
+        catch { return null; }
+    }
+
     private async Task OnPlatformChange(bool isChecked, string platform)
     {
         if (isChecked)
         {
             selectedPlatform = platform;
-            await LoadPlatformData(platform);
+            isLoading = true;
+            StateHasChanged();
+
+            if (!Globals.UserId.HasValue)
+            {
+                var token = await LocalStorage.GetItemAsync<string>("authToken");
+                if (!string.IsNullOrEmpty(token))
+                    Globals.UserId = GetUserIdFromToken(token);
+            }
+
+            if (Globals.UserId.HasValue)
+            {
+                var result = await OfferService.GetUserHistoryAsync(Globals.UserId.Value, platform);
+                offers = result ?? new();
+            }
+            isLoading = false;
         }
         else
         {
             selectedPlatform = null;
             offers = new();
         }
-    }
-
-    private async Task LoadPlatformData(string platform)
-    {
-        isLoading = true;
-        offers = new();
         StateHasChanged();
-        try
-        {
-            var result = await OfferService.GetOffersByPlatformAsync(platform);
-            offers = result ?? new List<OfferResponse>();
-        }
-        catch
-        {
-            offers = new();
-        }
-        finally
-        {
-            isLoading = false;
-            StateHasChanged();
-        }
     }
 }

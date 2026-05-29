@@ -209,7 +209,8 @@ def get_data_and_insert(cnx, keyword, location=None, experience_level=None, cont
     url = build_url(keyword, location, experience_level, contract_type)
     print(f"Fetching: {url}")
 
-    headers = {
+    session = requests.Session()
+    session.headers.update({
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -217,8 +218,18 @@ def get_data_and_insert(cnx, keyword, location=None, experience_level=None, cont
         ),
         "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
         "Accept": "text/html,application/xhtml+xml,application/xhtml+xml,*/*;q=0.8",
-    }
-    response = requests.get(url, headers=headers, timeout=20)
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Cache-Control": "max-age=0",
+        "Referer": "https://www.google.com/",
+    })
+    session.get("https://theprotocol.it", timeout=20)
+    response = session.get(url, timeout=20)
     soup = BeautifulSoup(response.content, "html.parser")
 
     offers_section = soup.find("div", attrs={"data-test": "offersList"})

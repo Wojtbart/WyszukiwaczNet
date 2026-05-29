@@ -14,6 +14,8 @@ public interface IOfferRepository
     Task<Platform?> GetPlatformByNameAsync(string name);
 
     Task<List<NotificationChannel>> GetAllNotificationChannelsAsync();
+    Task SaveSearchHistoryAsync(int userId, List<int> offerIds);
+    Task<List<Offer>> GetSearchHistoryByUserIdAsync(int userId, int limit = 100, string? platform = null);
 }
 
 public class OfferRepository : IOfferRepository
@@ -85,5 +87,42 @@ public class OfferRepository : IOfferRepository
     public async Task<List<NotificationChannel>> GetAllNotificationChannelsAsync()
     {
         return await _context.NotificationChannels.ToListAsync();
+    }
+
+    public async Task SaveSearchHistoryAsync(int userId, List<int> offerIds)
+    {
+        var existingOfferIds = await _context.UserSearchHistories
+            .Where(h => h.UserId == userId && offerIds.Contains(h.OfferId))
+            .Select(h => h.OfferId)
+            .ToListAsync();
+
+        var newEntries = offerIds
+            .Except(existingOfferIds)
+            .Select(offerId => new UserSearchHistory { UserId = userId, OfferId = offerId });
+
+        await _context.UserSearchHistories.AddRangeAsync(newEntries);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Offer>> GetSearchHistoryByUserIdAsync(int userId, int limit = 100, string? platform = null)
+    {
+        var query = _context.UserSearchHistories
+            .Where(h => h.UserId == userId);
+
+        if (!string.IsNullOrEmpty(platform))
+            query = query.Where(h => h.Offer!.Platform!.Name == platform);
+
+        var offerIds = await query
+            .OrderByDescending(h => h.SearchedAt)
+            .Take(limit)
+            .Select(h => h.OfferId)
+            .ToListAsync();
+
+        return await _context.Offers
+            .Where(o => offerIds.Contains(o.Id))
+            .Include(o => o.VehicleDetail)
+            .Include(o => o.JobDetail)
+            .Include(o => o.Platform)
+            .ToListAsync();
     }
 }
