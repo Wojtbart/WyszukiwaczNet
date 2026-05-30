@@ -29,7 +29,9 @@ def to_city_slug(text):
 def build_url(keyword, location=None, experience_level=None, employment_type=None):
     path = f"{BASE_URL}/job-offers"
     path += f"/{to_city_slug(location)}" if location else "/all-locations"
-    keyword_slug = re.sub(r'[^a-z0-9\-]', '', to_city_slug(keyword))
+    KEYWORD_SLUG_MAP = {"c#": "net"}
+    kw_lower = keyword.strip().lower()
+    keyword_slug = KEYWORD_SLUG_MAP.get(kw_lower) or re.sub(r'[^a-z0-9\-]', '', to_city_slug(keyword))
     path += f"/{keyword_slug}"
     params = []
     if employment_type:

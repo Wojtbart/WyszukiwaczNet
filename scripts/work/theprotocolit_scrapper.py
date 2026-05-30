@@ -218,7 +218,7 @@ def get_data_and_insert(cnx, keyword, location=None, experience_level=None, cont
         ),
         "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
         "Accept": "text/html,application/xhtml+xml,application/xhtml+xml,*/*;q=0.8",
-        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Encoding": "gzip, deflate",
         "Connection": "keep-alive",
         "Upgrade-Insecure-Requests": "1",
         "Sec-Fetch-Dest": "document",
@@ -230,6 +230,10 @@ def get_data_and_insert(cnx, keyword, location=None, experience_level=None, cont
     })
     session.get("https://theprotocol.it", timeout=20)
     response = session.get(url, timeout=20)
+    debug_path = os.path.join(os.path.dirname(__file__), "theprotocol_debug.html")
+    with open(debug_path, "w", encoding="utf-8") as f:
+        f.write(response.text)
+    print(f"HTML saved to {debug_path} (status={response.status_code}, len={len(response.text)})")
     soup = BeautifulSoup(response.content, "html.parser")
 
     offers_section = soup.find("div", attrs={"data-test": "offersList"})
