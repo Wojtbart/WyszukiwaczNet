@@ -131,7 +131,7 @@ def insert_offer(cnx, platform_id, data):
         (platform_id, title, price, currency, url, image_url,
          seller_name, location, additional_info, created_at)
         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        ON CONFLICT (platform_id, url) DO UPDATE SET created_at = NOW()
+        ON CONFLICT (platform_id, url) DO NOTHING
         RETURNING id
     """
     with cnx.cursor() as cursor:
@@ -147,7 +147,8 @@ def insert_offer(cnx, platform_id, data):
             data["additional_info"],
             datetime.now(timezone.utc)
         ))
-        return cursor.fetchone()[0]
+        row = cursor.fetchone()
+        return row[0] if row else None
 
 
 def insert_job_detail(cnx, offer_id, data):
@@ -201,10 +202,11 @@ def get_data_and_insert(cnx, keyword, location=None, experience=None, contract_t
 
     kw_lower = keyword.lower() if keyword else None
     if kw_lower:
-        raw_offers = [
-            r for r in raw_offers
-            if kw_lower in (r.get("jobTitle") or "").lower()
-        ]
+        def matches_keyword(r):
+            title = (r.get("jobTitle") or "").lower()
+            skills = " ".join(s.get("name", "") for s in r.get("requiredSkills", [])).lower()
+            return kw_lower in title or kw_lower in skills
+        raw_offers = [r for r in raw_offers if matches_keyword(r)]
         print(f"After keyword filter '{keyword}': {len(raw_offers)} offers")
 
     for raw in raw_offers:
@@ -212,11 +214,18 @@ def get_data_and_insert(cnx, keyword, location=None, experience=None, contract_t
         if not data["title"] or not data["url"]:
             continue
 
+        if offer_exists(cnx, platform_id, data["url"]):
+            print(f"  SKIP (exists): {data['url']}")
+            continue
+
         offer_id = insert_offer(cnx, platform_id, data)
+        if offer_id is None:
+            continue
         insert_job_detail(cnx, offer_id, data)
         cnx.commit()
 
         COUNTER += 1
+        print(f"  +inserted: {data['title']} | {data['company']}")
 
 
 if __name__ == "__main__":
