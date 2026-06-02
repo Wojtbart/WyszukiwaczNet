@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager Navigation
 @inject IJSRuntime JS
+@inject WyszukiwaczApp.Services.AuthState AuthState
 @using Microsoft.AspNetCore.Components.Routing;
 
 <Router AppAssembly="typeof(Program).Assembly" OnNavigateAsync="OnNavigateAsync">
@@ -33,14 +34,14 @@
     {
         try
         {
-            if (!Globals.IsLogged && context.Path != "login" && context.Path != "register" && context.Path != "" && context.Path != "cennik")
+            if (!AuthState.IsLogged && context.Path != "login" && context.Path != "register" && context.Path != "" && context.Path != "cennik")
             {
                 if (Navigation.Uri != Navigation.ToAbsoluteUri("login").ToString())
                 {
                     Navigation.NavigateTo("login", forceLoad: false);
                 }
             }
-            else if (!Globals.IsLogged && context.Path == "register")
+            else if (!AuthState.IsLogged && context.Path == "register")
             {
                 if (Navigation.Uri != Navigation.ToAbsoluteUri("register").ToString())
                 {

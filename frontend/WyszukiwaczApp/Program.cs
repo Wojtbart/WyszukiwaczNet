@@ -31,6 +31,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<AuthState>();
 builder.Services.AddTransient<AuthTokenHandler>();
 builder.Services.AddHttpClient(string.Empty)
     .AddHttpMessageHandler<AuthTokenHandler>();

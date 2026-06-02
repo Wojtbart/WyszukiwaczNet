@@ -7,6 +7,7 @@
 @inject LoginProxy LoginProxy
 @inject NavigationManager NavigationManager
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject WyszukiwaczApp.Services.AuthState AuthState
 
 <style>
     @@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -428,7 +429,7 @@
                         <div class="nf-actions">
                             @if (!string.IsNullOrEmpty(item.OfferUrl))
                             {
-                                <a class="nf-open-link" href="@item.OfferUrl" target="_blank" @onclick:stopPropagation="true">
+                                <a class="nf-open-link" href="@item.OfferUrl" target="_blank" @onclick="() => MarkItemRead(item)" @onclick:stopPropagation="true">
                                     ↗ Otwórz
                                 </a>
                             }
@@ -472,13 +473,13 @@
         var token = await LocalStorage.GetItemAsync<string>("authToken") ?? string.Empty;
         if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(token)) { NavigationManager.NavigateTo("/login"); return; }
 
-        Globals.IsLogged = true;
-        Globals.AuthToken = token;
+        AuthState.IsLogged = true;
+        AuthState.AuthToken = token;
 
         var userInfo = await LoginProxy.GetUser(login);
         if (userInfo == null || userInfo.user_id <= 0) { NavigationManager.NavigateTo("/login"); return; }
         userId = userInfo.user_id;
-        Globals.UserId = userId;
+        AuthState.UserId = userId;
 
         await LoadFeed();
     }
@@ -499,7 +500,7 @@
         if (item.Status != "new") return;
         item.Status = "read";
         unreadCount = Math.Max(0, unreadCount - 1);
-        Globals.NotifyNotificationsChanged();
+        AuthState.NotifyNotificationsChanged();
         await UserService.MarkNotificationReadAsync(userId, item.Id);
     }
 
@@ -509,6 +510,6 @@
         unreadCount = 0;
         if (items != null)
             foreach (var i in items) i.Status = "read";
-        Globals.NotifyNotificationsChanged();
+        AuthState.NotifyNotificationsChanged();
     }
 }

@@ -2,6 +2,7 @@
 @layout PublicLayout
 @inject NavigationManager Navigation
 @inject IStringLocalizer<SharedResource> Loc
+@inject WyszukiwaczApp.Services.AuthState AuthState
 
 <PageTitle>Wyszukiwacz – Agregator Ogłoszeń: Auta, Mieszkania, Zakupy | Alerty i Powiadomienia</PageTitle>
 
@@ -969,7 +970,7 @@
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return Task.CompletedTask;
-        if (Globals.IsLogged)
+        if (AuthState.IsLogged)
             Navigation.NavigateTo("/categories");
         return Task.CompletedTask;
     }

@@ -6,6 +6,7 @@
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService LocalStorage
 @inject IStringLocalizer<SharedResource> Loc
+@inject WyszukiwaczApp.Services.AuthState AuthState
 
 <PageTitle>@Loc["LoginPageTitle"]</PageTitle>
 
@@ -29,7 +30,7 @@
                 <label class="auth-label" for="login">@Loc["LoginEmailOrUsername"]</label>
                 <div class="auth-input-group">
                     <i class="material-icons auth-input-icon">person</i>
-                    <input id="login" @bind="loginModel.Login" class="auth-input" placeholder="@(Loc["LoginPlaceholderUser"].Value)" />
+                    <input id="login" @bind="loginModel.Login" @bind:event="oninput" class="auth-input" placeholder="@(Loc["LoginPlaceholderUser"].Value)" />
                 </div>
             </div>
 
@@ -37,7 +38,7 @@
                 <label class="auth-label" for="password">@Loc["PasswordLabel"]</label>
                 <div class="auth-input-group">
                     <i class="material-icons auth-input-icon">lock</i>
-                    <input id="password" type="password" @bind="loginModel.Password"
+                    <input id="password" type="password" @bind="loginModel.Password" @bind:event="oninput"
                            class="auth-input" placeholder="@(Loc["LoginPlaceholderPass"].Value)"
                            @onkeydown="HandlePasswordKeyDown" />
                 </div>
@@ -50,7 +51,7 @@
                 </label>
             </div>
 
-            <button type="submit" class="auth-submit" disabled="@(isLoading || string.IsNullOrEmpty(loginModel.Password))">
+            <button type="submit" class="auth-submit" disabled="@(isLoading || loginModel.Login.Length < 3 || loginModel.Password.Length < 3)">
                 @if (isLoading)
                 {
                     <span class="auth-spinner"></span>
@@ -73,7 +74,7 @@
 
     protected override void OnInitialized()
     {
-        Globals.IsLogged = false;
+        AuthState.IsLogged = false;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -108,9 +109,9 @@
 
             if (result?.Success == true && !string.IsNullOrEmpty(result.Token))
             {
-                Globals.IsLogged = true;
-                Globals.Login = loginModel.Login;
-                Globals.AuthToken = result.Token;
+                AuthState.IsLogged = true;
+                AuthState.Login = loginModel.Login;
+                AuthState.AuthToken = result.Token;
 
                 await LocalStorage.SetItemAsync("authToken", result.Token);
                 await LocalStorage.SetItemAsync("login", loginModel.Login);

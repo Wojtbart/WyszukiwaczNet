@@ -6,13 +6,6 @@ namespace WyszukiwaczApp
     public class Globals
     {
         private static readonly CultureInfo PlCulture = new("pl-PL");
-        public static bool IsLogged { get; set; } = false;
-        public static string Login { get; set; } = string.Empty;
-        public static int? UserId { get; set; }
-        public static string? AuthToken { get; set; }
-
-        public static event Action? NotificationsChanged;
-        public static void NotifyNotificationsChanged() => NotificationsChanged?.Invoke();
 
         public static string FormatPrice(decimal? price)
         {

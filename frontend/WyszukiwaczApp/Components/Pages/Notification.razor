@@ -9,6 +9,7 @@
 @inject LoginProxy LoginProxy
 @inject UserService UserService
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject WyszukiwaczApp.Services.AuthState AuthState
 @inject IStringLocalizer<SharedResource> Loc
 
 <div class="notif-page">
@@ -272,7 +273,7 @@
                 </div>
                 <div class="n-card-body">
                     <div class="channel-list">
-                        <div class="channel-item @(isEmailChecked ? "channel-item--active" : "")">
+                        <div class="channel-item @(isEmailChecked ? "channel-item--active" : "")" @onclick="() => isEmailChecked = !isEmailChecked">
                             <div class="channel-icon channel-icon--email">
                                 <RadzenIcon Icon="email" />
                             </div>
@@ -280,7 +281,7 @@
                                 <span class="channel-name">@Loc["Email"]</span>
                                 <span class="channel-desc">@Loc["EmailDesc"]</span>
                             </div>
-                            <RadzenCheckBox TValue="bool" @bind-Value="isEmailChecked" class="channel-toggle" />
+                            <RadzenCheckBox TValue="bool" @bind-Value="isEmailChecked" class="channel-toggle" @onclick:stopPropagation="true" />
                         </div>
                         @* <div class="channel-item @(isSMSChecked ? "channel-item--active" : "")">
                             <div class="channel-icon channel-icon--sms">
@@ -292,7 +293,7 @@
                             </div>
                             <RadzenCheckBox TValue="bool" @bind-Value="isSMSChecked" class="channel-toggle" />
                         </div> *@
-                        <div class="channel-item @(isDiscordChecked ? "channel-item--active" : "")">
+                        <div class="channel-item @(isDiscordChecked ? "channel-item--active" : "")" @onclick="() => isDiscordChecked = !isDiscordChecked">
                             <div class="channel-icon channel-icon--discord">
                                 <RadzenIcon Icon="forum" />
                             </div>
@@ -300,9 +301,9 @@
                                 <span class="channel-name">@Loc["Discord"]</span>
                                 <span class="channel-desc">@Loc["DiscordDesc"]</span>
                             </div>
-                            <RadzenCheckBox TValue="bool" @bind-Value="isDiscordChecked" class="channel-toggle" />
+                            <RadzenCheckBox TValue="bool" @bind-Value="isDiscordChecked" class="channel-toggle" @onclick:stopPropagation="true" />
                         </div>
-                        <div class="channel-item @(isInAppChecked ? "channel-item--active" : "")">
+                        <div class="channel-item @(isInAppChecked ? "channel-item--active" : "")" @onclick="() => isInAppChecked = !isInAppChecked">
                             <div class="channel-icon channel-icon--inapp">
                                 <RadzenIcon Icon="notifications" />
                             </div>
@@ -310,7 +311,7 @@
                                 <span class="channel-name">@Loc["InApp"]</span>
                                 <span class="channel-desc">@Loc["InAppDesc"]</span>
                             </div>
-                            <RadzenCheckBox TValue="bool" @bind-Value="isInAppChecked" class="channel-toggle" />
+                            <RadzenCheckBox TValue="bool" @bind-Value="isInAppChecked" class="channel-toggle" @onclick:stopPropagation="true" />
                         </div>
                     </div>
                 </div>
@@ -323,13 +324,13 @@
                     <span>@Loc["Schedule"]</span>
                 </div>
                 <div class="n-card-body">
-                    <div class="schedule-option @(isSendingHourChecked ? "schedule-option--active" : "")">
+                    <div class="schedule-option @(isSendingHourChecked ? "schedule-option--active" : "")" @onclick="() => OnCheckboxHourChanged(!isSendingHourChecked)">
                         <div class="schedule-option-header">
                             <div>
                                 <span class="schedule-option-title">@Loc["SendAtHour"]</span>
                                 <span class="schedule-option-desc">@Loc["SendAtHourDesc"]</span>
                             </div>
-                            <RadzenCheckBox TValue="bool" @bind-Value="isSendingHourChecked" Change="OnCheckboxHourChanged" />
+                            <RadzenCheckBox TValue="bool" @bind-Value="isSendingHourChecked" Change="OnCheckboxHourChanged" @onclick:stopPropagation="true" />
                         </div>
                         @if (isSendingHourChecked)
                         {
@@ -340,13 +341,13 @@
                             </div>
                         }
                     </div>
-                    <div class="schedule-option @(isCyclicMessagingChecked ? "schedule-option--active" : "")">
+                    <div class="schedule-option @(isCyclicMessagingChecked ? "schedule-option--active" : "")" @onclick="() => OnCheckboxCyclicChanged(!isCyclicMessagingChecked)">
                         <div class="schedule-option-header">
                             <div>
                                 <span class="schedule-option-title">@Loc["Cyclic"]</span>
                                 <span class="schedule-option-desc">@Loc["CyclicDesc"]</span>
                             </div>
-                            <RadzenCheckBox TValue="bool" @bind-Value="isCyclicMessagingChecked" Change="OnCheckboxCyclicChanged" />
+                            <RadzenCheckBox TValue="bool" @bind-Value="isCyclicMessagingChecked" Change="OnCheckboxCyclicChanged" @onclick:stopPropagation="true" />
                         </div>
                         @if (isCyclicMessagingChecked)
                         {
@@ -664,9 +665,10 @@
 
     private void OnCheckboxHourChanged(bool value)
     {
+        isSendingHourChecked = value;
         setSendingHourPreview = !value;
         dateSendingNotification = value ? DateTime.Now : null;
-        isCyclicMessagingChecked = !value;
+        if (value) isCyclicMessagingChecked = false;
         repeatRequestAfterTimePreview = value;
         minutesAfterSendingNotification = 0;
         StateHasChanged();
@@ -674,10 +676,11 @@
 
     private void OnCheckboxCyclicChanged(bool value)
     {
+        isCyclicMessagingChecked = value;
         repeatRequestAfterTimePreview = !value;
         if (value) minutesAfterSendingNotification = 1;
         setSendingHourPreview = value;
-        isSendingHourChecked = !value;
+        if (value) isSendingHourChecked = false;
         dateSendingNotification = null;
         StateHasChanged();
     }
@@ -690,13 +693,13 @@
         var token = await LocalStorage.GetItemAsync<string>("authToken") ?? string.Empty;
         if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(token)) { Navigation.NavigateTo("/login"); return; }
 
-        Globals.IsLogged = true;
-        Globals.AuthToken = token;
+        AuthState.IsLogged = true;
+        AuthState.AuthToken = token;
 
         var userInfo = await LoginProxy.GetUser(login);
         if (userInfo == null || userInfo.user_id <= 0) { Navigation.NavigateTo("/login"); return; }
         userId = userInfo.user_id;
-        Globals.UserId = userId;
+        AuthState.UserId = userId;
 
         allChannels = await UserService.GetAllChannelsAsync() ?? new();
         allPlatforms = await UserService.GetAllPlatformsAsync() ?? new();

@@ -47,7 +47,7 @@
 <RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
     <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
         <RadzenFormField Text="@(Loc["PositionKeyword"].Value)" Variant="Variant.Flat" Style="width:35%;margin-right:20px;">
-            <RadzenTextBox @bind-Value="@searchedKeyword" Style="width: 100%; border-radius:15px;" />
+            <RadzenTextBox @bind-Value="@searchedKeyword" @oninput="@(e => searchedKeyword = e.Value?.ToString() ?? string.Empty)" Style="width: 100%; border-radius:15px;" />
         </RadzenFormField>
         <RadzenFormField Text="@(Loc["WorkLocation"].Value)" Variant="Variant.Flat" Style="width:20%;margin-right:20px;">
             <RadzenTextBox @bind-Value="@workLocation" Placeholder="@(Loc["WorkLocationPlaceholder"].Value)" Style="width: 100%; border-radius:15px;" />
@@ -578,12 +578,17 @@
         try
         {
             var result = await DataProxy.getData(model);
-            pracujData = result?.Data?.PracujData?.Output;
-            jjiData = result?.Data?.JustjoinitData?.Output;
-            nfjData = result?.Data?.NofluffjobsData?.Output;
-            tpData = result?.Data?.TheprotocolitData?.Output;
-            bulldogData = result?.Data?.BulldogjobData?.Output;
-            solidJobsData = result?.Data?.SolidjobsData?.Output;
+            if (result == null || !result.Success)
+            {
+                await DialogService.Alert(result?.Message ?? Loc["ErrorFetching"].Value);
+                return;
+            }
+            pracujData = result.Data?.PracujData?.Output;
+            jjiData = result.Data?.JustjoinitData?.Output;
+            nfjData = result.Data?.NofluffjobsData?.Output;
+            tpData = result.Data?.TheprotocolitData?.Output;
+            bulldogData = result.Data?.BulldogjobData?.Output;
+            solidJobsData = result.Data?.SolidjobsData?.Output;
             StateHasChanged();
         }
         catch (Exception ex)

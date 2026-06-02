@@ -47,10 +47,10 @@
 <RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
     <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
         <RadzenFormField Text="@(Loc["Brand"].Value)" Variant="Variant.Flat" Style="width:49%;">
-            <RadzenTextBox @bind-Value="@searchedBrand" Style="width: 49%; border-radius:15px;" />
+            <RadzenTextBox @bind-Value="@searchedBrand" @oninput="@(e => searchedBrand = e.Value?.ToString() ?? string.Empty)" Style="width: 49%; border-radius:15px;" />
         </RadzenFormField>
         <RadzenFormField Text="@(Loc["Model"].Value)" Variant="Variant.Flat" Style="width:50%">
-            <RadzenTextBox @bind-Value="@searchedModel" Style="width: 50%; border-radius:15px;" />
+            <RadzenTextBox @bind-Value="@searchedModel" @oninput="@(e => searchedModel = e.Value?.ToString() ?? string.Empty)" Style="width: 50%; border-radius:15px;" />
         </RadzenFormField>
         <RadzenFormField Variant="Variant.Flat" Style="width: 300px;">
             <RadzenDropDown TValue="string?"
@@ -661,14 +661,18 @@
         try
         {
             var result = await DataProxy.getData(model);
-
-            otoMotoData  = result?.Data?.OtoMotoData?.Output;
-            olxData      = result?.Data?.OlxData?.Output;
-            autoscoutData   = result?.Data?.AutoscoutData?.Output;
-            gratkaData      = result?.Data?.GratkaData?.Output;
-            sprzedajemyData = result?.Data?.SprzedajemyData?.Output;
-            autocentrumData = result?.Data?.AutocentrumData?.Output;
-            samochodyData   = result?.Data?.SamochodyData?.Output;
+            if (result == null || !result.Success)
+            {
+                await DialogService.Alert(result?.Message ?? Loc["ErrorFetching"].Value);
+                return;
+            }
+            otoMotoData  = result.Data?.OtoMotoData?.Output;
+            olxData      = result.Data?.OlxData?.Output;
+            autoscoutData   = result.Data?.AutoscoutData?.Output;
+            gratkaData      = result.Data?.GratkaData?.Output;
+            sprzedajemyData = result.Data?.SprzedajemyData?.Output;
+            autocentrumData = result.Data?.AutocentrumData?.Output;
+            samochodyData   = result.Data?.SamochodyData?.Output;
             StateHasChanged();
         }
         catch (Exception ex)

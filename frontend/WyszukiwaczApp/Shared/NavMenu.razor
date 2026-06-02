@@ -3,6 +3,7 @@
 @inject UserService UserService
 @inject IStringLocalizer<SharedResource> Loc
 @inject IJSRuntime JS
+@inject WyszukiwaczApp.Services.AuthState AuthState
 @using WyszukiwaczApp
 @implements IDisposable
 
@@ -177,7 +178,7 @@
 
         <div class="nav-divider"></div>
 
-        @if (!Globals.IsLogged)
+        @if (!AuthState.IsLogged)
         {
             <li>
                 <NavLink href="/login" class="nav-link" @onclick="_ => OnLinkClicked.InvokeAsync()">
@@ -210,10 +211,10 @@
             <span>@(_isDark ? "Jasny motyw" : "Ciemny motyw")</span>
         </button>
 
-        @if (Globals.IsLogged)
+        @if (AuthState.IsLogged)
         {
             <div class="user-info">
-                @Loc["LoggedAs"] @Globals.Login
+                @Loc["LoggedAs"] @AuthState.Login
             </div>
         }
     </div>
@@ -231,13 +232,13 @@
         if (firstRender)
         {
             _isDark = await JS.InvokeAsync<bool>("getRadzenThemeDark");
-            Globals.NotificationsChanged += OnNotificationsChanged;
+            AuthState.NotificationsChanged += OnNotificationsChanged;
 
             _timer = new Timer(async _ =>
             {
-                if (Globals.IsLogged && Globals.UserId.HasValue)
+                if (AuthState.IsLogged && AuthState.UserId.HasValue)
                 {
-                    var result = await UserService.GetNotificationFeedAsync(Globals.UserId.Value, 1);
+                    var result = await UserService.GetNotificationFeedAsync(AuthState.UserId.Value, 1);
                     var newCount = result?.UnreadCount ?? 0;
                     if (newCount != unreadCount)
                     {
@@ -259,9 +260,9 @@
 
     private async void OnNotificationsChanged()
     {
-        if (Globals.IsLogged && Globals.UserId.HasValue)
+        if (AuthState.IsLogged && AuthState.UserId.HasValue)
         {
-            var result = await UserService.GetNotificationFeedAsync(Globals.UserId.Value, 1);
+            var result = await UserService.GetNotificationFeedAsync(AuthState.UserId.Value, 1);
             unreadCount = result?.UnreadCount ?? 0;
         }
         await InvokeAsync(StateHasChanged);
@@ -269,15 +270,15 @@
 
     public void Dispose()
     {
-        Globals.NotificationsChanged -= OnNotificationsChanged;
+        AuthState.NotificationsChanged -= OnNotificationsChanged;
         _timer?.Dispose();
     }
 
     private async Task Logout()
     {
-        Globals.IsLogged = false;
-        Globals.Login = string.Empty;
-        Globals.AuthToken = null;
+        AuthState.IsLogged = false;
+        AuthState.Login = string.Empty;
+        AuthState.AuthToken = null;
         _timer?.Dispose();
         await LocalStorage.RemoveItemAsync("authToken");
         Navigation.NavigateTo("/login", forceLoad: true);

@@ -4,6 +4,7 @@
 @using System.Threading.Tasks
 @inject HistoryProxy HistoryProxy
 @inject DialogService DialogService
+@inject WyszukiwaczApp.Services.AuthState AuthState
 
 <style>
     .RadzenDataGridColumnCss {
@@ -113,7 +114,7 @@
         isLoading = true;
         try
         {
-            var userId = Globals.UserId ?? 0;
+            var userId = AuthState.UserId ?? 0;
             var result = await HistoryProxy.getHistory(userId);
 
             if (result?.Data != null)

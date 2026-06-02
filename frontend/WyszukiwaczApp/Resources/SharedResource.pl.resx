@@ -1,305 +1,942 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
     </xsd:element>
   </xsd:schema>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-
-  <!-- NavMenu / Categories -->
-  <data name="Categories" xml:space="preserve"><value>Kategorie</value></data>
-  <data name="Tractors" xml:space="preserve"><value>Ciągniki</value></data>
-  <data name="SearchPhrase" xml:space="preserve"><value>Szukana fraza</value></data>
-  <data name="Notifications" xml:space="preserve"><value>Powiadomienia</value></data>
-  <data name="History" xml:space="preserve"><value>Historia</value></data>
-  <data name="NotificationSettings" xml:space="preserve"><value>Ustawienia powiadomień</value></data>
-  <data name="SetRecurringNotifications" xml:space="preserve"><value>Ustaw powiadomienia cykliczne</value></data>
-  <data name="Login" xml:space="preserve"><value>Logowanie</value></data>
-  <data name="Register" xml:space="preserve"><value>Rejestracja</value></data>
-  <data name="Logout" xml:space="preserve"><value>Wyloguj</value></data>
-  <data name="LoggedAs" xml:space="preserve"><value>Zalogowany:</value></data>
-  <data name="Cars" xml:space="preserve"><value>Samochody</value></data>
-  <data name="Flats" xml:space="preserve"><value>Mieszkania</value></data>
-  <data name="Shopping" xml:space="preserve"><value>Zakupy</value></data>
-  <data name="JobOffers" xml:space="preserve"><value>Oferty pracy IT</value></data>
-  <data name="CategoriesHeader" xml:space="preserve"><value>Kategorie</value></data>
-  <data name="Language" xml:space="preserve"><value>Język</value></data>
-
-  <!-- Common grid / actions -->
-  <data name="Title" xml:space="preserve"><value>Tytuł</value></data>
-  <data name="Link" xml:space="preserve"><value>Link</value></data>
-  <data name="OpenLink" xml:space="preserve"><value>Otwórz Link</value></data>
-  <data name="ViewOffer" xml:space="preserve"><value>Zobacz ofertę</value></data>
-  <data name="Image" xml:space="preserve"><value>Zdjęcie</value></data>
-  <data name="NoImage" xml:space="preserve"><value>Brak zdjęcia</value></data>
-  <data name="Price" xml:space="preserve"><value>Cena</value></data>
-  <data name="PricePLN" xml:space="preserve"><value>Cena (PLN)</value></data>
-  <data name="Location" xml:space="preserve"><value>Lokalizacja</value></data>
-  <data name="AddedDate" xml:space="preserve"><value>Data dodania</value></data>
-  <data name="NoData" xml:space="preserve"><value>Brak danych do wyświetlenia.</value></data>
-  <data name="NoJobs" xml:space="preserve"><value>Brak ofert pracy.</value></data>
-  <data name="Load" xml:space="preserve"><value>ZAŁADUJ</value></data>
-  <data name="SearchedText" xml:space="preserve"><value>Szukany tekst</value></data>
-  <data name="ChoosePagesAds" xml:space="preserve"><value>Wybierz strony, z których chcesz pobrać ogłoszenia</value></data>
-  <data name="SearchHistory" xml:space="preserve"><value>Historia wyszukiwań</value></data>
-  <data name="SelectAll" xml:space="preserve"><value>Zaznacz wszystkie</value></data>
-  <data name="DeselectAll" xml:space="preserve"><value>Odznacz wszystkie</value></data>
-  <data name="ChoosePages" xml:space="preserve"><value>Wybierz strony, z których chcesz pobrać ogłoszenie</value></data>
-  <data name="ChooseJobPortals" xml:space="preserve"><value>Wybierz portale pracy</value></data>
-  <data name="ChoosePlatformLast100" xml:space="preserve"><value>Wybierz platformę, dla której chcesz zobaczyć 100 ostatnich ofert</value></data>
-  <data name="AdditionalInfo" xml:space="preserve"><value>Dodatkowe informacje</value></data>
-  <data name="ErrorFetching" xml:space="preserve"><value>Błąd podczas pobierania danych:</value></data>
-  <data name="FillSearchedText" xml:space="preserve"><value>Wypełnij pole "Szukany tekst"</value></data>
-  <data name="FillBrandOrModel" xml:space="preserve"><value>Wypełnij pole Marka lub Model.</value></data>
-  <data name="EnterKeyword" xml:space="preserve"><value>Wpisz stanowisko lub słowo kluczowe.</value></data>
-  <data name="InvalidPhrase" xml:space="preserve"><value>Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik.</value></data>
-  <data name="InvalidPhraseExt" xml:space="preserve"><value>Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik, #, .</value></data>
-
-  <!-- Cars -->
-  <data name="Brand" xml:space="preserve"><value>Marka</value></data>
-  <data name="Model" xml:space="preserve"><value>Model</value></data>
-  <data name="ChooseFuel" xml:space="preserve"><value>Wybierz rodzaj paliwa</value></data>
-  <data name="ChooseHorsepower" xml:space="preserve"><value>Wybierz moc silnika (KM)</value></data>
-  <data name="ChooseCapacity" xml:space="preserve"><value>Wybierz pojemność silnika (cm³)</value></data>
-  <data name="ChooseGearbox" xml:space="preserve"><value>Wybierz skrzynię biegów</value></data>
-  <data name="EnginePlaceholder" xml:space="preserve"><value>np. 2.0 lub 150 KM</value></data>
-  <data name="EngineLabel" xml:space="preserve"><value>Silnik</value></data>
-  <data name="FuelPetrol" xml:space="preserve"><value>Benzyna</value></data>
-  <data name="FuelPetrolCng" xml:space="preserve"><value>Benzyna-CNG</value></data>
-  <data name="FuelPetrolLng" xml:space="preserve"><value>Benzyna-LNG</value></data>
-  <data name="FuelPetrolLpg" xml:space="preserve"><value>Benzyna+LPG</value></data>
-  <data name="FuelDiesel" xml:space="preserve"><value>Diesel</value></data>
-  <data name="FuelElectric" xml:space="preserve"><value>Elektryczny</value></data>
-  <data name="FuelHybrid" xml:space="preserve"><value>Hybrydowy</value></data>
-  <data name="GearboxManual" xml:space="preserve"><value>Manualna</value></data>
-  <data name="GearboxAutomatic" xml:space="preserve"><value>Automatyczna</value></data>
-  <data name="FuelLpg" xml:space="preserve"><value>LPG</value></data>
-  <data name="CapacityFrom" xml:space="preserve"><value>Pojemność od (cm³)</value></data>
-  <data name="CapacityTo" xml:space="preserve"><value>Pojemność do (cm³)</value></data>
-  <data name="PriceFrom" xml:space="preserve"><value>Cena od (PLN)</value></data>
-  <data name="PriceTo" xml:space="preserve"><value>Cena do (PLN)</value></data>
-  <data name="MileageKm" xml:space="preserve"><value>Przebieg (km)</value></data>
-  <data name="ProductionYear" xml:space="preserve"><value>Rok produkcji</value></data>
-  <data name="Fuel" xml:space="preserve"><value>Paliwo</value></data>
-  <data name="Gearbox" xml:space="preserve"><value>Skrzynia</value></data>
-  <data name="BodyType" xml:space="preserve"><value>Typ nadwozia</value></data>
-  <data name="BodyTypeShort" xml:space="preserve"><value>Nadwozie</value></data>
-  <data name="Seller" xml:space="preserve"><value>Sprzedawca</value></data>
-  <data name="Extra" xml:space="preserve"><value>Dodatkowe</value></data>
-
-  <!-- Work -->
-  <data name="PositionKeyword" xml:space="preserve"><value>Stanowisko / słowo kluczowe</value></data>
-  <data name="WorkLocation" xml:space="preserve"><value>Lokalizacja</value></data>
-  <data name="WorkLocationPlaceholder" xml:space="preserve"><value>np. Rzeszów</value></data>
-  <data name="Seniority" xml:space="preserve"><value>Poziom stanowiska</value></data>
-  <data name="ContractType" xml:space="preserve"><value>Typ umowy</value></data>
-  <data name="AnyM" xml:space="preserve"><value>Dowolny</value></data>
-  <data name="AnyF" xml:space="preserve"><value>Dowolna</value></data>
-  <data name="LevelJunior" xml:space="preserve"><value>Junior</value></data>
-  <data name="LevelMid" xml:space="preserve"><value>Mid / Regular</value></data>
-  <data name="LevelSenior" xml:space="preserve"><value>Senior</value></data>
-  <data name="LevelExpert" xml:space="preserve"><value>Ekspert</value></data>
-  <data name="ContractEmployment" xml:space="preserve"><value>Umowa o pracę</value></data>
-  <data name="ContractB2B" xml:space="preserve"><value>B2B</value></data>
-  <data name="ContractMandate" xml:space="preserve"><value>Umowa zlecenia</value></data>
-  <data name="Position" xml:space="preserve"><value>Stanowisko</value></data>
-  <data name="Employer" xml:space="preserve"><value>Pracodawca</value></data>
-  <data name="Company" xml:space="preserve"><value>Firma</value></data>
-  <data name="Salary" xml:space="preserve"><value>Wynagrodzenie</value></data>
-  <data name="Technologies" xml:space="preserve"><value>Technologie</value></data>
-  <data name="WorkPlace" xml:space="preserve"><value>Miejsce pracy</value></data>
-  <data name="CompanyHQ" xml:space="preserve"><value>Siedziba firmy</value></data>
-  <data name="HQ" xml:space="preserve"><value>Siedziba</value></data>
-  <data name="AdditionalInfoExt" xml:space="preserve"><value>Informacje dodatkowe</value></data>
-  <data name="Remaining" xml:space="preserve"><value>Umowa/Stanowisko</value></data>
-  <data name="Contract" xml:space="preserve"><value>Umowa</value></data>
-  <data name="Level" xml:space="preserve"><value>Poziom</value></data>
-  <data name="WorkMode" xml:space="preserve"><value>Tryb pracy</value></data>
-  <data name="FromPLN" xml:space="preserve"><value>od</value></data>
-
-  <!-- Notification page -->
-  <data name="ConfigureNotifications" xml:space="preserve"><value>Skonfiguruj automatyczne wyszukiwanie i powiadomienia</value></data>
-  <data name="Category" xml:space="preserve"><value>Kategoria</value></data>
-  <data name="CatAuto" xml:space="preserve"><value>Motoryzacja</value></data>
-  <data name="CatRealEstate" xml:space="preserve"><value>Nieruchomości</value></data>
-  <data name="CatShopping" xml:space="preserve"><value>Zakupy</value></data>
-  <data name="CatWork" xml:space="preserve"><value>Praca</value></data>
-  <data name="CatTractors" xml:space="preserve"><value>Ciągniki</value></data>
-  <data name="Active" xml:space="preserve"><value>aktywne</value></data>
-  <data name="Inactive" xml:space="preserve"><value>nieaktywne</value></data>
-  <data name="Search" xml:space="preserve"><value>Wyszukiwanie</value></data>
-  <data name="MaxResults" xml:space="preserve"><value>Liczba wyników (maks.)</value></data>
-  <data name="Platforms" xml:space="preserve"><value>Platformy</value></data>
-  <data name="NotificationChannels" xml:space="preserve"><value>Kanały powiadomień</value></data>
-  <data name="Email" xml:space="preserve"><value>Email</value></data>
-  <data name="EmailDesc" xml:space="preserve"><value>Wyślij wyniki na email</value></data>
-  <data name="SMS" xml:space="preserve"><value>SMS</value></data>
-  <data name="SMSDesc" xml:space="preserve"><value>Wyślij wiadomość SMS</value></data>
-  <data name="Discord" xml:space="preserve"><value>Discord</value></data>
-  <data name="DiscordDesc" xml:space="preserve"><value>Wyślij na kanał Discord</value></data>
-  <data name="InApp" xml:space="preserve"><value>Tylko w aplikacji</value></data>
-  <data name="InAppDesc" xml:space="preserve"><value>Powiadomienia widoczne tylko w aplikacji</value></data>
-  <data name="InAppChip" xml:space="preserve"><value>W aplikacji</value></data>
-  <data name="Schedule" xml:space="preserve"><value>Harmonogram</value></data>
-  <data name="SendAtHour" xml:space="preserve"><value>Wyślij o konkretnej godzinie</value></data>
-  <data name="SendAtHourDesc" xml:space="preserve"><value>Powiadomienie zostanie wysłane raz dziennie</value></data>
-  <data name="Cyclic" xml:space="preserve"><value>Wysyłanie cykliczne</value></data>
-  <data name="CyclicDesc" xml:space="preserve"><value>Powtarzaj co określoną liczbę minut</value></data>
-  <data name="EveryHowManyMin" xml:space="preserve"><value>Co ile minut:</value></data>
-  <data name="FiltersRealEstate" xml:space="preserve"><value>Filtry (Nieruchomości)</value></data>
-  <data name="Sale" xml:space="preserve"><value>Sprzedaż</value></data>
-  <data name="Rent" xml:space="preserve"><value>Wynajem</value></data>
-  <data name="Private" xml:space="preserve"><value>Prywatne</value></data>
-  <data name="Public" xml:space="preserve"><value>Publiczne</value></data>
-  <data name="Last24h" xml:space="preserve"><value>Ostatnie 24h</value></data>
-  <data name="Summary" xml:space="preserve"><value>Podsumowanie</value></data>
-  <data name="Phrase" xml:space="preserve"><value>Fraza</value></data>
-  <data name="MaxResultsShort" xml:space="preserve"><value>Wyniki maks.</value></data>
-  <data name="NotSet" xml:space="preserve"><value>Nie ustawiono</value></data>
-  <data name="DailyAt" xml:space="preserve"><value>Codziennie o</value></data>
-  <data name="Every" xml:space="preserve"><value>Co</value></data>
-  <data name="Min" xml:space="preserve"><value>min</value></data>
-  <data name="Channels" xml:space="preserve"><value>Kanały</value></data>
-  <data name="None" xml:space="preserve"><value>Brak</value></data>
-  <data name="SaveSettings" xml:space="preserve"><value>Zapisz ustawienia</value></data>
-  <data name="DeleteScheduledJobs" xml:space="preserve"><value>Usuń zaplanowane zadania</value></data>
-  <data name="ActiveJobs" xml:space="preserve"><value>Aktywne zadania</value></data>
-  <data name="Loading" xml:space="preserve"><value>Ładowanie...</value></data>
-  <data name="NoActiveJobs" xml:space="preserve"><value>Brak aktywnych zadań.</value></data>
-  <data name="PlaceholderAuto" xml:space="preserve"><value>np. Toyota Corolla, BMW 3...</value></data>
-  <data name="PlaceholderRealEstate" xml:space="preserve"><value>np. Warszawa, Kraków...</value></data>
-  <data name="PlaceholderShopping" xml:space="preserve"><value>np. iPhone 14, karta graficzna...</value></data>
-  <data name="PlaceholderWork" xml:space="preserve"><value>np. developer, kierowca, manager...</value></data>
-  <data name="PlaceholderTractors" xml:space="preserve"><value>np. Ursus C-330, Zetor...</value></data>
-  <data name="PlaceholderDefault" xml:space="preserve"><value>Wpisz szukany tekst...</value></data>
-  <data name="PageTitleOffers" xml:space="preserve"><value>Oferty - Wyszukiwacz</value></data>
-
-  <!-- Account page -->
-  <data name="MyAccount" xml:space="preserve"><value>Moje konto</value></data>
-  <data name="AccountData" xml:space="preserve"><value>Dane konta</value></data>
-  <data name="Username" xml:space="preserve"><value>Login</value></data>
-  <data name="Phone" xml:space="preserve"><value>Telefon</value></data>
-  <data name="NotProvided" xml:space="preserve"><value>Nie podano</value></data>
-  <data name="ChangePassword" xml:space="preserve"><value>Zmień hasło</value></data>
-  <data name="CurrentPassword" xml:space="preserve"><value>Aktualne hasło</value></data>
-  <data name="NewPassword" xml:space="preserve"><value>Nowe hasło</value></data>
-  <data name="ConfirmPassword" xml:space="preserve"><value>Potwierdź hasło</value></data>
-  <data name="PasswordsDoNotMatch" xml:space="preserve"><value>Hasła się nie zgadzają.</value></data>
-  <data name="ChangeEmail" xml:space="preserve"><value>Zmień email</value></data>
-  <data name="NewEmail" xml:space="preserve"><value>Nowy adres email</value></data>
-  <data name="ChangePhone" xml:space="preserve"><value>Zmień telefon</value></data>
-  <data name="NewPhone" xml:space="preserve"><value>Nowy numer telefonu</value></data>
-  <data name="Save" xml:space="preserve"><value>Zapisz</value></data>
-  <data name="MemberSince" xml:space="preserve"><value>Konto założone</value></data>
-
-  <!-- Login page -->
-  <data name="LoginPageTitle" xml:space="preserve"><value>Logowanie – Wyszukiwacz</value></data>
-  <data name="LoginTitle" xml:space="preserve"><value>Zaloguj się</value></data>
-  <data name="LoginNoAccount" xml:space="preserve"><value>Nie masz konta?</value></data>
-  <data name="LoginRegisterFree" xml:space="preserve"><value>Zarejestruj się bezpłatnie</value></data>
-  <data name="LoginEmailOrUsername" xml:space="preserve"><value>Email lub login</value></data>
-  <data name="PasswordLabel" xml:space="preserve"><value>Hasło</value></data>
-  <data name="LoginPlaceholderUser" xml:space="preserve"><value>twoj@email.pl lub login</value></data>
-  <data name="LoginPlaceholderPass" xml:space="preserve"><value>Wprowadź hasło</value></data>
-  <data name="LoginRememberMe" xml:space="preserve"><value>Zapamiętaj mnie</value></data>
-  <data name="LoginButton" xml:space="preserve"><value>Zaloguj się</value></data>
-  <data name="LoggingIn" xml:space="preserve"><value>Logowanie...</value></data>
-  <data name="LoginInvalidCredentials" xml:space="preserve"><value>Nieprawidłowy login lub hasło</value></data>
-  <data name="LoginGenericError" xml:space="preserve"><value>Niepoprawne dane logowania</value></data>
-
-  <!-- Register page -->
-  <data name="RegisterPageTitle" xml:space="preserve"><value>Rejestracja – Wyszukiwacz</value></data>
-  <data name="RegisterTitle" xml:space="preserve"><value>Utwórz konto</value></data>
-  <data name="RegisterHasAccount" xml:space="preserve"><value>Masz już konto?</value></data>
-  <data name="SignIn" xml:space="preserve"><value>Zaloguj się</value></data>
-  <data name="FirstName" xml:space="preserve"><value>Imię</value></data>
-  <data name="LastName" xml:space="preserve"><value>Nazwisko</value></data>
-  <data name="UsernameLabel" xml:space="preserve"><value>Login</value></data>
-  <data name="UsernamePlaceholder" xml:space="preserve"><value>Nazwa użytkownika</value></data>
-  <data name="Optional" xml:space="preserve"><value>(opcjonalnie)</value></data>
-  <data name="RegisterButton" xml:space="preserve"><value>Zarejestruj się bezpłatnie</value></data>
-  <data name="Registering" xml:space="preserve"><value>Rejestracja...</value></data>
-  <data name="RegisterSuccessMsg" xml:space="preserve"><value>Rejestracja zakończona pomyślnie! Przekierowuję do logowania...</value></data>
-  <data name="RegisterFailedMsg" xml:space="preserve"><value>Rejestracja nie powiodła się</value></data>
-  <data name="RegisterGenericError" xml:space="preserve"><value>Wystąpił błąd podczas rejestracji.</value></data>
-  <data name="TermsAccept" xml:space="preserve"><value>Rejestrując się akceptujesz</value></data>
-  <data name="TermsOfService" xml:space="preserve"><value>regulamin</value></data>
-  <data name="PrivacyPolicy" xml:space="preserve"><value>politykę prywatności</value></data>
-  <data name="RepeatPasswordLabel" xml:space="preserve"><value>Powtórz hasło</value></data>
-  <data name="PasswordMinHint" xml:space="preserve"><value>Min. 6 znaków</value></data>
-
-  <!-- Home page -->
-  <data name="HeroBadge" xml:space="preserve"><value>Bezpłatny agregator ogłoszeń dla Polski</value></data>
-  <data name="HeroH1Line1" xml:space="preserve"><value>Jeden portal.</value></data>
-  <data name="HeroH1Line2" xml:space="preserve"><value>Wszystkie ogłoszenia.</value></data>
-  <data name="HeroSub" xml:space="preserve"><value>Szukaj aut, mieszkań i produktów na OLX, Otomoto, Otodom, Amazon i dziesiątkach innych serwisów – wszystko w jednym miejscu. Ustaw alert i nigdy nie przegap okazji.</value></data>
-  <data name="HeroCTA1" xml:space="preserve"><value>Zarejestruj się bezpłatnie</value></data>
-  <data name="HeroCTA2" xml:space="preserve"><value>Mam już konto</value></data>
-  <data name="PlatformsLabel" xml:space="preserve"><value>Przeszukujemy dla Ciebie</value></data>
-  <data name="StatPortalsLabel" xml:space="preserve"><value>portali ogłoszeniowych w jednym miejscu</value></data>
-  <data name="StatCategoriesLabel" xml:space="preserve"><value>kategorie: auta, mieszkania, zakupy, oferty pracy</value></data>
-  <data name="StatFreeLabel" xml:space="preserve"><value>całkowicie bezpłatny dostęp</value></data>
-  <data name="StatFreeValue" xml:space="preserve"><value>0 zł</value></data>
-  <data name="HowHeading" xml:space="preserve"><value>Jak to działa?</value></data>
-  <data name="HowSub" xml:space="preserve"><value>Trzy kroki dzielą Cię od znalezienia idealnej oferty. Koniec z ręcznym przeglądaniem dziesiątek stron.</value></data>
-  <data name="Step1Title" xml:space="preserve"><value>Wybierz kategorię i wpisz frazę</value></data>
-  <data name="Step1Body" xml:space="preserve"><value>Szukasz samochodu, mieszkania czy konkretnego produktu? Wybierz kategorię, wpisz czego szukasz i ustaw filtry.</value></data>
-  <data name="Step2Title" xml:space="preserve"><value>Ustaw alert jednorazowo</value></data>
-  <data name="Step2Body" xml:space="preserve"><value>Zdefiniuj swoje kryterium jako alert. System będzie automatycznie monitorował dziesiątki portali bez Twojego udziału.</value></data>
-  <data name="Step3Title" xml:space="preserve"><value>Otrzymuj powiadomienia</value></data>
-  <data name="Step3Body" xml:space="preserve"><value>Gdy pojawi się nowe ogłoszenie pasujące do Twojego alertu, natychmiast dostajesz powiadomienie w aplikacji. Bądź pierwszy.</value></data>
-  <data name="FeaturesHeading" xml:space="preserve"><value>Co oferuje Wyszukiwacz?</value></data>
-  <data name="FeaturesSub" xml:space="preserve"><value>Wszystkie narzędzia do skutecznego szukania ogłoszeń w jednym miejscu.</value></data>
-  <data name="Feature1Title" xml:space="preserve"><value>Wyszukiwanie równoległe</value></data>
-  <data name="Feature1Body" xml:space="preserve"><value>Jedno zapytanie przeszukuje jednocześnie wszystkie obsługiwane portale. Nie musisz wchodzić na każdą stronę osobno.</value></data>
-  <data name="Feature2Title" xml:space="preserve"><value>Alerty i powiadomienia</value></data>
-  <data name="Feature2Body" xml:space="preserve"><value>Ustaw alert na dowolną frazę i kategorię. Gdy pojawi się nowe pasujące ogłoszenie, natychmiast je zobaczysz w sekcji powiadomień.</value></data>
-  <data name="Feature3Title" xml:space="preserve"><value>Błyskawiczne wyniki</value></data>
-  <data name="Feature3Body" xml:space="preserve"><value>Wyniki z wielu portali zbierane są w czasie rzeczywistym i prezentowane w przejrzystym, zunifikowanym widoku.</value></data>
-  <data name="Feature4Title" xml:space="preserve"><value>Przejrzysty widok ofert</value></data>
-  <data name="Feature4Body" xml:space="preserve"><value>Porównuj oferty z różnych portali obok siebie – cena, lokalizacja, data dodania – w jednym spójnym interfejsie.</value></data>
-  <data name="Feature5Title" xml:space="preserve"><value>Filtry i kategorie</value></data>
-  <data name="Feature5Body" xml:space="preserve"><value>Samochody, mieszkania, zakupy – każda kategoria ma dedykowane filtry dopasowane do specyfiki danego rynku.</value></data>
-  <data name="Feature6Title" xml:space="preserve"><value>Bezpieczne konto</value></data>
-  <data name="Feature6Body" xml:space="preserve"><value>Twoje dane i ustawienia alertów są bezpiecznie przechowywane na serwerze i dostępne po zalogowaniu z każdego urządzenia.</value></data>
-  <data name="CategoriesHeading" xml:space="preserve"><value>Kategorie ogłoszeń</value></data>
-  <data name="CategoriesSub" xml:space="preserve"><value>Cztery główne rynki objęte przez Wyszukiwacz – każdy z osobnym zestawem portali i filtrów.</value></data>
-  <data name="CatCarsTitle" xml:space="preserve"><value>Samochody używane</value></data>
-  <data name="CatCarsPortals" xml:space="preserve"><value>6 portali motoryzacyjnych</value></data>
-  <data name="CatCarsBody" xml:space="preserve"><value>Szukaj aut używanych i nowych na największych polskich portalach motoryzacyjnych jednocześnie. Porównuj ceny i filtry w jednym miejscu.</value></data>
-  <data name="CatFlatsTitle" xml:space="preserve"><value>Mieszkania i domy</value></data>
-  <data name="CatFlatsPortals" xml:space="preserve"><value>Największe portale nieruchomości</value></data>
-  <data name="CatFlatsBody" xml:space="preserve"><value>Przeglądaj oferty mieszkań, domów i działek na kupno lub wynajem. Filtruj po mieście, cenie i metrażu – wyniki z Otodom i innych portali.</value></data>
-  <data name="CatShoppingTitle" xml:space="preserve"><value>Zakupy online</value></data>
-  <data name="CatShoppingPortals" xml:space="preserve"><value>Produkty i monitoring cen</value></data>
-  <data name="CatShoppingBody" xml:space="preserve"><value>Wyszukuj produkty na Amazon i innych platformach zakupowych. Śledź ceny i dostaj alert gdy produkt potanieje lub pojawi się nowa oferta.</value></data>
-  <data name="CatWorkTitle" xml:space="preserve"><value>Oferty pracy</value></data>
-  <data name="CatWorkPortals" xml:space="preserve"><value>5 portali z pracą</value></data>
-  <data name="CatWorkBody" xml:space="preserve"><value>Szukaj pracy na Pracuj.pl, JustJoin.IT, NoFluffJobs i innych. Filtruj po stanowisku, lokalizacji, poziomie i rodzaju umowy – wyniki z wielu portali naraz.</value></data>
-  <data name="FaqHeading" xml:space="preserve"><value>Najczęstsze pytania</value></data>
-  <data name="FaqSub" xml:space="preserve"><value>Wszystko co musisz wiedzieć przed pierwszym logowaniem.</value></data>
-  <data name="Faq1Q" xml:space="preserve"><value>Jak działa Wyszukiwacz?</value></data>
-  <data name="Faq1A" xml:space="preserve"><value>Wyszukiwacz automatycznie przeszukuje dziesiątki polskich portali ogłoszeniowych jednocześnie. Wpisujesz frazę, wybierasz kategorię i filtry – a my zbieramy dla Ciebie wyniki z OLX, Otomoto, Otodom, Amazon i wielu innych. Zamiast odwiedzać każdy portal osobno, widzisz wszystkie wyniki w jednym miejscu.</value></data>
-  <data name="Faq2Q" xml:space="preserve"><value>Które portale ogłoszeniowe są obsługiwane?</value></data>
-  <data name="Faq2A" xml:space="preserve"><value>Obsługujemy największe polskie portale ogłoszeniowe: samochody – Otomoto, OLX, Gratka, Sprzedajemy, AutoScout24, Autocentrum; nieruchomości – Otodom i OLX; zakupy – Amazon. Lista portali jest regularnie rozszerzana.</value></data>
-  <data name="Faq3Q" xml:space="preserve"><value>Jak ustawić alert na nowe ogłoszenia?</value></data>
-  <data name="Faq3A" xml:space="preserve"><value>Po zalogowaniu przejdź do sekcji Powiadomienia w menu bocznym. Wpisz frazę której szukasz, wybierz kategorię i portal. Od tej chwili system automatycznie monitoruje portale i powiadamia Cię gdy pojawi się nowe pasujące ogłoszenie.</value></data>
-  <data name="Faq4Q" xml:space="preserve"><value>Czy Wyszukiwacz jest bezpłatny?</value></data>
-  <data name="Faq4A" xml:space="preserve"><value>Tak, rejestracja i korzystanie z Wyszukiwacza jest całkowicie bezpłatne. Możesz przeszukiwać ogłoszenia na wszystkich obsługiwanych portalach i ustawiać nieograniczoną liczbę alertów bez żadnych opłat.</value></data>
-  <data name="Faq5Q" xml:space="preserve"><value>Czy mogę szukać na Otomoto i OLX jednocześnie?</value></data>
-  <data name="Faq5A" xml:space="preserve"><value>Tak – to właśnie główna zaleta Wyszukiwacza. Jedno zapytanie w kategorii Samochody przeszukuje równolegle Otomoto, OLX, Gratka i inne portale motoryzacyjne, pokazując wyniki w jednym zunifikowanym widoku.</value></data>
-  <data name="Faq6Q" xml:space="preserve"><value>Jak szybko dostanę powiadomienie o nowym ogłoszeniu?</value></data>
-  <data name="Faq6A" xml:space="preserve"><value>Powiadomienia są generowane na bieżąco gdy tylko system wykryje nowe ogłoszenie pasujące do Twojego alertu. Dzięki temu możesz reagować jako jeden z pierwszych zainteresowanych – co jest kluczowe zwłaszcza w popularnych kategoriach takich jak mieszkania czy samochody.</value></data>
-  <data name="CtaHeading" xml:space="preserve"><value>Zacznij szukać bezpłatnie</value></data>
-  <data name="CtaSub" xml:space="preserve"><value>Dołącz i nigdy więcej nie przegap dobrej oferty. Rejestracja zajmuje 30 sekund.</value></data>
-  <data name="CtaCTA1" xml:space="preserve"><value>Zarejestruj się teraz</value></data>
-  <data name="CtaCTA2" xml:space="preserve"><value>Już mam konto</value></data>
-
-  <!-- Public nav -->
-  <data name="NavPricing" xml:space="preserve"><value>Cennik</value></data>
-  <data name="NavSignIn" xml:space="preserve"><value>Zaloguj się</value></data>
-  <data name="NavSignUpFree" xml:space="preserve"><value>Zarejestruj się bezpłatnie</value></data>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Categories" xml:space="preserve">
+    <value>Kategorie</value>
+  </data>
+  <data name="Tractors" xml:space="preserve">
+    <value>Ciągniki</value>
+  </data>
+  <data name="SearchPhrase" xml:space="preserve">
+    <value>Szukana fraza</value>
+  </data>
+  <data name="Notifications" xml:space="preserve">
+    <value>Powiadomienia</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>Historia</value>
+  </data>
+  <data name="NotificationSettings" xml:space="preserve">
+    <value>Ustawienia powiadomień</value>
+  </data>
+  <data name="SetRecurringNotifications" xml:space="preserve">
+    <value>Ustaw powiadomienia cykliczne</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Logowanie</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Rejestracja</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Wyloguj</value>
+  </data>
+  <data name="LoggedAs" xml:space="preserve">
+    <value>Zalogowany:</value>
+  </data>
+  <data name="Cars" xml:space="preserve">
+    <value>Samochody</value>
+  </data>
+  <data name="Flats" xml:space="preserve">
+    <value>Mieszkania</value>
+  </data>
+  <data name="Shopping" xml:space="preserve">
+    <value>Zakupy</value>
+  </data>
+  <data name="JobOffers" xml:space="preserve">
+    <value>Oferty pracy IT</value>
+  </data>
+  <data name="CategoriesHeader" xml:space="preserve">
+    <value>Kategorie</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Język</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Tytuł</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="OpenLink" xml:space="preserve">
+    <value>Otwórz Link</value>
+  </data>
+  <data name="ViewOffer" xml:space="preserve">
+    <value>Zobacz ofertę</value>
+  </data>
+  <data name="Image" xml:space="preserve">
+    <value>Zdjęcie</value>
+  </data>
+  <data name="NoImage" xml:space="preserve">
+    <value>Brak zdjęcia</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Cena</value>
+  </data>
+  <data name="PricePLN" xml:space="preserve">
+    <value>Cena (PLN)</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Lokalizacja</value>
+  </data>
+  <data name="AddedDate" xml:space="preserve">
+    <value>Data dodania</value>
+  </data>
+  <data name="NoData" xml:space="preserve">
+    <value>Brak danych do wyświetlenia.</value>
+  </data>
+  <data name="NoJobs" xml:space="preserve">
+    <value>Brak ofert pracy.</value>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>ZAŁADUJ</value>
+  </data>
+  <data name="SearchedText" xml:space="preserve">
+    <value>Szukany tekst</value>
+  </data>
+  <data name="ChoosePagesAds" xml:space="preserve">
+    <value>Wybierz strony, z których chcesz pobrać ogłoszenia</value>
+  </data>
+  <data name="SearchHistory" xml:space="preserve">
+    <value>Historia wyszukiwań</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Zaznacz wszystkie</value>
+  </data>
+  <data name="DeselectAll" xml:space="preserve">
+    <value>Odznacz wszystkie</value>
+  </data>
+  <data name="ChoosePages" xml:space="preserve">
+    <value>Wybierz strony, z których chcesz pobrać ogłoszenie</value>
+  </data>
+  <data name="ChooseJobPortals" xml:space="preserve">
+    <value>Wybierz portale pracy</value>
+  </data>
+  <data name="ChoosePlatformLast100" xml:space="preserve">
+    <value>Wybierz platformę, dla której chcesz zobaczyć 100 ostatnich ofert</value>
+  </data>
+  <data name="AdditionalInfo" xml:space="preserve">
+    <value>Dodatkowe informacje</value>
+  </data>
+  <data name="ErrorFetching" xml:space="preserve">
+    <value>Błąd podczas pobierania danych:</value>
+  </data>
+  <data name="FillSearchedText" xml:space="preserve">
+    <value>Wypełnij pole "Szukany tekst"</value>
+  </data>
+  <data name="FillBrandOrModel" xml:space="preserve">
+    <value>Wypełnij pole Marka lub Model.</value>
+  </data>
+  <data name="EnterKeyword" xml:space="preserve">
+    <value>Wpisz stanowisko lub słowo kluczowe.</value>
+  </data>
+  <data name="InvalidPhrase" xml:space="preserve">
+    <value>Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik.</value>
+  </data>
+  <data name="InvalidPhraseExt" xml:space="preserve">
+    <value>Fraza zawiera niedozwolone znaki. Dozwolone: litery, cyfry, spacje, myślnik, #, .</value>
+  </data>
+  <data name="Brand" xml:space="preserve">
+    <value>Marka</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>Model</value>
+  </data>
+  <data name="ChooseFuel" xml:space="preserve">
+    <value>Wybierz rodzaj paliwa</value>
+  </data>
+  <data name="ChooseHorsepower" xml:space="preserve">
+    <value>Wybierz moc silnika (KM)</value>
+  </data>
+  <data name="ChooseCapacity" xml:space="preserve">
+    <value>Wybierz pojemność silnika (cm³)</value>
+  </data>
+  <data name="ChooseGearbox" xml:space="preserve">
+    <value>Wybierz skrzynię biegów</value>
+  </data>
+  <data name="EnginePlaceholder" xml:space="preserve">
+    <value>np. 2.0 lub 150 KM</value>
+  </data>
+  <data name="EngineLabel" xml:space="preserve">
+    <value>Silnik</value>
+  </data>
+  <data name="FuelPetrol" xml:space="preserve">
+    <value>Benzyna</value>
+  </data>
+  <data name="FuelPetrolCng" xml:space="preserve">
+    <value>Benzyna-CNG</value>
+  </data>
+  <data name="FuelPetrolLng" xml:space="preserve">
+    <value>Benzyna-LNG</value>
+  </data>
+  <data name="FuelPetrolLpg" xml:space="preserve">
+    <value>Benzyna+LPG</value>
+  </data>
+  <data name="FuelDiesel" xml:space="preserve">
+    <value>Diesel</value>
+  </data>
+  <data name="FuelElectric" xml:space="preserve">
+    <value>Elektryczny</value>
+  </data>
+  <data name="FuelHybrid" xml:space="preserve">
+    <value>Hybrydowy</value>
+  </data>
+  <data name="GearboxManual" xml:space="preserve">
+    <value>Manualna</value>
+  </data>
+  <data name="GearboxAutomatic" xml:space="preserve">
+    <value>Automatyczna</value>
+  </data>
+  <data name="FuelLpg" xml:space="preserve">
+    <value>LPG</value>
+  </data>
+  <data name="CapacityFrom" xml:space="preserve">
+    <value>Pojemność od (cm³)</value>
+  </data>
+  <data name="CapacityTo" xml:space="preserve">
+    <value>Pojemność do (cm³)</value>
+  </data>
+  <data name="PriceFrom" xml:space="preserve">
+    <value>Cena od (PLN)</value>
+  </data>
+  <data name="PriceTo" xml:space="preserve">
+    <value>Cena do (PLN)</value>
+  </data>
+  <data name="MileageKm" xml:space="preserve">
+    <value>Przebieg (km)</value>
+  </data>
+  <data name="ProductionYear" xml:space="preserve">
+    <value>Rok produkcji</value>
+  </data>
+  <data name="Fuel" xml:space="preserve">
+    <value>Paliwo</value>
+  </data>
+  <data name="Gearbox" xml:space="preserve">
+    <value>Skrzynia</value>
+  </data>
+  <data name="BodyType" xml:space="preserve">
+    <value>Typ nadwozia</value>
+  </data>
+  <data name="BodyTypeShort" xml:space="preserve">
+    <value>Nadwozie</value>
+  </data>
+  <data name="Seller" xml:space="preserve">
+    <value>Sprzedawca</value>
+  </data>
+  <data name="Extra" xml:space="preserve">
+    <value>Dodatkowe</value>
+  </data>
+  <data name="PositionKeyword" xml:space="preserve">
+    <value>Stanowisko / słowo kluczowe</value>
+  </data>
+  <data name="WorkLocation" xml:space="preserve">
+    <value>Lokalizacja</value>
+  </data>
+  <data name="WorkLocationPlaceholder" xml:space="preserve">
+    <value>np. Rzeszów</value>
+  </data>
+  <data name="Seniority" xml:space="preserve">
+    <value>Poziom stanowiska</value>
+  </data>
+  <data name="ContractType" xml:space="preserve">
+    <value>Typ umowy</value>
+  </data>
+  <data name="AnyM" xml:space="preserve">
+    <value>Dowolny</value>
+  </data>
+  <data name="AnyF" xml:space="preserve">
+    <value>Dowolna</value>
+  </data>
+  <data name="LevelJunior" xml:space="preserve">
+    <value>Junior</value>
+  </data>
+  <data name="LevelMid" xml:space="preserve">
+    <value>Mid / Regular</value>
+  </data>
+  <data name="LevelSenior" xml:space="preserve">
+    <value>Senior</value>
+  </data>
+  <data name="LevelExpert" xml:space="preserve">
+    <value>Ekspert</value>
+  </data>
+  <data name="ContractEmployment" xml:space="preserve">
+    <value>Umowa o pracę</value>
+  </data>
+  <data name="ContractB2B" xml:space="preserve">
+    <value>B2B</value>
+  </data>
+  <data name="ContractMandate" xml:space="preserve">
+    <value>Umowa zlecenia</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Stanowisko</value>
+  </data>
+  <data name="Employer" xml:space="preserve">
+    <value>Pracodawca</value>
+  </data>
+  <data name="Company" xml:space="preserve">
+    <value>Firma</value>
+  </data>
+  <data name="Salary" xml:space="preserve">
+    <value>Wynagrodzenie</value>
+  </data>
+  <data name="Technologies" xml:space="preserve">
+    <value>Technologie</value>
+  </data>
+  <data name="WorkPlace" xml:space="preserve">
+    <value>Miejsce pracy</value>
+  </data>
+  <data name="CompanyHQ" xml:space="preserve">
+    <value>Siedziba firmy</value>
+  </data>
+  <data name="HQ" xml:space="preserve">
+    <value>Siedziba</value>
+  </data>
+  <data name="AdditionalInfoExt" xml:space="preserve">
+    <value>Informacje dodatkowe</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>Umowa/Stanowisko</value>
+  </data>
+  <data name="Contract" xml:space="preserve">
+    <value>Umowa</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>Poziom</value>
+  </data>
+  <data name="WorkMode" xml:space="preserve">
+    <value>Tryb pracy</value>
+  </data>
+  <data name="FromPLN" xml:space="preserve">
+    <value>od</value>
+  </data>
+  <data name="ConfigureNotifications" xml:space="preserve">
+    <value>Skonfiguruj automatyczne wyszukiwanie i powiadomienia</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Kategoria</value>
+  </data>
+  <data name="CatAuto" xml:space="preserve">
+    <value>Motoryzacja</value>
+  </data>
+  <data name="CatRealEstate" xml:space="preserve">
+    <value>Nieruchomości</value>
+  </data>
+  <data name="CatShopping" xml:space="preserve">
+    <value>Zakupy</value>
+  </data>
+  <data name="CatWork" xml:space="preserve">
+    <value>Praca</value>
+  </data>
+  <data name="CatTractors" xml:space="preserve">
+    <value>Ciągniki</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>aktywne</value>
+  </data>
+  <data name="Inactive" xml:space="preserve">
+    <value>nieaktywne</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Wyszukiwanie</value>
+  </data>
+  <data name="MaxResults" xml:space="preserve">
+    <value>Liczba wyników (maks.)</value>
+  </data>
+  <data name="Platforms" xml:space="preserve">
+    <value>Platformy</value>
+  </data>
+  <data name="NotificationChannels" xml:space="preserve">
+    <value>Kanały powiadomień</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EmailDesc" xml:space="preserve">
+    <value>Wyślij wyniki na email</value>
+  </data>
+  <data name="SMS" xml:space="preserve">
+    <value>SMS</value>
+  </data>
+  <data name="SMSDesc" xml:space="preserve">
+    <value>Wyślij wiadomość SMS</value>
+  </data>
+  <data name="Discord" xml:space="preserve">
+    <value>Discord</value>
+  </data>
+  <data name="DiscordDesc" xml:space="preserve">
+    <value>Wyślij na kanał Discord</value>
+  </data>
+  <data name="InApp" xml:space="preserve">
+    <value>Tylko w aplikacji</value>
+  </data>
+  <data name="InAppDesc" xml:space="preserve">
+    <value>Powiadomienia widoczne tylko w aplikacji</value>
+  </data>
+  <data name="InAppChip" xml:space="preserve">
+    <value>W aplikacji</value>
+  </data>
+  <data name="Schedule" xml:space="preserve">
+    <value>Harmonogram</value>
+  </data>
+  <data name="SendAtHour" xml:space="preserve">
+    <value>Wyślij o konkretnej godzinie</value>
+  </data>
+  <data name="SendAtHourDesc" xml:space="preserve">
+    <value>Powiadomienie zostanie wysłane raz dziennie</value>
+  </data>
+  <data name="Cyclic" xml:space="preserve">
+    <value>Wysyłanie cykliczne</value>
+  </data>
+  <data name="CyclicDesc" xml:space="preserve">
+    <value>Powtarzaj co określoną liczbę minut</value>
+  </data>
+  <data name="EveryHowManyMin" xml:space="preserve">
+    <value>Co ile minut:</value>
+  </data>
+  <data name="FiltersRealEstate" xml:space="preserve">
+    <value>Filtry (Nieruchomości)</value>
+  </data>
+  <data name="Sale" xml:space="preserve">
+    <value>Sprzedaż</value>
+  </data>
+  <data name="Rent" xml:space="preserve">
+    <value>Wynajem</value>
+  </data>
+  <data name="Private" xml:space="preserve">
+    <value>Prywatne</value>
+  </data>
+  <data name="Public" xml:space="preserve">
+    <value>Publiczne</value>
+  </data>
+  <data name="Last24h" xml:space="preserve">
+    <value>Ostatnie 24h</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Podsumowanie</value>
+  </data>
+  <data name="Phrase" xml:space="preserve">
+    <value>Fraza</value>
+  </data>
+  <data name="MaxResultsShort" xml:space="preserve">
+    <value>Wyniki maks.</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>Nie ustawiono</value>
+  </data>
+  <data name="DailyAt" xml:space="preserve">
+    <value>Codziennie o</value>
+  </data>
+  <data name="Every" xml:space="preserve">
+    <value>Co</value>
+  </data>
+  <data name="Min" xml:space="preserve">
+    <value>min</value>
+  </data>
+  <data name="Channels" xml:space="preserve">
+    <value>Kanały</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>Brak</value>
+  </data>
+  <data name="SaveSettings" xml:space="preserve">
+    <value>Zapisz ustawienia</value>
+  </data>
+  <data name="DeleteScheduledJobs" xml:space="preserve">
+    <value>Usuń aktywne zadania</value>
+  </data>
+  <data name="ActiveJobs" xml:space="preserve">
+    <value>Aktywne zadania</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Ładowanie...</value>
+  </data>
+  <data name="NoActiveJobs" xml:space="preserve">
+    <value>Brak aktywnych zadań.</value>
+  </data>
+  <data name="PlaceholderAuto" xml:space="preserve">
+    <value>np. Toyota Corolla, BMW 3...</value>
+  </data>
+  <data name="PlaceholderRealEstate" xml:space="preserve">
+    <value>np. Warszawa, Kraków...</value>
+  </data>
+  <data name="PlaceholderShopping" xml:space="preserve">
+    <value>np. iPhone 14, karta graficzna...</value>
+  </data>
+  <data name="PlaceholderWork" xml:space="preserve">
+    <value>np. developer, kierowca, manager...</value>
+  </data>
+  <data name="PlaceholderTractors" xml:space="preserve">
+    <value>np. Ursus C-330, Zetor...</value>
+  </data>
+  <data name="PlaceholderDefault" xml:space="preserve">
+    <value>Wpisz szukany tekst...</value>
+  </data>
+  <data name="PageTitleOffers" xml:space="preserve">
+    <value>Oferty - Wyszukiwacz</value>
+  </data>
+  <data name="MyAccount" xml:space="preserve">
+    <value>Moje konto</value>
+  </data>
+  <data name="AccountData" xml:space="preserve">
+    <value>Dane konta</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Telefon</value>
+  </data>
+  <data name="NotProvided" xml:space="preserve">
+    <value>Nie podano</value>
+  </data>
+  <data name="ChangePassword" xml:space="preserve">
+    <value>Zmień hasło</value>
+  </data>
+  <data name="CurrentPassword" xml:space="preserve">
+    <value>Aktualne hasło</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>Nowe hasło</value>
+  </data>
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Potwierdź hasło</value>
+  </data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve">
+    <value>Hasła się nie zgadzają.</value>
+  </data>
+  <data name="ChangeEmail" xml:space="preserve">
+    <value>Zmień email</value>
+  </data>
+  <data name="NewEmail" xml:space="preserve">
+    <value>Nowy adres email</value>
+  </data>
+  <data name="ChangePhone" xml:space="preserve">
+    <value>Zmień telefon</value>
+  </data>
+  <data name="NewPhone" xml:space="preserve">
+    <value>Nowy numer telefonu</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Zapisz</value>
+  </data>
+  <data name="MemberSince" xml:space="preserve">
+    <value>Konto założone</value>
+  </data>
+  <data name="LoginPageTitle" xml:space="preserve">
+    <value>Logowanie – Wyszukiwacz</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>Zaloguj się</value>
+  </data>
+  <data name="LoginNoAccount" xml:space="preserve">
+    <value>Nie masz konta?</value>
+  </data>
+  <data name="LoginRegisterFree" xml:space="preserve">
+    <value>Zarejestruj się bezpłatnie</value>
+  </data>
+  <data name="LoginEmailOrUsername" xml:space="preserve">
+    <value>Email lub login</value>
+  </data>
+  <data name="PasswordLabel" xml:space="preserve">
+    <value>Hasło</value>
+  </data>
+  <data name="LoginPlaceholderUser" xml:space="preserve">
+    <value>twoj@email.pl lub login</value>
+  </data>
+  <data name="LoginPlaceholderPass" xml:space="preserve">
+    <value>Wprowadź hasło</value>
+  </data>
+  <data name="LoginRememberMe" xml:space="preserve">
+    <value>Zapamiętaj mnie</value>
+  </data>
+  <data name="LoginButton" xml:space="preserve">
+    <value>Zaloguj się</value>
+  </data>
+  <data name="LoggingIn" xml:space="preserve">
+    <value>Logowanie...</value>
+  </data>
+  <data name="LoginInvalidCredentials" xml:space="preserve">
+    <value>Nieprawidłowy login lub hasło</value>
+  </data>
+  <data name="LoginGenericError" xml:space="preserve">
+    <value>Niepoprawne dane logowania</value>
+  </data>
+  <data name="RegisterPageTitle" xml:space="preserve">
+    <value>Rejestracja – Wyszukiwacz</value>
+  </data>
+  <data name="RegisterTitle" xml:space="preserve">
+    <value>Utwórz konto</value>
+  </data>
+  <data name="RegisterHasAccount" xml:space="preserve">
+    <value>Masz już konto?</value>
+  </data>
+  <data name="SignIn" xml:space="preserve">
+    <value>Zaloguj się</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>Imię</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>Nazwisko</value>
+  </data>
+  <data name="UsernameLabel" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="UsernamePlaceholder" xml:space="preserve">
+    <value>Nazwa użytkownika</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>(opcjonalnie)</value>
+  </data>
+  <data name="RegisterButton" xml:space="preserve">
+    <value>Zarejestruj się bezpłatnie</value>
+  </data>
+  <data name="Registering" xml:space="preserve">
+    <value>Rejestracja...</value>
+  </data>
+  <data name="RegisterSuccessMsg" xml:space="preserve">
+    <value>Rejestracja zakończona pomyślnie! Przekierowuję do logowania...</value>
+  </data>
+  <data name="RegisterFailedMsg" xml:space="preserve">
+    <value>Rejestracja nie powiodła się</value>
+  </data>
+  <data name="RegisterGenericError" xml:space="preserve">
+    <value>Wystąpił błąd podczas rejestracji.</value>
+  </data>
+  <data name="TermsAccept" xml:space="preserve">
+    <value>Rejestrując się akceptujesz</value>
+  </data>
+  <data name="TermsOfService" xml:space="preserve">
+    <value>regulamin</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>politykę prywatności</value>
+  </data>
+  <data name="RepeatPasswordLabel" xml:space="preserve">
+    <value>Powtórz hasło</value>
+  </data>
+  <data name="PasswordMinHint" xml:space="preserve">
+    <value>Min. 6 znaków</value>
+  </data>
+  <data name="HeroBadge" xml:space="preserve">
+    <value>Bezpłatny agregator ogłoszeń dla Polski</value>
+  </data>
+  <data name="HeroH1Line1" xml:space="preserve">
+    <value>Jeden portal.</value>
+  </data>
+  <data name="HeroH1Line2" xml:space="preserve">
+    <value>Wszystkie ogłoszenia.</value>
+  </data>
+  <data name="HeroSub" xml:space="preserve">
+    <value>Szukaj aut, mieszkań i produktów na OLX, Otomoto, Otodom, Amazon i dziesiątkach innych serwisów – wszystko w jednym miejscu. Ustaw alert i nigdy nie przegap okazji.</value>
+  </data>
+  <data name="HeroCTA1" xml:space="preserve">
+    <value>Zarejestruj się bezpłatnie</value>
+  </data>
+  <data name="HeroCTA2" xml:space="preserve">
+    <value>Mam już konto</value>
+  </data>
+  <data name="PlatformsLabel" xml:space="preserve">
+    <value>Przeszukujemy dla Ciebie</value>
+  </data>
+  <data name="StatPortalsLabel" xml:space="preserve">
+    <value>portali ogłoszeniowych w jednym miejscu</value>
+  </data>
+  <data name="StatCategoriesLabel" xml:space="preserve">
+    <value>kategorie: auta, mieszkania, zakupy, oferty pracy</value>
+  </data>
+  <data name="StatFreeLabel" xml:space="preserve">
+    <value>całkowicie bezpłatny dostęp</value>
+  </data>
+  <data name="StatFreeValue" xml:space="preserve">
+    <value>0 zł</value>
+  </data>
+  <data name="HowHeading" xml:space="preserve">
+    <value>Jak to działa?</value>
+  </data>
+  <data name="HowSub" xml:space="preserve">
+    <value>Trzy kroki dzielą Cię od znalezienia idealnej oferty. Koniec z ręcznym przeglądaniem dziesiątek stron.</value>
+  </data>
+  <data name="Step1Title" xml:space="preserve">
+    <value>Wybierz kategorię i wpisz frazę</value>
+  </data>
+  <data name="Step1Body" xml:space="preserve">
+    <value>Szukasz samochodu, mieszkania czy konkretnego produktu? Wybierz kategorię, wpisz czego szukasz i ustaw filtry.</value>
+  </data>
+  <data name="Step2Title" xml:space="preserve">
+    <value>Ustaw alert jednorazowo</value>
+  </data>
+  <data name="Step2Body" xml:space="preserve">
+    <value>Zdefiniuj swoje kryterium jako alert. System będzie automatycznie monitorował dziesiątki portali bez Twojego udziału.</value>
+  </data>
+  <data name="Step3Title" xml:space="preserve">
+    <value>Otrzymuj powiadomienia</value>
+  </data>
+  <data name="Step3Body" xml:space="preserve">
+    <value>Gdy pojawi się nowe ogłoszenie pasujące do Twojego alertu, natychmiast dostajesz powiadomienie w aplikacji. Bądź pierwszy.</value>
+  </data>
+  <data name="FeaturesHeading" xml:space="preserve">
+    <value>Co oferuje Wyszukiwacz?</value>
+  </data>
+  <data name="FeaturesSub" xml:space="preserve">
+    <value>Wszystkie narzędzia do skutecznego szukania ogłoszeń w jednym miejscu.</value>
+  </data>
+  <data name="Feature1Title" xml:space="preserve">
+    <value>Wyszukiwanie równoległe</value>
+  </data>
+  <data name="Feature1Body" xml:space="preserve">
+    <value>Jedno zapytanie przeszukuje jednocześnie wszystkie obsługiwane portale. Nie musisz wchodzić na każdą stronę osobno.</value>
+  </data>
+  <data name="Feature2Title" xml:space="preserve">
+    <value>Alerty i powiadomienia</value>
+  </data>
+  <data name="Feature2Body" xml:space="preserve">
+    <value>Ustaw alert na dowolną frazę i kategorię. Gdy pojawi się nowe pasujące ogłoszenie, natychmiast je zobaczysz w sekcji powiadomień.</value>
+  </data>
+  <data name="Feature3Title" xml:space="preserve">
+    <value>Błyskawiczne wyniki</value>
+  </data>
+  <data name="Feature3Body" xml:space="preserve">
+    <value>Wyniki z wielu portali zbierane są w czasie rzeczywistym i prezentowane w przejrzystym, zunifikowanym widoku.</value>
+  </data>
+  <data name="Feature4Title" xml:space="preserve">
+    <value>Przejrzysty widok ofert</value>
+  </data>
+  <data name="Feature4Body" xml:space="preserve">
+    <value>Porównuj oferty z różnych portali obok siebie – cena, lokalizacja, data dodania – w jednym spójnym interfejsie.</value>
+  </data>
+  <data name="Feature5Title" xml:space="preserve">
+    <value>Filtry i kategorie</value>
+  </data>
+  <data name="Feature5Body" xml:space="preserve">
+    <value>Samochody, mieszkania, zakupy – każda kategoria ma dedykowane filtry dopasowane do specyfiki danego rynku.</value>
+  </data>
+  <data name="Feature6Title" xml:space="preserve">
+    <value>Bezpieczne konto</value>
+  </data>
+  <data name="Feature6Body" xml:space="preserve">
+    <value>Twoje dane i ustawienia alertów są bezpiecznie przechowywane na serwerze i dostępne po zalogowaniu z każdego urządzenia.</value>
+  </data>
+  <data name="CategoriesHeading" xml:space="preserve">
+    <value>Kategorie ogłoszeń</value>
+  </data>
+  <data name="CategoriesSub" xml:space="preserve">
+    <value>Cztery główne rynki objęte przez Wyszukiwacz – każdy z osobnym zestawem portali i filtrów.</value>
+  </data>
+  <data name="CatCarsTitle" xml:space="preserve">
+    <value>Samochody używane</value>
+  </data>
+  <data name="CatCarsPortals" xml:space="preserve">
+    <value>6 portali motoryzacyjnych</value>
+  </data>
+  <data name="CatCarsBody" xml:space="preserve">
+    <value>Szukaj aut używanych i nowych na największych polskich portalach motoryzacyjnych jednocześnie. Porównuj ceny i filtry w jednym miejscu.</value>
+  </data>
+  <data name="CatFlatsTitle" xml:space="preserve">
+    <value>Mieszkania i domy</value>
+  </data>
+  <data name="CatFlatsPortals" xml:space="preserve">
+    <value>Największe portale nieruchomości</value>
+  </data>
+  <data name="CatFlatsBody" xml:space="preserve">
+    <value>Przeglądaj oferty mieszkań, domów i działek na kupno lub wynajem. Filtruj po mieście, cenie i metrażu – wyniki z Otodom i innych portali.</value>
+  </data>
+  <data name="CatShoppingTitle" xml:space="preserve">
+    <value>Zakupy online</value>
+  </data>
+  <data name="CatShoppingPortals" xml:space="preserve">
+    <value>Produkty i monitoring cen</value>
+  </data>
+  <data name="CatShoppingBody" xml:space="preserve">
+    <value>Wyszukuj produkty na Amazon i innych platformach zakupowych. Śledź ceny i dostaj alert gdy produkt potanieje lub pojawi się nowa oferta.</value>
+  </data>
+  <data name="CatWorkTitle" xml:space="preserve">
+    <value>Oferty pracy</value>
+  </data>
+  <data name="CatWorkPortals" xml:space="preserve">
+    <value>5 portali z pracą</value>
+  </data>
+  <data name="CatWorkBody" xml:space="preserve">
+    <value>Szukaj pracy na Pracuj.pl, JustJoin.IT, NoFluffJobs i innych. Filtruj po stanowisku, lokalizacji, poziomie i rodzaju umowy – wyniki z wielu portali naraz.</value>
+  </data>
+  <data name="FaqHeading" xml:space="preserve">
+    <value>Najczęstsze pytania</value>
+  </data>
+  <data name="FaqSub" xml:space="preserve">
+    <value>Wszystko co musisz wiedzieć przed pierwszym logowaniem.</value>
+  </data>
+  <data name="Faq1Q" xml:space="preserve">
+    <value>Jak działa Wyszukiwacz?</value>
+  </data>
+  <data name="Faq1A" xml:space="preserve">
+    <value>Wyszukiwacz automatycznie przeszukuje dziesiątki polskich portali ogłoszeniowych jednocześnie. Wpisujesz frazę, wybierasz kategorię i filtry – a my zbieramy dla Ciebie wyniki z OLX, Otomoto, Otodom, Amazon i wielu innych. Zamiast odwiedzać każdy portal osobno, widzisz wszystkie wyniki w jednym miejscu.</value>
+  </data>
+  <data name="Faq2Q" xml:space="preserve">
+    <value>Które portale ogłoszeniowe są obsługiwane?</value>
+  </data>
+  <data name="Faq2A" xml:space="preserve">
+    <value>Obsługujemy największe polskie portale ogłoszeniowe: samochody – Otomoto, OLX, Gratka, Sprzedajemy, AutoScout24, Autocentrum; nieruchomości – Otodom i OLX; zakupy – Amazon. Lista portali jest regularnie rozszerzana.</value>
+  </data>
+  <data name="Faq3Q" xml:space="preserve">
+    <value>Jak ustawić alert na nowe ogłoszenia?</value>
+  </data>
+  <data name="Faq3A" xml:space="preserve">
+    <value>Po zalogowaniu przejdź do sekcji Powiadomienia w menu bocznym. Wpisz frazę której szukasz, wybierz kategorię i portal. Od tej chwili system automatycznie monitoruje portale i powiadamia Cię gdy pojawi się nowe pasujące ogłoszenie.</value>
+  </data>
+  <data name="Faq4Q" xml:space="preserve">
+    <value>Czy Wyszukiwacz jest bezpłatny?</value>
+  </data>
+  <data name="Faq4A" xml:space="preserve">
+    <value>Tak, rejestracja i korzystanie z Wyszukiwacza jest całkowicie bezpłatne. Możesz przeszukiwać ogłoszenia na wszystkich obsługiwanych portalach i ustawiać nieograniczoną liczbę alertów bez żadnych opłat.</value>
+  </data>
+  <data name="Faq5Q" xml:space="preserve">
+    <value>Czy mogę szukać na Otomoto i OLX jednocześnie?</value>
+  </data>
+  <data name="Faq5A" xml:space="preserve">
+    <value>Tak – to właśnie główna zaleta Wyszukiwacza. Jedno zapytanie w kategorii Samochody przeszukuje równolegle Otomoto, OLX, Gratka i inne portale motoryzacyjne, pokazując wyniki w jednym zunifikowanym widoku.</value>
+  </data>
+  <data name="Faq6Q" xml:space="preserve">
+    <value>Jak szybko dostanę powiadomienie o nowym ogłoszeniu?</value>
+  </data>
+  <data name="Faq6A" xml:space="preserve">
+    <value>Powiadomienia są generowane na bieżąco gdy tylko system wykryje nowe ogłoszenie pasujące do Twojego alertu. Dzięki temu możesz reagować jako jeden z pierwszych zainteresowanych – co jest kluczowe zwłaszcza w popularnych kategoriach takich jak mieszkania czy samochody.</value>
+  </data>
+  <data name="CtaHeading" xml:space="preserve">
+    <value>Zacznij szukać bezpłatnie</value>
+  </data>
+  <data name="CtaSub" xml:space="preserve">
+    <value>Dołącz i nigdy więcej nie przegap dobrej oferty. Rejestracja zajmuje 30 sekund.</value>
+  </data>
+  <data name="CtaCTA1" xml:space="preserve">
+    <value>Zarejestruj się teraz</value>
+  </data>
+  <data name="CtaCTA2" xml:space="preserve">
+    <value>Już mam konto</value>
+  </data>
+  <data name="NavPricing" xml:space="preserve">
+    <value>Cennik</value>
+  </data>
+  <data name="NavSignIn" xml:space="preserve">
+    <value>Zaloguj się</value>
+  </data>
+  <data name="NavSignUpFree" xml:space="preserve">
+    <value>Zarejestruj się bezpłatnie</value>
+  </data>
 </root>

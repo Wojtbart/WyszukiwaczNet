@@ -1,6 +1,7 @@
 @inherits LayoutComponentBase
 @inject NavigationManager Navigation
 @inject ILocalStorageService LocalStorage
+@inject WyszukiwaczApp.Services.AuthState AuthState
 
 <RadzenComponents />
 
@@ -98,7 +99,7 @@
     }
 </style>
 
-@if (Globals.IsLogged)
+@if (AuthState.IsLogged)
 {
     <div class="app-layout">
         <button class="hamburger" @onclick="ToggleMenu" aria-label="Menu">
@@ -152,16 +153,16 @@ else
 
         if (!string.IsNullOrEmpty(token))
         {
-            Globals.IsLogged = true;
-            Globals.AuthToken = token;
-            Globals.Login = login ?? string.Empty;
+            AuthState.IsLogged = true;
+            AuthState.AuthToken = token;
+            AuthState.Login = login ?? string.Empty;
         }
         else
         {
-            Globals.IsLogged = false;
-            Globals.AuthToken = null;
-            Globals.Login = string.Empty;
-            Globals.UserId = null;
+            AuthState.IsLogged = false;
+            AuthState.AuthToken = null;
+            AuthState.Login = string.Empty;
+            AuthState.UserId = null;
         }
         StateHasChanged();
     }

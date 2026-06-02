@@ -4,6 +4,7 @@
 @inject OfferService OfferService
 @inject IStringLocalizer<SharedResource> Loc
 @inject ILocalStorageService LocalStorage
+@inject WyszukiwaczApp.Services.AuthState AuthState
 
 <PageTitle>@Loc["PageTitleOffers"]</PageTitle>
 
@@ -87,11 +88,6 @@
         <RadzenLabel Text="Amazon" Component="cbAmazon" Style="margin:0.3rem; vertical-align: middle;" />
         <RadzenCheckBox Name="cbAmazon" Value="@(selectedPlatform == "amazon")"
                         TValue="bool" Change="@(v => OnPlatformChange(v, "amazon"))" />
-    </RadzenButton>
-    <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
-        <RadzenLabel Text="eBay" Component="cbEbay" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
-        <RadzenCheckBox Name="cbEbay" Value="@(selectedPlatform == "ebay")"
-                        TValue="bool" Change="@(v => OnPlatformChange(v, "ebay"))" />
     </RadzenButton>
 </div>
 
@@ -275,10 +271,10 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender || Globals.UserId.HasValue) return;
+        if (!firstRender || AuthState.UserId.HasValue) return;
         var token = await LocalStorage.GetItemAsync<string>("authToken");
         if (!string.IsNullOrEmpty(token))
-            Globals.UserId = GetUserIdFromToken(token);
+            AuthState.UserId = GetUserIdFromToken(token);
     }
 
     private static int? GetUserIdFromToken(string token)
@@ -307,16 +303,16 @@ else
             isLoading = true;
             StateHasChanged();
 
-            if (!Globals.UserId.HasValue)
+            if (!AuthState.UserId.HasValue)
             {
                 var token = await LocalStorage.GetItemAsync<string>("authToken");
                 if (!string.IsNullOrEmpty(token))
-                    Globals.UserId = GetUserIdFromToken(token);
+                    AuthState.UserId = GetUserIdFromToken(token);
             }
 
-            if (Globals.UserId.HasValue)
+            if (AuthState.UserId.HasValue)
             {
-                var result = await OfferService.GetUserHistoryAsync(Globals.UserId.Value, platform);
+                var result = await OfferService.GetUserHistoryAsync(AuthState.UserId.Value, platform);
                 offers = result ?? new();
             }
             isLoading = false;

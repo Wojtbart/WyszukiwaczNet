@@ -6,6 +6,7 @@
 @inject UserService UserService
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<SharedResource> Loc
+@inject WyszukiwaczApp.Services.AuthState AuthState
 
 <PageTitle>@Loc["RegisterPageTitle"]</PageTitle>
 
@@ -116,7 +117,7 @@
 
     protected override void OnInitialized()
     {
-        Globals.IsLogged = false;
+        AuthState.IsLogged = false;
     }
 
     private async Task OnRegister()

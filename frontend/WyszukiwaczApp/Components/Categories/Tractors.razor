@@ -47,7 +47,7 @@
 <RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
     <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
         <RadzenFormField Text="@(Loc["SearchPhrase"].Value)" Variant="Variant.Flat" Style="width:60%;">
-            <RadzenTextBox @bind-Value="@searchPhrase" Style="width: 100%; border-radius:15px;" Placeholder="np. Ursus C-330" />
+            <RadzenTextBox @bind-Value="@searchPhrase" @oninput="@(e => searchPhrase = e.Value?.ToString() ?? string.Empty)" Style="width: 100%; border-radius:15px;" Placeholder="np. Ursus C-330" />
         </RadzenFormField>
         <RadzenFormField Variant="Variant.Flat" Style="width: 150px; border-radius:15px !important;">
             <RadzenButton Click=LoadData Text="@(Loc["Load"].Value)" Icon="cached" ButtonStyle="ButtonStyle.Success" Shade="Shade.Darker" Style="height:3.25rem; border-radius:15px;" Disabled="@string.IsNullOrWhiteSpace(searchPhrase)" />
@@ -370,10 +370,15 @@
         try
         {
             var result = await DataProxy.getData(model);
-            olxData = result?.Data?.OlxciagnikiData?.Output;
-            brzozowiakData = result?.Data?.BrzozowiakData?.Output;
-            sprzedajemyData = result?.Data?.SprzedajemyciagnikiData?.Output;
-            otomotoData = result?.Data?.OtomotorolniczeData?.Output;
+            if (result == null || !result.Success)
+            {
+                await DialogService.Alert(result?.Message ?? Loc["ErrorFetching"].Value);
+                return;
+            }
+            olxData = result.Data?.OlxciagnikiData?.Output;
+            brzozowiakData = result.Data?.BrzozowiakData?.Output;
+            sprzedajemyData = result.Data?.SprzedajemyciagnikiData?.Output;
+            otomotoData = result.Data?.OtomotorolniczeData?.Output;
             StateHasChanged();
         }
         catch (Exception ex)

@@ -257,10 +257,13 @@
         try
         {
             var result = await DataProxy.getData(model);
-
-            otoDomData = result?.Data?.OtoDomData?.Output
+            if (result == null || !result.Success)
+            {
+                await DialogService.Alert(result?.Message ?? "Błąd podczas pobierania danych.");
+                return;
+            }
+            otoDomData = result.Data?.OtoDomData?.Output
                          ?? Enumerable.Empty<ScrapedItem>();
-
             StateHasChanged();
         }
         catch (Exception ex)

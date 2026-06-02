@@ -64,7 +64,7 @@
 <RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
     <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
         <RadzenFormField Text="@(Loc["SearchedText"].Value)" Variant="Variant.Flat" Style="width:50%;margin-right:50px;">
-            <RadzenTextBox @bind-Value="@searchedText" Style="width: 100%; border-radius:15px;" />
+            <RadzenTextBox @bind-Value="@searchedText" @oninput="@(e => searchedText = e.Value?.ToString() ?? string.Empty)" Style="width: 100%; border-radius:15px;" />
         </RadzenFormField>
         <RadzenFormField Text="@(Loc["PriceFrom"].Value)" Variant="Variant.Flat" Style="width:130px;">
             <RadzenNumeric @bind-Value="@selectedPriceFrom" TValue="decimal?" Min="0" Style="width:100%;border-radius:15px;" />
@@ -234,9 +234,13 @@
         try
         {
             var result = await DataProxy.getData(model);
-
-            olxData    = result?.Data?.OlxData?.Output;
-            amazonData = result?.Data?.AmazonData?.Output;
+            if (result == null || !result.Success)
+            {
+                await DialogService.Alert(result?.Message ?? Loc["ErrorFetching"].Value);
+                return;
+            }
+            olxData    = result.Data?.OlxData?.Output;
+            amazonData = result.Data?.AmazonData?.Output;
             StateHasChanged();
         }
         catch (Exception ex)

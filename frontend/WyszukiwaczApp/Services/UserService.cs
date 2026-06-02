@@ -47,6 +47,22 @@ public class UserService
 
             return JsonConvert.DeserializeObject<LoginResponse>(responseContent);
         }
+        catch (HttpRequestException)
+        {
+            return new LoginResponse
+            {
+                Success = false,
+                Message = "Brak połączenia z serwerem. Serwer jest niedostępny."
+            };
+        }
+        catch (TaskCanceledException)
+        {
+            return new LoginResponse
+            {
+                Success = false,
+                Message = "Przekroczono czas oczekiwania na odpowiedź serwera."
+            };
+        }
         catch (Exception ex)
         {
             return new LoginResponse

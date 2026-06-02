@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService LocalStorage
 @inject IStringLocalizer<SharedResource> Loc
+@inject WyszukiwaczApp.Services.AuthState AuthState
 
 <style>
     .account-grid {
@@ -219,13 +220,13 @@ else
         var token = await LocalStorage.GetItemAsync<string>("authToken") ?? string.Empty;
         if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(token)) { NavigationManager.NavigateTo("/login"); return; }
 
-        Globals.IsLogged = true;
-        Globals.AuthToken = token;
+        AuthState.IsLogged = true;
+        AuthState.AuthToken = token;
 
         var userInfo = await LoginProxy.GetUser(login);
         if (userInfo == null || userInfo.user_id <= 0) { NavigationManager.NavigateTo("/login"); return; }
         userId = userInfo.user_id;
-        Globals.UserId = userId;
+        AuthState.UserId = userId;
 
         profile = await UserService.GetUserProfileAsync(userId);
         isLoading = false;

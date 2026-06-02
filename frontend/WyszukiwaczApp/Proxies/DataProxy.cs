@@ -81,9 +81,17 @@ public class DataProxy
             var result = JsonConvert.DeserializeObject<GetDataResponse>(content);
             return result ?? new GetDataResponse { Success = false };
         }
+        catch (HttpRequestException)
+        {
+            return new GetDataResponse { Success = false, Message = "Brak połączenia z serwerem. Serwer jest niedostępny." };
+        }
+        catch (TaskCanceledException)
+        {
+            return new GetDataResponse { Success = false, Message = "Przekroczono czas oczekiwania na odpowiedź serwera." };
+        }
         catch
         {
-            return new GetDataResponse { Success = false };
+            return new GetDataResponse { Success = false, Message = "Wystąpił błąd podczas komunikacji z serwerem." };
         }
     }
 }
