@@ -1,23 +1,33 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 using WyszukiwaczAppDTO;
+using WyszukiwaczApp.Services;
 
 namespace WyszukiwaczApp.Proxies;
 
 public class HistoryProxy
 {
     private readonly HttpClient _httpClient;
+    private readonly AuthState _authState;
 
-    public HistoryProxy(HttpClient httpClient, ApiConfig apiConfig)
+    public HistoryProxy(HttpClient httpClient, ApiConfig apiConfig, AuthState authState)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
+        _authState = authState;
     }
+
+    private void Auth() =>
+        _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrEmpty(_authState.AuthToken)
+            ? null
+            : new AuthenticationHeaderValue("Bearer", _authState.AuthToken);
 
     public async Task<HistoryApiResponse?> getHistory(int userId)
     {
         try
         {
+            Auth();
             var response = await _httpClient.GetAsync($"offers/history/{userId}");
             var content = await response.Content.ReadAsStringAsync();
             

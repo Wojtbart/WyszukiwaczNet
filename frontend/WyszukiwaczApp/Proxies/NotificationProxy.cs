@@ -1,23 +1,33 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 using WyszukiwaczAppDTO;
+using WyszukiwaczApp.Services;
 
 namespace WyszukiwaczApp.Proxies;
 
 public class NotificationProxy
 {
     private readonly HttpClient _httpClient;
+    private readonly AuthState _authState;
 
-    public NotificationProxy(HttpClient httpClient, ApiConfig apiConfig)
+    public NotificationProxy(HttpClient httpClient, ApiConfig apiConfig, AuthState authState)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
+        _authState = authState;
     }
+
+    private void Auth() =>
+        _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrEmpty(_authState.AuthToken)
+            ? null
+            : new AuthenticationHeaderValue("Bearer", _authState.AuthToken);
 
     public async Task<ApiResponse<object>?> setCronJob(NotificationRequest request)
     {
         try
         {
+            Auth();
             var response = await _httpClient.PostAsJsonAsync("notifications/cronJob", request);
             return new ApiResponse<object> { Success = response.IsSuccessStatusCode };
         }
@@ -31,6 +41,7 @@ public class NotificationProxy
     {
         try
         {
+            Auth();
             var response = await _httpClient.GetAsync($"notifications/jobsForUser/{userId}");
             if (!response.IsSuccessStatusCode) return null;
             var content = await response.Content.ReadAsStringAsync();
@@ -46,6 +57,7 @@ public class NotificationProxy
     {
         try
         {
+            Auth();
             var json = JsonConvert.SerializeObject(model.user_id);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("notifications/deleteJobsForUser", content);

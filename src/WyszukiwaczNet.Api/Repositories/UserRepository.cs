@@ -28,6 +28,9 @@ public interface IUserRepository
     Task MarkSingleNotificationReadAsync(int notificationId);
     Task<User?> ValidateCredentialsAsync(string login, string password);
     Task UpdateAsync(User user);
+    Task<PasswordResetToken> CreatePasswordResetTokenAsync(PasswordResetToken token);
+    Task<PasswordResetToken?> GetPasswordResetTokenAsync(string token);
+    Task InvalidatePasswordResetTokenAsync(PasswordResetToken token);
 }
 
 public class UserRepository : IUserRepository
@@ -254,6 +257,26 @@ public class UserRepository : IUserRepository
                 Enabled = ups.Enabled
             })
             .ToListAsync();
+    }
+
+    public async Task<PasswordResetToken> CreatePasswordResetTokenAsync(PasswordResetToken token)
+    {
+        _context.PasswordResetTokens.Add(token);
+        await _context.SaveChangesAsync();
+        return token;
+    }
+
+    public async Task<PasswordResetToken?> GetPasswordResetTokenAsync(string token)
+    {
+        return await _context.PasswordResetTokens
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.Token == token);
+    }
+
+    public async Task InvalidatePasswordResetTokenAsync(PasswordResetToken token)
+    {
+        token.Used = true;
+        await _context.SaveChangesAsync();
     }
 }
 

@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 using WyszukiwaczAppDTO;
@@ -7,18 +8,31 @@ namespace WyszukiwaczApp.Services;
 public class OfferService
 {
     private readonly HttpClient _httpClient;
+    private readonly AuthState _authState;
 
-    public OfferService(HttpClient httpClient, ApiConfig apiConfig)
+    public OfferService(HttpClient httpClient, ApiConfig apiConfig, AuthState authState)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
+        _authState = authState;
+    }
+
+    private HttpClient HttpC
+    {
+        get
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrEmpty(_authState.AuthToken)
+                ? null
+                : new AuthenticationHeaderValue("Bearer", _authState.AuthToken);
+            return _httpClient;
+        }
     }
 
     public async Task<List<OfferResponse>?> GetOffersByPlatformAsync(string platform)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"offers/platform/{platform}");
+            var response = await HttpC.GetAsync($"offers/platform/{platform}");
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -44,7 +58,7 @@ public class OfferService
         {
             var url = $"offers/history/{userId}";
             if (!string.IsNullOrEmpty(platform)) url += $"?platform={platform}";
-            var response = await _httpClient.GetAsync(url);
+            var response = await HttpC.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             return JsonConvert.DeserializeObject<List<OfferResponse>>(content);
@@ -67,7 +81,7 @@ public class OfferService
             if (queryParams.Any())
                 url += "?" + string.Join("&", queryParams);
 
-            var response = await _httpClient.GetAsync(url);
+            var response = await HttpC.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -86,7 +100,7 @@ public class OfferService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"offers/{id}");
+            var response = await HttpC.GetAsync($"offers/{id}");
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -111,7 +125,7 @@ public class OfferService
                 RequestNumber = 1
             };
 
-            var response = await _httpClient.PostAsJsonAsync("data/getData", request);
+            var response = await HttpC.PostAsJsonAsync("data/getData", request);
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -130,7 +144,7 @@ public class OfferService
     {
         try
         {
-            var response = await _httpClient.GetAsync("offers/platforms");
+            var response = await HttpC.GetAsync("offers/platforms");
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)

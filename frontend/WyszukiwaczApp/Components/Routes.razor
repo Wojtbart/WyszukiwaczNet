@@ -34,14 +34,15 @@
     {
         try
         {
-            if (!AuthState.IsLogged && context.Path != "login" && context.Path != "register" && context.Path != "" && context.Path != "cennik")
+            var path = context.Path.Split('?')[0].Split('#')[0];
+            if (!AuthState.IsLogged && path != "login" && path != "register" && path != "" && path != "cennik" && path != "reset-password")
             {
                 if (Navigation.Uri != Navigation.ToAbsoluteUri("login").ToString())
                 {
                     Navigation.NavigateTo("login", forceLoad: false);
                 }
             }
-            else if (!AuthState.IsLogged && context.Path == "register")
+            else if (!AuthState.IsLogged && path == "register")
             {
                 if (Navigation.Uri != Navigation.ToAbsoluteUri("register").ToString())
                 {

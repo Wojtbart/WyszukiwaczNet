@@ -1,24 +1,34 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 using WyszukiwaczAppDTO;
 using WyszukiwaczApp.Models;
+using WyszukiwaczApp.Services;
 
 namespace WyszukiwaczApp.Proxies;
 
 public class DataProxy
 {
     private readonly HttpClient _httpClient;
+    private readonly AuthState _authState;
 
-    public DataProxy(HttpClient httpClient, ApiConfig apiConfig)
+    public DataProxy(HttpClient httpClient, ApiConfig apiConfig, AuthState authState)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
+        _authState = authState;
     }
+
+    private void Auth() =>
+        _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrEmpty(_authState.AuthToken)
+            ? null
+            : new AuthenticationHeaderValue("Bearer", _authState.AuthToken);
 
     public async Task<ApiResponse<UserConfigurationData>?> GetUserConfiguration(string username)
     {
         try
         {
+            Auth();
             var response = await _httpClient.GetAsync($"users/configuration/{username}");
             var content = await response.Content.ReadAsStringAsync();
 
@@ -37,6 +47,7 @@ public class DataProxy
     {
         try
         {
+            Auth();
             var json = JsonConvert.SerializeObject(model);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("users/configuration", content);
@@ -53,6 +64,7 @@ public class DataProxy
     {
         try
         {
+            Auth();
             var request = new GetDataRequest
             {
                 Websites = model.websites,

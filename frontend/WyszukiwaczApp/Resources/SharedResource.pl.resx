@@ -748,7 +748,7 @@
     <value>Szukaj aut, mieszkań i produktów na OLX, Otomoto, Otodom, Amazon i dziesiątkach innych serwisów – wszystko w jednym miejscu. Ustaw alert i nigdy nie przegap okazji.</value>
   </data>
   <data name="HeroCTA1" xml:space="preserve">
-    <value>Zarejestruj się bezpłatnie</value>
+    <value>Zarejestruj się</value>
   </data>
   <data name="HeroCTA2" xml:space="preserve">
     <value>Mam już konto</value>
@@ -937,6 +937,6 @@
     <value>Zaloguj się</value>
   </data>
   <data name="NavSignUpFree" xml:space="preserve">
-    <value>Zarejestruj się bezpłatnie</value>
+    <value>Rejestracja</value>
   </data>
 </root>

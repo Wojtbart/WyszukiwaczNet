@@ -196,6 +196,27 @@ public class UsersController : ControllerBase
         return Ok(new { success = true });
     }
 
+    [AllowAnonymous]
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Email))
+            return BadRequest(new { success = false, message = "Podaj adres e-mail." });
+        var (success, message) = await _userService.ForgotPasswordAsync(request.Email, request.FrontendBaseUrl);
+        return Ok(new { success, message });
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Token) || string.IsNullOrEmpty(request.NewPassword))
+            return BadRequest(new { success = false, message = "Nieprawidłowe dane." });
+        var (success, message) = await _userService.ResetPasswordByTokenAsync(request.Token, request.NewPassword);
+        if (!success) return BadRequest(new { success, message });
+        return Ok(new { success, message });
+    }
+
     [HttpPost("notifications")]
     public async Task<IActionResult> UpdateNotificationSetting([FromBody] NotificationSettingRequest request)
     {

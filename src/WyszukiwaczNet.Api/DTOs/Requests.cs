@@ -152,6 +152,9 @@ public class NotificationFeedItemDto
     public DateTime CreatedAt { get; set; }
 }
 
+public record ForgotPasswordRequest(string Email, string FrontendBaseUrl);
+public record ResetPasswordRequest(string Token, string NewPassword);
+
 public class UserJobDto
 {
     public string Id { get; set; } = string.Empty;

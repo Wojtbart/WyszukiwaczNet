@@ -26,6 +26,8 @@ public interface IUserService
     Task<(bool Success, string? Message)> UpdatePasswordAsync(UpdatePasswordRequest request);
     Task<(bool Success, string? Message)> UpdateEmailAsync(UpdateEmailRequest request);
     Task<(bool Success, string? Message)> UpdatePhoneAsync(UpdatePhoneRequest request);
+    Task<(bool Success, string? Message)> ForgotPasswordAsync(string email, string frontendBaseUrl);
+    Task<(bool Success, string? Message)> ResetPasswordByTokenAsync(string token, string newPassword);
 }
 
 public class UserService : IUserService
@@ -33,12 +35,14 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IJwtService _jwtService;
     private readonly IOfferRepository _offerRepository;
+    private readonly IEmailService _emailService;
 
-    public UserService(IUserRepository userRepository, IJwtService jwtService, IOfferRepository offerRepository)
+    public UserService(IUserRepository userRepository, IJwtService jwtService, IOfferRepository offerRepository, IEmailService emailService)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;
         _offerRepository = offerRepository;
+        _emailService = emailService;
     }
 
     public async Task<(bool Success, string? Message)> RegisterAsync(RegisterUserRequest request)
@@ -300,7 +304,49 @@ public class UserService : IUserService
         }
         else
             return (false, "Nie znaleziono kanału o podanym ID.");
-        
+
         return (true, "Ustawienia powiadomień zostały pomyślnie zaktualizowane.");
+    }
+
+    public async Task<(bool Success, string? Message)> ForgotPasswordAsync(string email, string frontendBaseUrl)
+    {
+        var user = await _userRepository.GetByEmailAsync(email);
+        if (user == null)
+            return (true, "Jeśli konto z tym adresem istnieje, wyślemy link do resetu hasła.");
+
+        var token = Guid.NewGuid().ToString("N");
+        var resetToken = new Entities.PasswordResetToken
+        {
+            UserId = user.Id,
+            Token = token,
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddHours(1)
+        };
+        await _userRepository.CreatePasswordResetTokenAsync(resetToken);
+
+        var resetLink = $"{frontendBaseUrl.TrimEnd('/')}/reset-password?token={token}";
+        var body = $@"<p>Otrzymaliśmy prośbę o reset hasła do Twojego konta w Wyszukiwaczu.</p>
+<p>Kliknij poniższy link, aby zresetować hasło (link ważny przez 1 godzinę):</p>
+<p><a href=""{resetLink}"">{resetLink}</a></p>
+<p>Jeśli nie prosiłeś o reset hasła, zignoruj tę wiadomość.</p>";
+
+        await _emailService.SendEmailAsync(user.Email, "Reset hasła – Wyszukiwacz", body);
+        return (true, "Jeśli konto z tym adresem istnieje, wyślemy link do resetu hasła.");
+    }
+
+    public async Task<(bool Success, string? Message)> ResetPasswordByTokenAsync(string token, string newPassword)
+    {
+        var resetToken = await _userRepository.GetPasswordResetTokenAsync(token);
+        if (resetToken == null || resetToken.Used || resetToken.ExpiresAt < DateTime.UtcNow)
+            return (false, "Link jest nieprawidłowy lub wygasł.");
+
+        var user = await _userRepository.GetByIdAsync(resetToken.UserId);
+        if (user == null) return (false, "Nie znaleziono użytkownika.");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.InvalidatePasswordResetTokenAsync(resetToken);
+
+        return (true, "Hasło zostało zmienione. Możesz się teraz zalogować.");
     }
 }

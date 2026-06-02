@@ -7,8 +7,18 @@
 @inject ILocalStorageService LocalStorage
 @inject IStringLocalizer<SharedResource> Loc
 @inject WyszukiwaczApp.Services.AuthState AuthState
+@using System.Text.RegularExpressions
 
 <PageTitle>@Loc["LoginPageTitle"]</PageTitle>
+
+<style>
+    .auth-forgot-panel { padding: 0.5rem 0; }
+    .auth-forgot-title { font-size: 1.2rem; font-weight: 700; color: #1a1a2e; margin: 0 0 0.4rem; }
+    .auth-forgot-sub { font-size: 0.9rem; color: #666; margin: 0 0 1rem; }
+    .auth-success { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.9rem; }
+    .auth-link-btn { background: none; border: none; color: #667eea; cursor: pointer; font-size: 0.875rem; font-weight: 600; padding: 0; text-decoration: underline; display: block; width: 100%; text-align: center; }
+    .auth-link-btn:hover { color: #764ba2; }
+</style>
 
 <div class="auth-page">
     <div class="auth-card">
@@ -22,6 +32,36 @@
                 @errorMessage
             </div>
         }
+
+        @if (_forgotOpen)
+        {
+            <div class="auth-forgot-panel">
+                <h3 class="auth-forgot-title">Reset hasła</h3>
+                <p class="auth-forgot-sub">Wpisz adres e-mail powiązany z kontem. Wyślemy link do resetu hasła.</p>
+                @if (!string.IsNullOrEmpty(_forgotMsg))
+                {
+                    <div class="@(_forgotSuccess ? "auth-success" : "auth-error")">@_forgotMsg</div>
+                }
+                <div class="auth-field">
+                    <label class="auth-label">Adres e-mail</label>
+                    <div class="auth-input-group">
+                        <i class="material-icons auth-input-icon">email</i>
+                        <input type="email" @bind="_forgotEmail" @bind:event="oninput"
+                               class="auth-input" placeholder="twoj@email.com" />
+                    </div>
+                </div>
+                <button class="auth-submit" style="margin-top:0.5rem;"
+                        disabled="@(_forgotSending || string.IsNullOrWhiteSpace(_forgotEmail))"
+                        @onclick="SendForgotPassword">
+                    @if (_forgotSending) { <span class="auth-spinner"></span> } Wyślij link
+                </button>
+                <button class="auth-link-btn" style="margin-top:0.75rem;" @onclick="() => { _forgotOpen = false; _forgotMsg = null; _forgotEmail = string.Empty; }">
+                    ← Wróć do logowania
+                </button>
+            </div>
+        }
+        else
+        {
 
         <EditForm Model="@loginModel" OnValidSubmit="OnLogin">
             <DataAnnotationsValidator />
@@ -51,7 +91,7 @@
                 </label>
             </div>
 
-            <button type="submit" class="auth-submit" disabled="@(isLoading || loginModel.Login.Length < 3 || loginModel.Password.Length < 3)">
+            <button type="submit" class="auth-submit" disabled="@(isLoading || string.IsNullOrEmpty(loginModel.Login) || loginModel.Password.Length < 3)">
                 @if (isLoading)
                 {
                     <span class="auth-spinner"></span>
@@ -62,7 +102,13 @@
                     <span>@Loc["LoginButton"]</span>
                 }
             </button>
+            <div style="text-align:center; margin-top:0.5rem;">
+                <button class="auth-link-btn" @onclick="() => { _forgotOpen = true; _forgotMsg = null; }">
+                    Nie pamiętam hasła
+                </button>
+            </div>
         </EditForm>
+        } @* end else *@
     </div>
 </div>
 
@@ -71,6 +117,26 @@
     private bool isLoading = false;
     private bool rememberMe = false;
     private string? errorMessage;
+
+    private bool _forgotOpen = false;
+    private string _forgotEmail = string.Empty;
+    private string? _forgotMsg;
+    private bool _forgotSuccess;
+    private bool _forgotSending;
+
+    private async Task SendForgotPassword()
+    {
+        _forgotSending = true;
+        _forgotMsg = null;
+        StateHasChanged();
+        var uri = new Uri(NavigationManager.Uri);
+        var baseUrl = $"{uri.Scheme}://{uri.Authority}";
+        var (success, msg) = await UserService.ForgotPasswordAsync(_forgotEmail, baseUrl);
+        _forgotSuccess = success;
+        _forgotMsg = msg ?? (success ? "Jeśli konto istnieje, wyślemy link." : "Błąd.");
+        _forgotSending = false;
+        StateHasChanged();
+    }
 
     protected override void OnInitialized()
     {

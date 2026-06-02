@@ -8,22 +8,31 @@ namespace WyszukiwaczApp.Services;
 public class UserService
 {
     private readonly HttpClient _httpClient;
+    private readonly AuthState _authState;
 
-    public UserService(HttpClient httpClient, ApiConfig apiConfig)
+    public UserService(HttpClient httpClient, ApiConfig apiConfig, AuthState authState)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(apiConfig.BaseUrl);
+        _authState = authState;
     }
 
-    public void SetAuthToken(string token)
+    private HttpClient HttpC
     {
+        get
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = string.IsNullOrEmpty(_authState.AuthToken)
+                ? null
+                : new AuthenticationHeaderValue("Bearer", _authState.AuthToken);
+            return _httpClient;
+        }
+    }
+
+    public void SetAuthToken(string token) =>
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-    }
 
-    public void ClearAuthToken()
-    {
+    public void ClearAuthToken() =>
         _httpClient.DefaultRequestHeaders.Authorization = null;
-    }
 
     public async Task<LoginResponse?> LoginAsync(string login, string password)
     {
@@ -33,7 +42,7 @@ public class UserService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("users/login", content);
+            var response = await HttpC.PostAsync("users/login", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -87,7 +96,7 @@ public class UserService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("users/registerUser", content);
+            var response = await HttpC.PostAsync("users/registerUser", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -121,7 +130,7 @@ public class UserService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("users/registerUser", content);
+            var response = await HttpC.PostAsync("users/registerUser", content);
             var responseContent = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -148,7 +157,7 @@ public class UserService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"users/{userId}");
+            var response = await HttpC.GetAsync($"users/{userId}");
             var content = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -176,7 +185,7 @@ public class UserService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"users/{userId}/notifications");
+            var response = await HttpC.GetAsync($"users/{userId}/notifications");
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             var result = JsonConvert.DeserializeObject<ApiResponse<List<UserNotificationSettingDto>>>(content);
@@ -192,7 +201,7 @@ public class UserService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"users/{userId}/platforms");
+            var response = await HttpC.GetAsync($"users/{userId}/platforms");
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             var result = JsonConvert.DeserializeObject<ApiResponse<List<UserPlatformSubscriptionDto>>>(content);
@@ -217,7 +226,7 @@ public class UserService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("users/platforms", content);
+            var response = await HttpC.PostAsync("users/platforms", content);
             return response.IsSuccessStatusCode;
         }
         catch
@@ -233,7 +242,7 @@ public class UserService
             var url = string.IsNullOrEmpty(category)
                 ? $"users/{userId}/config"
                 : $"users/{userId}/config?category={Uri.EscapeDataString(category)}";
-            var response = await _httpClient.GetAsync(url);
+            var response = await HttpC.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             var result = JsonConvert.DeserializeObject<ApiResponse<UserNotificationConfigDto>>(content);
@@ -248,7 +257,7 @@ public class UserService
         {
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("users/config", content);
+            var response = await HttpC.PostAsync("users/config", content);
             return response.IsSuccessStatusCode;
         }
         catch { return false; }
@@ -258,7 +267,7 @@ public class UserService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"users/{userId}/configs");
+            var response = await HttpC.GetAsync($"users/{userId}/configs");
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             var result = JsonConvert.DeserializeObject<ApiResponse<List<UserNotificationConfigDto>>>(content);
@@ -273,7 +282,7 @@ public class UserService
         {
             var json = JsonConvert.SerializeObject(new SetConfigEnabledRequest { UserId = userId, Category = category, Enabled = enabled });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PatchAsync("users/config/enabled", content);
+            var response = await HttpC.PatchAsync("users/config/enabled", content);
             return response.IsSuccessStatusCode;
         }
         catch { return false; }
@@ -283,7 +292,7 @@ public class UserService
     {
         try
         {
-            var response = await _httpClient.GetAsync("offers/channels");
+            var response = await HttpC.GetAsync("offers/channels");
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             var result = JsonConvert.DeserializeObject<ApiResponse<List<NotificationChannel>>>(content);
@@ -296,7 +305,7 @@ public class UserService
     {
         try
         {
-            var response = await _httpClient.GetAsync("offers/platforms");
+            var response = await HttpC.GetAsync("offers/platforms");
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             var result = JsonConvert.DeserializeObject<ApiResponse<List<PlatformResponse>>>(content);
@@ -309,7 +318,7 @@ public class UserService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"users/{userId}/feed?limit={limit}");
+            var response = await HttpC.GetAsync($"users/{userId}/feed?limit={limit}");
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             return JsonConvert.DeserializeObject<NotificationFeedResponse>(content);
@@ -321,7 +330,7 @@ public class UserService
     {
         try
         {
-            await _httpClient.PostAsync($"users/{userId}/feed/read", null);
+            await HttpC.PostAsync($"users/{userId}/feed/read", null);
         }
         catch { }
     }
@@ -330,7 +339,7 @@ public class UserService
     {
         try
         {
-            await _httpClient.PostAsync($"users/{userId}/feed/{notificationId}/read", null);
+            await HttpC.PostAsync($"users/{userId}/feed/{notificationId}/read", null);
         }
         catch { }
     }
@@ -339,7 +348,7 @@ public class UserService
     {
         try
         {
-            var response = await _httpClient.GetAsync($"users/{userId}");
+            var response = await HttpC.GetAsync($"users/{userId}");
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             return JsonConvert.DeserializeObject<UserProfileDto>(content);
@@ -353,7 +362,7 @@ public class UserService
         {
             var json = JsonConvert.SerializeObject(new { UserId = userId, CurrentPassword = currentPassword, NewPassword = newPassword });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PatchAsync($"users/{userId}/password", content);
+            var response = await HttpC.PatchAsync($"users/{userId}/password", content);
             var body = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<dynamic>(body);
             return (response.IsSuccessStatusCode, result?.message?.ToString());
@@ -367,7 +376,7 @@ public class UserService
         {
             var json = JsonConvert.SerializeObject(new { UserId = userId, NewEmail = newEmail });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PatchAsync($"users/{userId}/email", content);
+            var response = await HttpC.PatchAsync($"users/{userId}/email", content);
             var body = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<dynamic>(body);
             return (response.IsSuccessStatusCode, result?.message?.ToString());
@@ -381,12 +390,41 @@ public class UserService
         {
             var json = JsonConvert.SerializeObject(new { UserId = userId, NewPhone = newPhone });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PatchAsync($"users/{userId}/phone", content);
+            var response = await HttpC.PatchAsync($"users/{userId}/phone", content);
             var body = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<dynamic>(body);
             return (response.IsSuccessStatusCode, result?.message?.ToString());
         }
         catch { return (false, "Błąd połączenia."); }
+    }
+
+    public async Task<(bool Success, string? Message)> ForgotPasswordAsync(string email, string frontendBaseUrl)
+    {
+        try
+        {
+            var json = JsonConvert.SerializeObject(new { Email = email, FrontendBaseUrl = frontendBaseUrl });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("users/forgot-password", content);
+            var body = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<dynamic>(body);
+            return (true, result?.message?.ToString() ?? "Jeśli konto istnieje, wyślemy link.");
+        }
+        catch { return (false, "Błąd połączenia z serwerem."); }
+    }
+
+    public async Task<(bool Success, string? Message)> ResetPasswordByTokenAsync(string token, string newPassword)
+    {
+        try
+        {
+            var json = JsonConvert.SerializeObject(new { Token = token, NewPassword = newPassword });
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("users/reset-password", content);
+            var body = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<dynamic>(body);
+            bool success = response.IsSuccessStatusCode;
+            return (success, result?.message?.ToString());
+        }
+        catch { return (false, "Błąd połączenia z serwerem."); }
     }
 
     public async Task<bool> UpdateNotificationSettingAsync(int userId, int channelId, bool enabled)
@@ -402,7 +440,7 @@ public class UserService
             var json = JsonConvert.SerializeObject(request);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("users/notifications", content);
+            var response = await HttpC.PostAsync("users/notifications", content);
             return response.IsSuccessStatusCode;
         }
         catch
