@@ -188,6 +188,45 @@
                 </div>
             </div>
 
+            @if (_selectedCategory == "Nieruchomości")
+            {
+            <!-- Apartment filters card -->
+            <div class="n-card">
+                <div class="n-card-header">
+                    <RadzenIcon Icon="apartment" class="n-card-icon" />
+                    <span>@Loc["FiltersRealEstate"]</span>
+                </div>
+                <div class="n-card-body">
+                    <div class="filter-grid">
+                        <label class="filter-chip @(isSprzedaz ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isSprzedaz" @bind:after="() => OnCheckboxChanged(isSprzedaz)" hidden />
+                            @Loc["Sale"]
+                        </label>
+                        <label class="filter-chip @(isWynajem ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isWynajem" @bind:after="() => OnCheckboxChanged(isWynajem)" hidden />
+                            @Loc["Rent"]
+                        </label>
+                        <label class="filter-chip @(isPrywatne ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isPrywatne" @bind:after="() => OnCheckboxChanged(isPrywatne)" hidden />
+                            @Loc["Private"]
+                        </label>
+                        <label class="filter-chip @(isPubliczne ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isPubliczne" @bind:after="() => OnCheckboxChanged(isPubliczne)" hidden />
+                            @Loc["Public"]
+                        </label>
+                        <label class="filter-chip @(isOstatnie24h ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isOstatnie24h" @bind:after="() => OnCheckboxChanged(isOstatnie24h)" hidden />
+                            @Loc["Last24h"]
+                        </label>
+                        <label class="filter-chip @(isDowolna ? "filter-chip--active" : "")">
+                            <input type="checkbox" @bind="isDowolna" @bind:after="() => OnCheckboxChanged(isDowolna)" hidden />
+                            @Loc["AnyF"]
+                        </label>
+                    </div>
+                </div>
+            </div>
+            }
+
             <!-- Filters card -->
             <div class="n-card">
                 <div class="n-card-header">
@@ -334,7 +373,7 @@
                         </div>
                         @if (isSendingHourChecked)
                         {
-                            <div class="schedule-picker">
+                            <div class="schedule-picker" @onclick:stopPropagation="true">
                                 <RadzenDatePicker @bind-Value="@dateSendingNotification"
                                                   ShowTime="true" TimeOnly="true" DateFormat="HH:mm"
                                                   Style="width: 140px;" />
@@ -351,7 +390,7 @@
                         </div>
                         @if (isCyclicMessagingChecked)
                         {
-                            <div class="schedule-picker">
+                            <div class="schedule-picker" @onclick:stopPropagation="true">
                                 <label class="n-label">@Loc["EveryHowManyMin"]</label>
                                 <RadzenNumeric Min="1" Max="100" @bind-Value="@minutesAfterSendingNotification" Style="width: 100px;" />
                             </div>
@@ -360,44 +399,6 @@
                 </div>
             </div>
 
-            @if (_selectedCategory == "Nieruchomości")
-            {
-            <!-- Apartment filters card -->
-            <div class="n-card">
-                <div class="n-card-header">
-                    <RadzenIcon Icon="apartment" class="n-card-icon" />
-                    <span>@Loc["FiltersRealEstate"]</span>
-                </div>
-                <div class="n-card-body">
-                    <div class="filter-grid">
-                        <label class="filter-chip @(isSprzedaz ? "filter-chip--active" : "")">
-                            <input type="checkbox" @bind="isSprzedaz" @bind:after="() => OnCheckboxChanged(isSprzedaz)" hidden />
-                            @Loc["Sale"]
-                        </label>
-                        <label class="filter-chip @(isWynajem ? "filter-chip--active" : "")">
-                            <input type="checkbox" @bind="isWynajem" @bind:after="() => OnCheckboxChanged(isWynajem)" hidden />
-                            @Loc["Rent"]
-                        </label>
-                        <label class="filter-chip @(isPrywatne ? "filter-chip--active" : "")">
-                            <input type="checkbox" @bind="isPrywatne" @bind:after="() => OnCheckboxChanged(isPrywatne)" hidden />
-                            @Loc["Private"]
-                        </label>
-                        <label class="filter-chip @(isPubliczne ? "filter-chip--active" : "")">
-                            <input type="checkbox" @bind="isPubliczne" @bind:after="() => OnCheckboxChanged(isPubliczne)" hidden />
-                            @Loc["Public"]
-                        </label>
-                        <label class="filter-chip @(isOstatnie24h ? "filter-chip--active" : "")">
-                            <input type="checkbox" @bind="isOstatnie24h" @bind:after="() => OnCheckboxChanged(isOstatnie24h)" hidden />
-                            @Loc["Last24h"]
-                        </label>
-                        <label class="filter-chip @(isDowolna ? "filter-chip--active" : "")">
-                            <input type="checkbox" @bind="isDowolna" @bind:after="() => OnCheckboxChanged(isDowolna)" hidden />
-                            @Loc["AnyF"]
-                        </label>
-                    </div>
-                </div>
-            </div>
-            }
 
         </div>
 
