@@ -53,7 +53,8 @@ public record GetDataRequest(
     decimal? PriceFrom = null,
     decimal? PriceTo = null,
     int? AreaFrom = null,
-    int? AreaTo = null
+    int? AreaTo = null,
+    int? Rooms = null
 );
 
 public record NotificationRequest(
@@ -78,7 +79,8 @@ public record NotificationRequest(
     int? AreaTo = null,
     string? WorkLocation = null,
     int? EmploymentLevel = null,
-    int? ContractType = null
+    int? ContractType = null,
+    int? Rooms = null
 );
 
 public record OfferResponse(

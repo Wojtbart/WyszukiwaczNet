@@ -56,6 +56,7 @@ public class DataWrapper
     public PlatformData? OlxData { get; set; }
     public PlatformData? AmazonData { get; set; }
     public PlatformData? OtoDomData { get; set; }
+    public PlatformData? OlxnieruchomosciData { get; set; }
     public PlatformData? OtoMotoData { get; set; }
     public PlatformData? AutoscoutData { get; set; }
     public PlatformData? GratkaData { get; set; }
@@ -98,4 +99,5 @@ public class DataModel
     public decimal? price_to { get; set; }
     public int? area_from { get; set; }
     public int? area_to { get; set; }
+    public int? rooms { get; set; }
 }

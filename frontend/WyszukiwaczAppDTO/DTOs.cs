@@ -61,6 +61,7 @@ public class GetDataRequest
     public decimal? PriceTo { get; set; }
     public int? AreaFrom { get; set; }
     public int? AreaTo { get; set; }
+    public int? Rooms { get; set; }
 }
 
 public class NotificationRequest
@@ -87,6 +88,7 @@ public class NotificationRequest
     public string? WorkLocation { get; set; }
     public int? EmploymentLevel { get; set; }
     public int? ContractType { get; set; }
+    public int? Rooms { get; set; }
 }
 
 public class UserNotificationSettingDto

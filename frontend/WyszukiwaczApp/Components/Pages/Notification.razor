@@ -282,6 +282,10 @@
                                 <RadzenNumeric TValue="int?" @bind-Value="_filterAreaTo" Min="0" Placeholder="Max" class="n-input-sm" />
                             </div>
                         </div>
+                        <div class="n-field">
+                            <label class="n-label">Liczba pokoi (OtoDom)</label>
+                            <RadzenDropDown TValue="int?" @bind-Value="_filterRooms" Data="@_roomsOptions" TextProperty="Label" ValueProperty="Value" Placeholder="Dowolna" AllowClear="true" class="n-input-sm" />
+                        </div>
                     }
                     @if (_selectedCategory == "Praca")
                     {
@@ -466,7 +470,8 @@
             <div class="notif-actions">
                 <RadzenButton Click="SaveConfiguration" Icon="save" Text="@(Loc["SaveSettings"].Value)"
                               ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"
-                              class="n-btn-full" />
+                              class="n-btn-full"
+                              Disabled="@(!CanSave)" />
                 <RadzenButton Click="DeleteJobs" Icon="delete_forever" Text="@(Loc["DeleteScheduledJobs"].Value)"
                               ButtonStyle="ButtonStyle.Danger" Shade="Shade.Lighter" Size="ButtonSize.Medium"
                               class="n-btn-full" />
@@ -519,6 +524,7 @@
     private int? _filterEngineCapTo;
     private int? _filterAreaFrom;
     private int? _filterAreaTo;
+    private int? _filterRooms;
     private string? _filterWorkLocation;
     private int? _filterEmploymentLevel;
     private int? _filterContractType;
@@ -534,13 +540,21 @@
     {
         new("Umowa o pracę", 0), new("B2B", 3)
     };
+    private List<LabelValue> _roomsOptions = new()
+    {
+        new("1 pokój", 1), new("2 pokoje", 2), new("3 pokoje", 3), new("4 pokoje", 4), new("5+", 5)
+    };
+
+    private bool CanSave =>
+        (isEmailChecked || isSMSChecked || isDiscordChecked || isInAppChecked) &&
+        (isSendingHourChecked || isCyclicMessagingChecked);
 
     private string additional_phrase = string.Empty;
 
     private string _selectedCategory = string.Empty;
     private Dictionary<string, bool> _categoryEnabled = new();
     private List<string> _carPlatforms     = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum", "Samochody" };
-    private List<string> _flatPlatforms    = new() { "OtoDom" };
+    private List<string> _flatPlatforms    = new() { "OtoDom", "OlxNieruchomosci" };
     private List<string> _shopPlatforms    = new() { "Amazon", "Olx" };
     private List<string> _workPlatforms    = new() { "Pracuj", "JustJoinIt", "NoFluffJobs", "TheProtocolIt", "BulldogJob", "Solidjobs" };
     private List<string> _tractorPlatforms = new() { "Olxciagniki", "Brzozowiak", "Sprzedajemyciagniki", "Otomotorolnicze" };
@@ -592,7 +606,7 @@
         _filterFuel = _filterGearbox = _filterWorkLocation = null;
         _filterPriceFrom = _filterPriceTo = null;
         _filterEngineCapFrom = _filterEngineCapTo = null;
-        _filterAreaFrom = _filterAreaTo = null;
+        _filterAreaFrom = _filterAreaTo = _filterRooms = null;
         _filterEmploymentLevel = _filterContractType = null;
 
         // Re-filter platforms from loaded subscriptions for new category
@@ -906,6 +920,7 @@
                 PriceTo = _filterPriceTo,
                 AreaFrom = _filterAreaFrom,
                 AreaTo = _filterAreaTo,
+                Rooms = _filterRooms,
                 WorkLocation = _filterWorkLocation,
                 EmploymentLevel = _filterEmploymentLevel,
                 ContractType = _filterContractType
@@ -945,6 +960,7 @@
         {
             if (_filterAreaFrom.HasValue) dict["AreaFrom"] = _filterAreaFrom;
             if (_filterAreaTo.HasValue) dict["AreaTo"] = _filterAreaTo;
+            if (_filterRooms.HasValue) dict["Rooms"] = _filterRooms;
         }
         if (_selectedCategory == "Praca")
         {
@@ -970,6 +986,7 @@
             if (dict.TryGetValue("EngineCapacityTo", out var ect)) _filterEngineCapTo = ect.GetInt32();
             if (dict.TryGetValue("AreaFrom", out var af)) _filterAreaFrom = af.GetInt32();
             if (dict.TryGetValue("AreaTo", out var at2)) _filterAreaTo = at2.GetInt32();
+            if (dict.TryGetValue("Rooms", out var rm)) _filterRooms = rm.GetInt32();
             if (dict.TryGetValue("WorkLocation", out var wl)) _filterWorkLocation = wl.GetString();
             if (dict.TryGetValue("EmploymentLevel", out var el)) _filterEmploymentLevel = el.GetInt32();
             if (dict.TryGetValue("ContractType", out var ct)) _filterContractType = ct.GetInt32();

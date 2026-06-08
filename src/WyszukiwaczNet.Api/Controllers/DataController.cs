@@ -280,6 +280,12 @@ public class DataController : ControllerBase
                     if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
                     if (request.AreaFrom.HasValue) { extraArgs.Add("--area-from"); extraArgs.Add(request.AreaFrom.Value.ToString()); }
                     if (request.AreaTo.HasValue) { extraArgs.Add("--area-to"); extraArgs.Add(request.AreaTo.Value.ToString()); }
+                    if (request.Rooms.HasValue) { extraArgs.Add("--rooms"); extraArgs.Add(request.Rooms.Value.ToString()); }
+                }
+                else if (website.Equals("olxnieruchomosci", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (request.PriceFrom.HasValue) { extraArgs.Add("--price-from"); extraArgs.Add(request.PriceFrom.Value.ToString()); }
+                    if (request.PriceTo.HasValue) { extraArgs.Add("--price-to"); extraArgs.Add(request.PriceTo.Value.ToString()); }
                 }
                 var (count, output) = await _pythonScriptService.ExecuteScraperAsync(scriptPath, finalPhrase, website, request.RequestNumber, extraArgs);
                 string key = website[0].ToString().ToUpper() + website.Substring(1);
@@ -327,6 +333,7 @@ public class DataController : ControllerBase
         "bulldogjob" => "work/bulldogjob_scrapper.py",
         "solidjobs" => "work/solidjobs_scrapper.py",
         "otodom" => "apartment/otodom_scrapper.py",
+        "olxnieruchomosci" => "apartment/olx_nieruchomosci_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",
         "olxciagniki" => "agriculture/olx_ciagniki_scrapper.py",

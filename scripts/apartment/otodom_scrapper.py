@@ -55,7 +55,21 @@ def normalize_city_name(city):
     return unicodedata.normalize('NFKD', city).encode('ASCII', 'ignore').decode('utf-8').lower()
 
 
-def generate_otodom_url(transaction_type, city):
+def get_room_suffix(rooms):
+    if rooms is None:
+        return "", None
+    if rooms == 1:
+        return "", "[ONE]"
+    if rooms == 2:
+        return ",2-pokoje", None
+    if rooms == 3:
+        return ",3-pokoje", None
+    if rooms == 4:
+        return ",4-pokoje", None
+    return ",5-i-wiecej-pokoi", None
+
+
+def generate_otodom_url(transaction_type, city, room_path_suffix=""):
 
     city = normalize_city_name(city)
 
@@ -77,7 +91,7 @@ def generate_otodom_url(transaction_type, city):
     if not province:
         raise ValueError("City not found")
 
-    return f"https://www.otodom.pl/pl/wyniki/{transaction_type}/mieszkanie/{province}/{city}"
+    return f"https://www.otodom.pl/pl/wyniki/{transaction_type}/mieszkanie{room_path_suffix}/{province}/{city}"
 
 def scrape_otodom(cnx, phrase, filters=None):
     global COUNTER
@@ -113,6 +127,11 @@ def scrape_otodom(cnx, phrase, filters=None):
         elif is_publiczne:
             params["ownerTypeSingleSelect"] = "ALL"
 
+    rooms = filters.get("rooms") if filters else None
+    room_path_suffix, room_param = get_room_suffix(rooms)
+    if room_param:
+        params["roomsNumber"] = room_param
+
     if filters:
         if filters.get("price_from") is not None:
             params["priceMin"] = int(filters["price_from"])
@@ -127,7 +146,7 @@ def scrape_otodom(cnx, phrase, filters=None):
     params["by"] = "LATEST"
     params["direction"] = "DESC"
 
-    BASE_URL = generate_otodom_url(transaction_type, phrase[0])
+    BASE_URL = generate_otodom_url(transaction_type, phrase[0], room_path_suffix)
     final_url = BASE_URL + "?" + urllib.parse.urlencode(params)
     print(final_url)
 
@@ -225,6 +244,7 @@ if __name__ == "__main__":
     parser.add_argument("--price-to", type=int, default=None)
     parser.add_argument("--area-from", type=int, default=None)
     parser.add_argument("--area-to", type=int, default=None)
+    parser.add_argument("--rooms", type=int, default=None)
     args = parser.parse_args()
 
     phrase = []
@@ -236,6 +256,7 @@ if __name__ == "__main__":
         "price_to": args.price_to,
         "area_from": args.area_from,
         "area_to": args.area_to,
+        "rooms": args.rooms,
     }
 
     db_config = read_db_config()

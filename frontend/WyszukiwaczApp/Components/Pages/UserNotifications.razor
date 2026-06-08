@@ -172,6 +172,25 @@
         background: #fafbff;
     }
 
+    /* ── Category accent (border-left + bg tint) ── */
+    .nf-cat-work   { border-left: 3px solid #f97316 !important; }
+    .nf-cat-car    { border-left: 3px solid #2563eb !important; }
+    .nf-cat-flat   { border-left: 3px solid #16a34a !important; }
+    .nf-cat-shop   { border-left: 3px solid #9333ea !important; }
+    .nf-cat-agri   { border-left: 3px solid #84cc16 !important; }
+
+    .nf-cat-work.nf-unread  { background: #fff8f0; }
+    .nf-cat-car.nf-unread   { background: #f0f5ff; }
+    .nf-cat-flat.nf-unread  { background: #f0fdf4; }
+    .nf-cat-shop.nf-unread  { background: #fdf4ff; }
+    .nf-cat-agri.nf-unread  { background: #f7fde8; }
+
+    .nf-cat-work:not(.nf-unread)  { border-left: 3px solid #fed7aa; }
+    .nf-cat-car:not(.nf-unread)   { border-left: 3px solid #bfdbfe; }
+    .nf-cat-flat:not(.nf-unread)  { border-left: 3px solid #bbf7d0; }
+    .nf-cat-shop:not(.nf-unread)  { border-left: 3px solid #e9d5ff; }
+    .nf-cat-agri:not(.nf-unread)  { border-left: 3px solid #d9f99d; }
+
     /* Unread dot */
     .nf-dot-col {
         grid-column: 1;
@@ -397,8 +416,9 @@
             {
                 var isUnread = item.Status == "new";
                 var platformCss = GetPlatformCss(item.PlatformName);
+                var catCss = GetCategoryCss(item.PlatformName);
 
-                <div class="nf-card @(isUnread ? "nf-unread" : "")" @onclick="() => MarkItemRead(item)">
+                <div class="nf-card @catCss @(isUnread ? "nf-unread" : "")" @onclick="() => MarkItemRead(item)">
 
                     <div class="nf-dot-col">
                         <span class="nf-dot @(isUnread ? "" : "nf-dot-read")"></span>
@@ -445,6 +465,29 @@
 </div>
 
 @code {
+    private static readonly HashSet<string> _workPlatforms = new(StringComparer.OrdinalIgnoreCase)
+        { "pracuj", "justjoinit", "nofluffjobs", "theprotocolit", "bulldogjob", "solidjobs" };
+    private static readonly HashSet<string> _carPlatforms = new(StringComparer.OrdinalIgnoreCase)
+        { "otomoto", "gratka", "sprzedajemy", "autocentrum", "samochody", "autoscout" };
+    private static readonly HashSet<string> _flatPlatforms = new(StringComparer.OrdinalIgnoreCase)
+        { "otodom", "olxnieruchomosci", "nieruchomoscionline" };
+    private static readonly HashSet<string> _shopPlatforms = new(StringComparer.OrdinalIgnoreCase)
+        { "amazon", "allegro", "olx", "ebay", "aliexpress", "pepper", "carrot" };
+    private static readonly HashSet<string> _agriPlatforms = new(StringComparer.OrdinalIgnoreCase)
+        { "olxciagniki", "brzozowiak", "sprzedajemyciagniki", "otomotorolnicze" };
+
+    private static string GetCategoryCss(string? name)
+    {
+        if (string.IsNullOrEmpty(name)) return string.Empty;
+        var n = name.ToLower().Replace(" ", "").Replace("-", "");
+        if (_workPlatforms.Any(p => n.Contains(p.ToLower()))) return "nf-cat-work";
+        if (_carPlatforms.Any(p => n.Contains(p.ToLower())))  return "nf-cat-car";
+        if (_flatPlatforms.Any(p => n.Contains(p.ToLower()))) return "nf-cat-flat";
+        if (_shopPlatforms.Any(p => n.Contains(p.ToLower()))) return "nf-cat-shop";
+        if (_agriPlatforms.Any(p => n.Contains(p.ToLower()))) return "nf-cat-agri";
+        return string.Empty;
+    }
+
     private static string GetPlatformCss(string? name) => name?.ToLower() switch
     {
         var n when n?.Contains("olx") == true          => "nf-plat-olx",

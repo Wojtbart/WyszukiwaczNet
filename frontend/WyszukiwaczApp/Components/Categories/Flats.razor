@@ -1,4 +1,4 @@
-﻿@page "/apartments"
+@page "/apartments"
 
 @using WyszukiwaczAppDTO
 @using System.Threading.Tasks
@@ -6,90 +6,80 @@
 @inject DialogService DialogService
 @inject IStringLocalizer<SharedResource> Loc
 
-<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Style="margin-bottom:10px;">
+<style>
+    .link {
+        background-color: #a04ba7;
+        border: none;
+        color: white;
+        padding: 6px 19px;
+        text-decoration: none !important;
+        display: inline-block;
+        border: 1px solid #7c658b;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
 
-    <RadzenColumn Size="12" SizeMD="4" Style="padding:10px;">
-        <RadzenLabel Text="Szukane miasto" />
-        <RadzenTextBox @bind-Value="@textBoxValue"
-                       Style="width: 100%; border-radius:15px;"
-                       Placeholder="Wpisz nazwę miasta..." />
-    </RadzenColumn>
+    .link:hover, .link:visited {
+        color: #7c658b;
+        text-decoration: none !important;
+        background-color: white;
+        border: 2px solid #7c658b;
+    }
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
-        <RadzenLabel Text="Rodzaj transakcji" />
-        <RadzenDropDown @bind-Value=@selectedOption1
-                        Data=@options1
-                        Style="width: 100%;"
-                        AllowClear="true"
-                        Change="UpdateAdditionalPhrase"
-                        Placeholder="Wybierz..." />
-    </RadzenColumn>
+    .link:active {
+        box-shadow: none;
+        color: white;
+        text-decoration: none !important;
+    }
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
-        <RadzenLabel Text="Typ oferty" />
-        <RadzenDropDown @bind-Value=@selectedOption2
-                        Data=@options2
-                        Style="width: 100%;"
-                        AllowClear="true"
-                        Change="UpdateAdditionalPhrase"
-                        Placeholder="Wybierz..." />
-    </RadzenColumn>
+    .rz-form-field-content {
+        outline: none !important;
+        border-radius: 15px;
+    }
 
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
-        <RadzenLabel Text="Aktualność ofert" />
-        <RadzenDropDown @bind-Value=@selectedOption3
-                        Data=@options3Items
-                        TextProperty="Display"
-                        ValueProperty="Value"
-                        Style="width: 100%;"
-                        AllowClear="true"
-                        Change="UpdateAdditionalPhrase"
-                        Placeholder="Wybierz..." />
-    </RadzenColumn>
+    .grid-margin {
+        margin-bottom: 20px;
+        box-shadow: 0 0 50px #ccc;
+    }
+</style>
 
-</RadzenRow>
-
-<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Style="margin-bottom:10px;">
-
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; flex-direction:column;">
-        <RadzenLabel Text="Cena od (PLN)" Style="min-height:2.4rem; display:flex; align-items:flex-end;" />
-        <RadzenNumeric @bind-Value="@selectedPriceFrom" TValue="int?" Min="0" Style="width:100%;border-radius:15px;" />
-    </RadzenColumn>
-
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; flex-direction:column;">
-        <RadzenLabel Text="Cena do (PLN)" Style="min-height:2.4rem; display:flex; align-items:flex-end;" />
-        <RadzenNumeric @bind-Value="@selectedPriceTo" TValue="int?" Min="0" Style="width:100%;border-radius:15px;" />
-    </RadzenColumn>
-
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; flex-direction:column;">
-        <RadzenLabel Text="Powierzchnia od (m²)" Style="min-height:2.4rem; display:flex; align-items:flex-end;" />
-        <RadzenNumeric @bind-Value="@selectedAreaFrom" TValue="int?" Min="0" Style="width:100%;border-radius:15px;" />
-    </RadzenColumn>
-
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px; display:flex; flex-direction:column;">
-        <RadzenLabel Text="Powierzchnia do (m²)" Style="min-height:2.4rem; display:flex; align-items:flex-end;" />
-        <RadzenNumeric @bind-Value="@selectedAreaTo" TValue="int?" Min="0" Style="width:100%;border-radius:15px;" />
-    </RadzenColumn>
-
-</RadzenRow>
-
-<RadzenRow AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Style="margin-bottom:20px;">
-
-    <RadzenColumn Size="12" SizeMD="2" Style="padding:10px;">
-        <RadzenButton Click=LoadData
-                      Text="SZUKAJ"
-                      Icon="search"
-                      ButtonStyle="ButtonStyle.Primary"
-                      Shade="Shade.Dark"
-                      Style="width:100%; text-align:center;height:4rem; border-radius:15px;" />
-    </RadzenColumn>
-
-    <RadzenColumn Size="12" SizeMD="3" Style="padding:10px;">
-        <a href="/notification_settings?category=Nieruchomo%C5%9Bci" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0 1.2rem; height:3.25rem; background:#a04ba7; color:white; text-decoration:none; border-radius:15px; font-size:0.875rem; font-weight:600; border:1px solid #7c658b; cursor:pointer; white-space:nowrap; transition:background 0.2s; vertical-align:middle;">
+<RadzenRow AlignItems="AlignItems.End" Wrap="FlexWrap.Wrap" Gap="1rem" Class="rz-p-sm-12">
+    <RadzenColumn Size="12" SizeMD="12" SizeLG="12">
+        <RadzenFormField Text="Szukane miasto" Variant="Variant.Flat" Style="width:300px;">
+            <RadzenTextBox @bind-Value="@textBoxValue" Placeholder="Wpisz nazwę miasta..." Style="width:100%; border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Rodzaj transakcji" Variant="Variant.Flat" Style="width:200px;">
+            <RadzenDropDown @bind-Value=@selectedOption1 Data=@options1 Style="width:100%;" AllowClear="true" Change="UpdateAdditionalPhrase" Placeholder="Wybierz..." />
+        </RadzenFormField>
+        <RadzenFormField Text="Typ oferty" Variant="Variant.Flat" Style="width:180px;">
+            <RadzenDropDown @bind-Value=@selectedOption2 Data=@options2 Style="width:100%;" AllowClear="true" Change="UpdateAdditionalPhrase" Placeholder="Wybierz..." />
+        </RadzenFormField>
+        <RadzenFormField Text="Aktualność" Variant="Variant.Flat" Style="width:190px;">
+            <RadzenDropDown @bind-Value=@selectedOption3 Data=@options3Items TextProperty="Display" ValueProperty="Value" Style="width:100%;" AllowClear="true" Change="UpdateAdditionalPhrase" Placeholder="Wybierz..." />
+        </RadzenFormField>
+        <RadzenFormField Text="Cena od (PLN)" Variant="Variant.Flat" Style="width:155px;">
+            <RadzenNumeric @bind-Value="@selectedPriceFrom" TValue="int?" Min="0" Style="border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Cena do (PLN)" Variant="Variant.Flat" Style="width:155px;">
+            <RadzenNumeric @bind-Value="@selectedPriceTo" TValue="int?" Min="0" Style="border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Pow. od (m²)" Variant="Variant.Flat" Style="width:140px;">
+            <RadzenNumeric @bind-Value="@selectedAreaFrom" TValue="int?" Min="0" Style="border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Pow. do (m²)" Variant="Variant.Flat" Style="width:140px;">
+            <RadzenNumeric @bind-Value="@selectedAreaTo" TValue="int?" Min="0" Style="border-radius:15px;" />
+        </RadzenFormField>
+        <RadzenFormField Text="Pokoje (OtoDom)" Variant="Variant.Flat" Style="width:185px;">
+            <RadzenDropDown TValue="int?" @bind-Value="@selectedRooms" Data="@roomOptions" TextProperty="Label" ValueProperty="Value" Placeholder="Dowolna" AllowClear="true" Style="width:100%;" />
+        </RadzenFormField>
+        <RadzenFormField Variant="Variant.Flat" Style="width:150px; border-radius:15px !important;">
+            <RadzenButton Click=LoadData Text="SZUKAJ" Icon="search" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Dark" Style="height:3.25rem; border-radius:15px;" />
+        </RadzenFormField>
+        <a href="/notification_settings?category=Nieruchomo%C5%9Bci" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0 1.2rem; height:3.25rem; background:#a04ba7; color:white; text-decoration:none; border-radius:15px; font-size:0.875rem; font-weight:600; border:1px solid #7c658b; cursor:pointer; white-space:nowrap; transition:background 0.2s; vertical-align:middle; margin-left:0.5rem;">
             🔔 @Loc["SetRecurringNotifications"]
         </a>
     </RadzenColumn>
-
 </RadzenRow>
 
 <RadzenText TextStyle="TextStyle.H4" Text="Wybierz strony, z których chcesz pobrać ogłoszenia" Style="color:red; margin-bottom:20px;" />
@@ -100,31 +90,33 @@
     <RadzenCheckBox @bind-Value=@setOtoDomGrid Name="CheckBox2" />
 </RadzenButton>
 
+<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter" Style="margin-bottom:30px;">
+    <RadzenImage Path="images/olx.png" Style="width: 2rem;height:2rem;" AlternateText="OLX Nieruchomości" />
+    <RadzenLabel Text="OLX Nieruchomości" Component="CheckBoxOlxNieruch" Style="margin:0.3rem; vertical-align: middle;" />
+    <RadzenCheckBox @bind-Value=@setOlxNieruchomosciGrid Name="CheckBoxOlxNieruch" />
+</RadzenButton>
 
 @if (setOtoDomGrid)
 {
-    <div style="width:100%; overflow-x:auto;">
-    <RadzenDataGrid Data="@otoDomData"
-                    AllowFiltering="true"
-                    AllowSorting="true"
-                    AllowPaging="true"
-                    AllowColumnResize="true"
-                    ColumnWidthMode="ColumnWidthMode.Fit"
-                    PageSize="10"
-                    IsLoading="isLoading"
-                    Class="grid-margin"
-                    Style="word-wrap: break-word; white-space: normal;">
-
+    <RadzenDataGrid Data="@otoDomData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/otoDom.png" Style="width: 6rem; height:3rem;" AlternateText="OtoDom" />
+            <h3 style="display: inline-block; margin-left:10px; color:red; font-weight:bold;">OtoDom</h3>
+        </HeaderTemplate>
         <Columns>
-
-            <RadzenDataGridColumn Property="Title" Title="Tytuł" Width="250px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="300px" TextAlign="TextAlign.Center">
                 <Template Context="context">
-                    <div style="white-space: normal; line-height:1.3;font-weight:bold;">
-                        @context.Title
-                    </div>
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-
             <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     <div class="rz-text-align-center" style="height:38px;">
@@ -132,45 +124,96 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-
-            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Width="140px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
                 <Template Context="context">
                     @if (string.IsNullOrWhiteSpace(context.ImageUrl) || context.ImageUrl == "No image")
-                    {
-                        <div style="color: gray; font-style: italic; font-size: 0.9rem;">
-                            Brak zdjęcia
-                        </div>
-                    }
+                    { <div style="color: gray; font-style: italic;">Brak zdjęcia</div> }
                     else
-                    {
-                        <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" />
-                    }
+                    { <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" /> }
                 </Template>
             </RadzenDataGridColumn>
-
-            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" Width="120px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
                 <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
             </RadzenDataGridColumn>
-
-            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" Width="200px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
                 <Template Context="context">
-                    <div style="white-space: normal;">
-                        @context.Location
-                    </div>
+                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-
-            <RadzenDataGridColumn Property="AdditionalInfo" Title="Dodatkowe informacje" Width="250px" TextAlign="TextAlign.Center">
+            <RadzenDataGridColumn Property="SellerName" Title="Sprzedający" TextAlign="TextAlign.Center" />
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="Szczegóły" TextAlign="TextAlign.Center">
                 <Template Context="context">
-                    <div style="white-space: normal;">
-                        @context.AdditionalInfo
-                    </div>
+                    <RadzenText style="white-space:pre-wrap">@context.AdditionalInfo</RadzenText>
                 </Template>
             </RadzenDataGridColumn>
-
         </Columns>
     </RadzenDataGrid>
-    </div>
+}
+
+@if (setOlxNieruchomosciGrid)
+{
+    <RadzenDataGrid Data="@olxNieruchomosciData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
+                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
+                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
+                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
+        <EmptyTemplate>
+            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych</p>
+        </EmptyTemplate>
+        <HeaderTemplate>
+            <RadzenImage Path="images/olx.png" Style="width: 4rem; height:4rem;" AlternateText="OLX" />
+            <h3 style="display: inline-block; margin-left:10px; color:red; font-weight:bold;">OLX Nieruchomości</h3>
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Property="Title" Title="Tytuł" Frozen="true" Width="300px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Url" Title="Link" Width="150px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <div class="rz-text-align-center" style="height:38px;">
+                        <RadzenLink Path="@context.Url" Text="Otwórz link" Target="_blank" class="link" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="ImageUrl" Title="Zdjęcie" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @if (string.IsNullOrWhiteSpace(context.ImageUrl) || context.ImageUrl == "No image")
+                    { <div style="color: gray; font-style: italic;">Brak zdjęcia</div> }
+                    else
+                    { <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" /> }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Price" Title="Cena (PLN)" TextAlign="TextAlign.Center">
+                <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Lokalizacja" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @{
+                        var loc = context.Location;
+                        var dash = loc?.IndexOf(" - ") ?? -1;
+                    }
+                    @(dash >= 0 ? loc!.Substring(0, dash) : loc)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="Location" Title="Data" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    @{
+                        var loc2 = context.Location;
+                        var dash2 = loc2?.IndexOf(" - ") ?? -1;
+                    }
+                    @(dash2 >= 0 ? loc2!.Substring(dash2 + 3) : "")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="AdditionalInfo" Title="Szczegóły" TextAlign="TextAlign.Center">
+                <Template Context="context">
+                    <RadzenText style="white-space:pre-wrap">@context.AdditionalInfo</RadzenText>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
 }
 
 @code
@@ -193,11 +236,20 @@
     private int? selectedPriceTo;
     private int? selectedAreaFrom;
     private int? selectedAreaTo;
+    private int? selectedRooms;
+
+    private record RoomOpt(string Label, int Value);
+    private List<RoomOpt> roomOptions = new()
+    {
+        new("1 pokój", 1), new("2 pokoje", 2), new("3 pokoje", 3), new("4 pokoje", 4), new("5+", 5)
+    };
 
     private bool isLoading = false;
     private bool setOtoDomGrid = false;
+    private bool setOlxNieruchomosciGrid = false;
 
     private IEnumerable<ScrapedItem>? otoDomData;
+    private IEnumerable<ScrapedItem>? olxNieruchomosciData;
 
     private string textBoxValue = string.Empty;
 
@@ -212,15 +264,15 @@
 
     private async Task LoadData()
     {
-        if (string.IsNullOrWhiteSpace(selectedOption1) ||
+        if (setOtoDomGrid && (string.IsNullOrWhiteSpace(selectedOption1) ||
             string.IsNullOrWhiteSpace(selectedOption2) ||
-            string.IsNullOrWhiteSpace(selectedOption3))
+            string.IsNullOrWhiteSpace(selectedOption3)))
         {
-            await DialogService.Alert("Uzupełnij wszystkie pola wyboru (rodzaj, typ, aktualność).");
+            await DialogService.Alert("Dla OtoDom uzupełnij wszystkie pola wyboru (rodzaj, typ, aktualność).");
             return;
         }
 
-        if (!setOtoDomGrid)
+        if (!setOtoDomGrid && !setOlxNieruchomosciGrid)
         {
             await DialogService.Alert("Zaznacz co najmniej jedną stronę, z której chcesz pobrać dane.");
             return;
@@ -241,6 +293,7 @@
 
         var websites = new List<string>();
         if (setOtoDomGrid) websites.Add("otoDom");
+        if (setOlxNieruchomosciGrid) websites.Add("olxnieruchomosci");
 
         model = new DataModel
         {
@@ -252,6 +305,7 @@
             price_to = selectedPriceTo,
             area_from = selectedAreaFrom,
             area_to = selectedAreaTo,
+            rooms = selectedRooms,
         };
 
         try
@@ -262,8 +316,8 @@
                 await DialogService.Alert(result?.Message ?? "Błąd podczas pobierania danych.");
                 return;
             }
-            otoDomData = result.Data?.OtoDomData?.Output
-                         ?? Enumerable.Empty<ScrapedItem>();
+            otoDomData = result.Data?.OtoDomData?.Output ?? Enumerable.Empty<ScrapedItem>();
+            olxNieruchomosciData = result.Data?.OlxnieruchomosciData?.Output ?? Enumerable.Empty<ScrapedItem>();
             StateHasChanged();
         }
         catch (Exception ex)
@@ -275,5 +329,4 @@
             isLoading = false;
         }
     }
-
 }

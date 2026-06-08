@@ -236,6 +236,7 @@ public class NotificationJob : INotificationJob
         "autocentrum" => "auto/autocentrum_scrapper.py",
         "otodom" => "apartment/otodom_scrapper.py",
         "nieruchomoscionline" => "apartment/nieruchomosci_online_scrapper.py",
+        "olxnieruchomosci" => "apartment/olx_nieruchomosci_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",
         "pracuj" => "work/pracuj_scrapper.py",
@@ -258,7 +259,7 @@ public class NotificationJob : INotificationJob
 
         var isAuto = site is "otomoto" or "autoscout" or "gratka" or "sprzedajemy" or "autocentrum" or "samochody";
         var isTractor = site is "olxciagniki" or "brzozowiak" or "sprzedajemyciagniki" or "otomotorolnicze";
-        var isFlat = site is "otodom" or "nieruchomoscionline";
+        var isFlat = site is "otodom" or "nieruchomoscionline" or "olxnieruchomosci";
         var isWork = site is "pracuj" or "justjoinit" or "nofluffjobs" or "theprotocolit" or "bulldogjob" or "solidjobs";
 
         if ((isAuto || isTractor) && !string.IsNullOrEmpty(request.Fuel))
@@ -284,6 +285,9 @@ public class NotificationJob : INotificationJob
 
         if (isFlat && request.AreaTo.HasValue)
         { args.Add("--area-to"); args.Add(request.AreaTo.Value.ToString()); }
+
+        if (site == "otodom" && request.Rooms.HasValue)
+        { args.Add("--rooms"); args.Add(request.Rooms.Value.ToString()); }
 
         if (isWork && !string.IsNullOrEmpty(request.WorkLocation))
         { args.Add("--loc"); args.Add(request.WorkLocation!); }

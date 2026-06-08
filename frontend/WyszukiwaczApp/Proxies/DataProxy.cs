@@ -82,6 +82,7 @@ public class DataProxy
                 PriceTo = model.price_to,
                 AreaFrom = model.area_from,
                 AreaTo = model.area_to,
+                Rooms = model.rooms,
             };
 
             var response = await _httpClient.PostAsJsonAsync("data/getData", request);
