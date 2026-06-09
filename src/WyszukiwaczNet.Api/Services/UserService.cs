@@ -18,7 +18,7 @@ public interface IUserService
     Task<List<UserNotificationConfigDto>> GetAllNotificationConfigsAsync(int userId);
     Task<(bool Success, string? Message)> SaveNotificationConfigAsync(SaveNotificationConfigRequest request);
     Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled);
-    Task<List<NotificationFeedItemDto>> GetNotificationFeedAsync(int userId, int limit = 100);
+    Task<(List<NotificationFeedItemDto> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30);
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
     Task MarkSingleNotificationReadAsync(int notificationId);
@@ -205,10 +205,10 @@ public class UserService : IUserService
         return await _userRepository.SetNotificationConfigEnabledAsync(userId, category, enabled);
     }
 
-    public async Task<List<NotificationFeedItemDto>> GetNotificationFeedAsync(int userId, int limit = 100)
+    public async Task<(List<NotificationFeedItemDto> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30)
     {
-        var items = await _userRepository.GetNotificationFeedAsync(userId, limit);
-        return items.Select(n => new NotificationFeedItemDto
+        var (notifications, total) = await _userRepository.GetNotificationFeedAsync(userId, page, pageSize);
+        var items = notifications.Select(n => new NotificationFeedItemDto
         {
             Id = n.Id,
             OfferId = n.OfferId,
@@ -220,6 +220,7 @@ public class UserService : IUserService
             Status = n.Status,
             CreatedAt = n.CreatedAt
         }).ToList();
+        return (items, total);
     }
 
     public async Task<int> GetUnreadNotificationCountAsync(int userId)

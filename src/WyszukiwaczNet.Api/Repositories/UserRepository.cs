@@ -22,7 +22,7 @@ public interface IUserRepository
     Task<UserNotificationConfig> SaveNotificationConfigAsync(UserNotificationConfig config);
     Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled);
     Task SaveNotificationFeedItemsAsync(List<Notification> items);
-    Task<List<Notification>> GetNotificationFeedAsync(int userId, int limit = 100);
+    Task<(List<Notification> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30);
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
     Task MarkSingleNotificationReadAsync(int notificationId);
@@ -183,14 +183,16 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<Notification>> GetNotificationFeedAsync(int userId, int limit = 100)
+    public async Task<(List<Notification> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30)
     {
-        return await _context.Notifications
+        var query = _context.Notifications
             .Include(n => n.Offer).ThenInclude(o => o!.Platform)
             .Where(n => n.UserId == userId)
-            .OrderByDescending(n => n.CreatedAt)
-            .Take(limit)
-            .ToListAsync();
+            .OrderByDescending(n => n.CreatedAt);
+
+        var total = await query.CountAsync();
+        var items = await query.Skip(page * pageSize).Take(pageSize).ToListAsync();
+        return (items, total);
     }
 
     public async Task<int> GetUnreadNotificationCountAsync(int userId)

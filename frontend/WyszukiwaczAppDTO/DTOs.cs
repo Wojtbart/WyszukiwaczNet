@@ -213,6 +213,7 @@ public class NotificationFeedResponse
     public bool Success { get; set; }
     public List<NotificationFeedItemDto>? Data { get; set; }
     public int UnreadCount { get; set; }
+    public int TotalCount { get; set; }
 }
 
 public class UserJobDto

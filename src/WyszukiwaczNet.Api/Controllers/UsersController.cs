@@ -175,11 +175,11 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{userId}/feed")]
-    public async Task<IActionResult> GetNotificationFeed(int userId, [FromQuery] int limit = 100)
+    public async Task<IActionResult> GetNotificationFeed(int userId, [FromQuery] int page = 0, [FromQuery] int pageSize = 30)
     {
-        var items = await _userService.GetNotificationFeedAsync(userId, limit);
+        var (items, total) = await _userService.GetNotificationFeedAsync(userId, page, pageSize);
         var unread = await _userService.GetUnreadNotificationCountAsync(userId);
-        return Ok(new { success = true, data = items, unreadCount = unread });
+        return Ok(new { success = true, data = items, unreadCount = unread, totalCount = total });
     }
 
     [HttpPost("{userId}/feed/read")]

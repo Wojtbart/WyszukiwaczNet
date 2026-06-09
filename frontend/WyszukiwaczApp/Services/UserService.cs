@@ -314,11 +314,11 @@ public class UserService
         catch { return null; }
     }
 
-    public async Task<NotificationFeedResponse?> GetNotificationFeedAsync(int userId, int limit = 100)
+    public async Task<NotificationFeedResponse?> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30)
     {
         try
         {
-            var response = await HttpC.GetAsync($"users/{userId}/feed?limit={limit}");
+            var response = await HttpC.GetAsync($"users/{userId}/feed?page={page}&pageSize={pageSize}");
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             return JsonConvert.DeserializeObject<NotificationFeedResponse>(content);

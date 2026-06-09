@@ -344,6 +344,48 @@
     .nf-plat-nofluff    { background: #e8eaf6; color: #283593; }
     .nf-plat-default    { background: #f0ecff; color: #5b21b6; }
 
+    /* ── Pagination ── */
+    .nf-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1.5rem 0 0.5rem;
+    }
+
+    .nf-page-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.45rem 1rem;
+        background: #f8fafc;
+        color: #374151;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .nf-page-btn:hover:not(:disabled) {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #2563eb;
+    }
+
+    .nf-page-btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+    .nf-page-info {
+        font-size: 0.88rem;
+        color: #64748b;
+        font-family: 'JetBrains Mono', monospace;
+        white-space: nowrap;
+    }
+
     /* ── Responsive ── */
     @@media (max-width: 600px) {
         .nf-card {
@@ -460,6 +502,15 @@
                 </div>
             }
         </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="nf-pagination">
+                <button class="nf-page-btn" disabled="@(currentPage == 0)" @onclick="() => GoToPage(currentPage - 1)">← Poprzednia</button>
+                <span class="nf-page-info">Strona @(currentPage + 1) z @totalPages</span>
+                <button class="nf-page-btn" disabled="@(currentPage >= totalPages - 1)" @onclick="() => GoToPage(currentPage + 1)">Następna →</button>
+            </div>
+        }
     }
 
 </div>
@@ -507,6 +558,10 @@
     private int unreadCount;
     private bool isLoading = true;
     private int userId;
+    private int currentPage = 0;
+    private int totalCount = 0;
+    private const int PageSize = 30;
+    private int totalPages => (int)Math.Ceiling((double)totalCount / PageSize);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -531,11 +586,18 @@
     {
         isLoading = true;
         StateHasChanged();
-        var result = await UserService.GetNotificationFeedAsync(userId);
+        var result = await UserService.GetNotificationFeedAsync(userId, currentPage, PageSize);
         items = result?.Data ?? new();
         unreadCount = result?.UnreadCount ?? 0;
+        totalCount = result?.TotalCount ?? 0;
         isLoading = false;
         StateHasChanged();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+        await LoadFeed();
     }
 
     private async Task MarkItemRead(NotificationFeedItemDto item)
@@ -543,7 +605,10 @@
         if (item.Status != "new") return;
         item.Status = "read";
         unreadCount = Math.Max(0, unreadCount - 1);
+        items!.Remove(item);
+        items.Add(item);
         AuthState.NotifyNotificationsChanged();
+        StateHasChanged();
         await UserService.MarkNotificationReadAsync(userId, item.Id);
     }
 
