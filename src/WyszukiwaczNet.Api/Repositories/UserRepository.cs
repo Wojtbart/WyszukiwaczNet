@@ -22,7 +22,7 @@ public interface IUserRepository
     Task<UserNotificationConfig> SaveNotificationConfigAsync(UserNotificationConfig config);
     Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled);
     Task SaveNotificationFeedItemsAsync(List<Notification> items);
-    Task<(List<Notification> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30);
+    Task<(List<Notification> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null);
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
     Task MarkSingleNotificationReadAsync(int notificationId);
@@ -183,17 +183,33 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<(List<Notification> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30)
+    public async Task<(List<Notification> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null)
     {
-        var query = _context.Notifications
-            .Include(n => n.Offer).ThenInclude(o => o!.Platform)
-            .Where(n => n.UserId == userId)
-            .OrderByDescending(n => n.CreatedAt);
+        var platformNames = GetPlatformNamesForCategory(category);
 
-        var total = await query.CountAsync();
-        var items = await query.Skip(page * pageSize).Take(pageSize).ToListAsync();
+        var baseQuery = _context.Notifications
+            .Include(n => n.Offer).ThenInclude(o => o!.Platform)
+            .Where(n => n.UserId == userId);
+
+        if (platformNames != null)
+            baseQuery = baseQuery.Where(n => n.Offer != null && n.Offer.Platform != null &&
+                                            platformNames.Contains(n.Offer.Platform.Name.ToLower()));
+
+        var ordered = baseQuery.OrderByDescending(n => n.CreatedAt);
+        var total = await ordered.CountAsync();
+        var items = await ordered.Skip(page * pageSize).Take(pageSize).ToListAsync();
         return (items, total);
     }
+
+    private static List<string>? GetPlatformNamesForCategory(string? category) => category switch
+    {
+        "work" => ["pracuj", "justjoinit", "nofluffjobs", "theprotocolit", "bulldogjob", "solidjobs"],
+        "car"  => ["otomoto", "gratka", "sprzedajemy", "autocentrum", "samochody", "autoscout"],
+        "flat" => ["otodom", "olxnieruchomosci", "nieruchomoscionline"],
+        "shop" => ["amazon", "allegro", "olx", "ebay", "aliexpress", "pepper", "carrot"],
+        "agri" => ["olxciagniki", "brzozowiak", "sprzedajemyciagniki", "otomotorolnicze"],
+        _      => null
+    };
 
     public async Task<int> GetUnreadNotificationCountAsync(int userId)
     {

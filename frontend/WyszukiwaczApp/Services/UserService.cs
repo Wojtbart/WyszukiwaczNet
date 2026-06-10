@@ -314,11 +314,13 @@ public class UserService
         catch { return null; }
     }
 
-    public async Task<NotificationFeedResponse?> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30)
+    public async Task<NotificationFeedResponse?> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null)
     {
         try
         {
-            var response = await HttpC.GetAsync($"users/{userId}/feed?page={page}&pageSize={pageSize}");
+            var url = $"users/{userId}/feed?page={page}&pageSize={pageSize}";
+            if (!string.IsNullOrEmpty(category)) url += $"&category={category}";
+            var response = await HttpC.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) return null;
             return JsonConvert.DeserializeObject<NotificationFeedResponse>(content);

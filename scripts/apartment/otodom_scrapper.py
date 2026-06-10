@@ -73,25 +73,31 @@ def generate_otodom_url(transaction_type, city, room_path_suffix=""):
 
     city = normalize_city_name(city)
 
+    # (province_path, city_slug) — city_slug=None means use normalized city name
     city_province_map = {
-        "krakow": "malopolskie",
-        "warszawa": "mazowieckie",
-        "rzeszow": "podkarpackie",
-        "wroclaw": "dolnoslaskie",
-        "poznan": "wielkopolskie",
-        "gdansk": "pomorskie",
-        "lodz": "lodzkie",
-        "katowice": "slaskie",
-        "szczecin": "zachodniopomorskie",
-        "lublin": "lubelskie"
+        "krakow":      ("malopolskie", None),
+        "warszawa":    ("mazowieckie", None),
+        "rzeszow":     ("podkarpackie", None),
+        "wroclaw":     ("dolnoslaskie", None),
+        "poznan":      ("wielkopolskie", None),
+        "gdansk":      ("pomorskie", None),
+        "lodz":        ("lodzkie", None),
+        "katowice":    ("slaskie", None),
+        "szczecin":    ("zachodniopomorskie", None),
+        "lublin":      ("lubelskie", None),
+        "rabka-zdroj": ("malopolskie/nowotarski", "rabka--zdroj"),
     }
 
-    province = city_province_map.get(city)
+    entry = city_province_map.get(city)
 
-    if not province:
+    if not entry:
         raise ValueError("City not found")
 
-    return f"https://www.otodom.pl/pl/wyniki/{transaction_type}/mieszkanie{room_path_suffix}/{province}/{city}"
+    province_path, city_slug = entry
+    if city_slug is None:
+        city_slug = city
+
+    return f"https://www.otodom.pl/pl/wyniki/{transaction_type}/mieszkanie{room_path_suffix}/{province_path}/{city_slug}"
 
 def scrape_otodom(cnx, phrase, filters=None):
     global COUNTER

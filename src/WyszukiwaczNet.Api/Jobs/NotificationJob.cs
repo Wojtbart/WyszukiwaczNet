@@ -14,6 +14,7 @@ public interface INotificationJob
     string EnqueueJob(NotificationRequest request);
     string EnqueueRecurringJob(NotificationRequest request);
     int DeleteJobsForUser(int userId);
+    bool DeleteSingleJob(string jobId);
     List<UserJobDto> GetJobsForUser(int userId);
 }
 
@@ -158,6 +159,12 @@ public class NotificationJob : INotificationJob
         }
 
         return deleted;
+    }
+
+    public bool DeleteSingleJob(string jobId)
+    {
+        RecurringJob.RemoveIfExists(jobId);
+        return true;
     }
 
     public List<UserJobDto> GetJobsForUser(int userId)

@@ -61,6 +61,8 @@
                         <div class="job-card-header">
                             <span class="job-card-phrase">@(string.IsNullOrWhiteSpace(job.Phrase) ? "—" : job.Phrase)</span>
                             <span class="job-state @stateCss">@stateLabel</span>
+                            <button class="job-delete-btn" title="Usuń to zadanie"
+                                    @onclick="() => DeleteSingleJob(job.Id)" @onclick:stopPropagation="true">✕</button>
                         </div>
                         <div class="job-card-rows">
                             <div class="job-card-row">
@@ -992,6 +994,26 @@
             if (dict.TryGetValue("ContractType", out var ct)) _filterContractType = ct.GetInt32();
         }
         catch { }
+    }
+
+    private async Task DeleteSingleJob(string jobId)
+    {
+        var result = await NotificationProxy.DeleteSingleJob(jobId);
+        if (result.success)
+        {
+            userJobs?.RemoveAll(j => j.Id == jobId);
+            if (userJobs?.Count == 0)
+            {
+                await UserService.SetNotificationConfigEnabledAsync(userId, _selectedCategory, false);
+                _categoryEnabled[_selectedCategory] = false;
+            }
+            NotificationService.Notify(NotificationSeverity.Success, "Zadanie usunięte.");
+            StateHasChanged();
+        }
+        else
+        {
+            NotificationService.Notify(NotificationSeverity.Error, result.message ?? "Nie udało się usunąć zadania.");
+        }
     }
 
     private async Task DeleteJobs()

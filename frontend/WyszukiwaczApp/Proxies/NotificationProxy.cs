@@ -74,6 +74,23 @@ public class NotificationProxy
         }
     }
 
+    public async Task<DeleteJobResult> DeleteSingleJob(string jobId)
+    {
+        try
+        {
+            Auth();
+            var encodedId = Uri.EscapeDataString(jobId);
+            var response = await _httpClient.DeleteAsync($"notifications/job/{encodedId}");
+            return response.IsSuccessStatusCode
+                ? new DeleteJobResult { success = true }
+                : new DeleteJobResult { success = false, message = "Nie udało się usunąć zadania" };
+        }
+        catch
+        {
+            return new DeleteJobResult { success = false, message = "Błąd podczas usuwania zadania" };
+        }
+    }
+
 }
 
 public class DeleteJobResult

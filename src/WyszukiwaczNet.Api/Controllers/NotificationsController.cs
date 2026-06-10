@@ -89,6 +89,21 @@ public class NotificationsController : ControllerBase
         }
     }
 
+    [HttpDelete("job/{jobId}")]
+    public IActionResult DeleteSingleJob(string jobId)
+    {
+        try
+        {
+            _notificationJob.DeleteSingleJob(jobId);
+            return Ok(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd podczas usuwania zadania {JobId}", jobId);
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
     [HttpPost("sms")]
     public async Task<IActionResult> SendSms([FromBody] SmsRequest request)
     {

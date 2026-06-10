@@ -344,19 +344,61 @@
     .nf-plat-nofluff    { background: #e8eaf6; color: #283593; }
     .nf-plat-default    { background: #f0ecff; color: #5b21b6; }
 
+    /* ── Category filter ── */
+    .nf-filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .nf-cat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        cursor: pointer;
+        border: 1.5px solid transparent;
+        transition: all 0.15s;
+        background: #f1f5f9;
+        color: #64748b;
+        border-color: #e2e8f0;
+    }
+
+    .nf-cat-chip:hover { opacity: 0.85; }
+
+    .nf-cat-chip.active {
+        color: white;
+        border-color: transparent;
+    }
+
+    .nf-cat-chip.chip-all.active    { background: #3b82f6; }
+    .nf-cat-chip.chip-work.active   { background: #f97316; }
+    .nf-cat-chip.chip-car.active    { background: #2563eb; }
+    .nf-cat-chip.chip-flat.active   { background: #16a34a; }
+    .nf-cat-chip.chip-shop.active   { background: #9333ea; }
+    .nf-cat-chip.chip-agri.active   { background: #84cc16; color: #1a2e05; }
+
     /* ── Pagination ── */
     .nf-pagination {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
+        flex-wrap: wrap;
+        gap: 0.35rem;
         padding: 1.5rem 0 0.5rem;
     }
 
     .nf-page-btn {
         display: inline-flex;
         align-items: center;
-        padding: 0.45rem 1rem;
+        padding: 0.4rem 0.75rem;
+        min-width: 2.2rem;
+        justify-content: center;
         background: #f8fafc;
         color: #374151;
         border: 1.5px solid #e2e8f0;
@@ -379,11 +421,18 @@
         cursor: default;
     }
 
-    .nf-page-info {
-        font-size: 0.88rem;
-        color: #64748b;
+    .nf-page-btn.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+        cursor: default;
+    }
+
+    .nf-page-ellipsis {
+        padding: 0.4rem 0.25rem;
+        color: #94a3b8;
+        font-size: 0.85rem;
         font-family: 'JetBrains Mono', monospace;
-        white-space: nowrap;
     }
 
     /* ── Responsive ── */
@@ -429,6 +478,15 @@
                 ✓ Oznacz wszystkie jako przeczytane
             </button>
         }
+    </div>
+
+    <div class="nf-filter-bar">
+        <button class="nf-cat-chip chip-all @(selectedCategory == null ? "active" : "")" @onclick='() => SelectCategory(null)'>🔔 Wszystkie</button>
+        <button class="nf-cat-chip chip-work @(selectedCategory == "work" ? "active" : "")" @onclick='() => SelectCategory("work")'>💼 Praca</button>
+        <button class="nf-cat-chip chip-car @(selectedCategory == "car" ? "active" : "")" @onclick='() => SelectCategory("car")'>🚗 Samochody</button>
+        <button class="nf-cat-chip chip-flat @(selectedCategory == "flat" ? "active" : "")" @onclick='() => SelectCategory("flat")'>🏠 Mieszkania</button>
+        <button class="nf-cat-chip chip-shop @(selectedCategory == "shop" ? "active" : "")" @onclick='() => SelectCategory("shop")'>🛒 Zakupy</button>
+        <button class="nf-cat-chip chip-agri @(selectedCategory == "agri" ? "active" : "")" @onclick='() => SelectCategory("agri")'>🚜 Rolnicze</button>
     </div>
 
     @if (isLoading)
@@ -506,9 +564,22 @@
         @if (totalPages > 1)
         {
             <div class="nf-pagination">
-                <button class="nf-page-btn" disabled="@(currentPage == 0)" @onclick="() => GoToPage(currentPage - 1)">← Poprzednia</button>
-                <span class="nf-page-info">Strona @(currentPage + 1) z @totalPages</span>
-                <button class="nf-page-btn" disabled="@(currentPage >= totalPages - 1)" @onclick="() => GoToPage(currentPage + 1)">Następna →</button>
+                <button class="nf-page-btn" disabled="@(currentPage == 0)" @onclick="() => GoToPage(currentPage - 1)">←</button>
+                @foreach (var p in GetPageNumbers())
+                {
+                    if (p == null)
+                    {
+                        <span class="nf-page-ellipsis">…</span>
+                    }
+                    else
+                    {
+                        var pageNum = p.Value;
+                        <button class="nf-page-btn @(pageNum == currentPage ? "active" : "")"
+                                disabled="@(pageNum == currentPage)"
+                                @onclick="() => GoToPage(pageNum)">@(pageNum + 1)</button>
+                    }
+                }
+                <button class="nf-page-btn" disabled="@(currentPage >= totalPages - 1)" @onclick="() => GoToPage(currentPage + 1)">→</button>
             </div>
         }
     }
@@ -560,8 +631,37 @@
     private int userId;
     private int currentPage = 0;
     private int totalCount = 0;
+    private string? selectedCategory = null;
     private const int PageSize = 30;
     private int totalPages => (int)Math.Ceiling((double)totalCount / PageSize);
+
+    private IEnumerable<int?> GetPageNumbers()
+    {
+        if (totalPages <= 7)
+            return Enumerable.Range(0, totalPages).Select(p => (int?)p);
+
+        var shown = new SortedSet<int> { 0, totalPages - 1 };
+        for (int i = Math.Max(0, currentPage - 2); i <= Math.Min(totalPages - 1, currentPage + 2); i++)
+            shown.Add(i);
+
+        var result = new List<int?>();
+        int? prev = null;
+        foreach (var p in shown)
+        {
+            if (prev.HasValue && p - prev.Value > 1)
+                result.Add(null);
+            result.Add(p);
+            prev = p;
+        }
+        return result;
+    }
+
+    private async Task SelectCategory(string? category)
+    {
+        selectedCategory = category;
+        currentPage = 0;
+        await LoadFeed();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -586,7 +686,7 @@
     {
         isLoading = true;
         StateHasChanged();
-        var result = await UserService.GetNotificationFeedAsync(userId, currentPage, PageSize);
+        var result = await UserService.GetNotificationFeedAsync(userId, currentPage, PageSize, selectedCategory);
         items = result?.Data ?? new();
         unreadCount = result?.UnreadCount ?? 0;
         totalCount = result?.TotalCount ?? 0;
