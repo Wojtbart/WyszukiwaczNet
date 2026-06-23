@@ -184,6 +184,14 @@ public class NotificationJob : INotificationJob
                     ? string.Join(" ", parts[..^5]).Replace("_", " ").Trim()
                     : afterPrefix;
 
+                List<string> websites = new();
+                try
+                {
+                    if (j.Job?.Args?.FirstOrDefault() is NotificationRequest req)
+                        websites = req.Websites ?? new();
+                }
+                catch { }
+
                 return new UserJobDto
                 {
                     Id = j.Id,
@@ -191,7 +199,8 @@ public class NotificationJob : INotificationJob
                     Cron = j.Cron,
                     NextExecution = j.NextExecution,
                     LastExecution = j.LastExecution,
-                    LastState = j.LastJobState
+                    LastState = j.LastJobState,
+                    Websites = websites
                 };
             })
             .ToList();

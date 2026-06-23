@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @inject ILocalStorageService LocalStorage
 @inject WyszukiwaczApp.Services.AuthState AuthState
+@inject WyszukiwaczApp.Proxies.LoginProxy LoginProxy
 
 <RadzenComponents />
 
@@ -156,6 +157,16 @@ else
             AuthState.IsLogged = true;
             AuthState.AuthToken = token;
             AuthState.Login = login ?? string.Empty;
+
+            if (!AuthState.UserId.HasValue && !string.IsNullOrEmpty(login))
+            {
+                var userInfo = await LoginProxy.GetUser(login);
+                if (userInfo != null && userInfo.user_id > 0)
+                {
+                    AuthState.UserId = userInfo.user_id;
+                    AuthState.NotifyNotificationsChanged();
+                }
+            }
         }
         else
         {

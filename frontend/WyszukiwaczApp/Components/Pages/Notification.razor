@@ -998,15 +998,23 @@
 
     private async Task DeleteSingleJob(string jobId)
     {
+        var deletedJob = userJobs?.FirstOrDefault(j => j.Id == jobId);
         var result = await NotificationProxy.DeleteSingleJob(jobId);
         if (result.success)
         {
             userJobs?.RemoveAll(j => j.Id == jobId);
-            if (userJobs?.Count == 0)
+
+            var deletedCategory = DeriveCategoryFromWebsites(deletedJob?.Websites);
+            if (!string.IsNullOrEmpty(deletedCategory))
             {
-                await UserService.SetNotificationConfigEnabledAsync(userId, _selectedCategory, false);
-                _categoryEnabled[_selectedCategory] = false;
+                var anyRemaining = userJobs?.Any(j => DeriveCategoryFromWebsites(j.Websites) == deletedCategory) ?? false;
+                if (!anyRemaining)
+                {
+                    await UserService.SetNotificationConfigEnabledAsync(userId, deletedCategory, false);
+                    _categoryEnabled[deletedCategory] = false;
+                }
             }
+
             NotificationService.Notify(NotificationSeverity.Success, "Zadanie usunięte.");
             StateHasChanged();
         }
@@ -1014,6 +1022,23 @@
         {
             NotificationService.Notify(NotificationSeverity.Error, result.message ?? "Nie udało się usunąć zadania.");
         }
+    }
+
+    private static string? DeriveCategoryFromWebsites(List<string>? websites)
+    {
+        if (websites == null || websites.Count == 0) return null;
+        var set = websites.Select(w => w.ToLower()).ToHashSet();
+        if (set.Any(w => new[] { "otomoto", "gratka", "sprzedajemy", "autocentrum", "samochody", "autoscout" }.Contains(w)))
+            return "Motoryzacja";
+        if (set.Any(w => new[] { "otodom", "olxnieruchomosci", "nieruchomoscionline" }.Contains(w)))
+            return "Nieruchomości";
+        if (set.Any(w => new[] { "amazon", "allegro", "olx", "ebay", "aliexpress", "pepper", "carrot" }.Contains(w)))
+            return "Zakupy";
+        if (set.Any(w => new[] { "pracuj", "justjoinit", "nofluffjobs", "theprotocolit", "bulldogjob", "solidjobs" }.Contains(w)))
+            return "Praca";
+        if (set.Any(w => new[] { "olxciagniki", "brzozowiak", "sprzedajemyciagniki", "otomotorolnicze" }.Contains(w)))
+            return "Ciągniki";
+        return null;
     }
 
     private async Task DeleteJobs()

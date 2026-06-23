@@ -482,11 +482,11 @@
 
     <div class="nf-filter-bar">
         <button class="nf-cat-chip chip-all @(selectedCategory == null ? "active" : "")" @onclick='() => SelectCategory(null)'>🔔 Wszystkie</button>
-        <button class="nf-cat-chip chip-work @(selectedCategory == "work" ? "active" : "")" @onclick='() => SelectCategory("work")'>💼 Praca</button>
-        <button class="nf-cat-chip chip-car @(selectedCategory == "car" ? "active" : "")" @onclick='() => SelectCategory("car")'>🚗 Samochody</button>
-        <button class="nf-cat-chip chip-flat @(selectedCategory == "flat" ? "active" : "")" @onclick='() => SelectCategory("flat")'>🏠 Mieszkania</button>
-        <button class="nf-cat-chip chip-shop @(selectedCategory == "shop" ? "active" : "")" @onclick='() => SelectCategory("shop")'>🛒 Zakupy</button>
-        <button class="nf-cat-chip chip-agri @(selectedCategory == "agri" ? "active" : "")" @onclick='() => SelectCategory("agri")'>🚜 Rolnicze</button>
+        <button class="nf-cat-chip chip-work @(selectedCategory == "work" ? "active" : "")" @onclick='() => SelectCategory("work")'>💼 Praca@(_categoryCounts.TryGetValue("work", out var wc) && wc > 0 ? $" ({wc})" : "")</button>
+        <button class="nf-cat-chip chip-car @(selectedCategory == "car" ? "active" : "")" @onclick='() => SelectCategory("car")'>🚗 Samochody@(_categoryCounts.TryGetValue("car", out var cc) && cc > 0 ? $" ({cc})" : "")</button>
+        <button class="nf-cat-chip chip-flat @(selectedCategory == "flat" ? "active" : "")" @onclick='() => SelectCategory("flat")'>🏠 Mieszkania@(_categoryCounts.TryGetValue("flat", out var fc) && fc > 0 ? $" ({fc})" : "")</button>
+        <button class="nf-cat-chip chip-shop @(selectedCategory == "shop" ? "active" : "")" @onclick='() => SelectCategory("shop")'>🛒 Zakupy@(_categoryCounts.TryGetValue("shop", out var sc) && sc > 0 ? $" ({sc})" : "")</button>
+        <button class="nf-cat-chip chip-agri @(selectedCategory == "agri" ? "active" : "")" @onclick='() => SelectCategory("agri")'>🚜 Rolnicze@(_categoryCounts.TryGetValue("agri", out var ac) && ac > 0 ? $" ({ac})" : "")</button>
     </div>
 
     @if (isLoading)
@@ -511,6 +511,28 @@
     }
     else
     {
+        @if (totalPages > 1)
+        {
+            <div class="nf-pagination">
+                <button class="nf-page-btn" disabled="@(currentPage == 0)" @onclick="() => GoToPage(currentPage - 1)">←</button>
+                @foreach (var p in GetPageNumbers())
+                {
+                    if (p == null)
+                    {
+                        <span class="nf-page-ellipsis">…</span>
+                    }
+                    else
+                    {
+                        var pageNum = p.Value;
+                        <button class="nf-page-btn @(pageNum == currentPage ? "active" : "")"
+                                disabled="@(pageNum == currentPage)"
+                                @onclick="() => GoToPage(pageNum)">@(pageNum + 1)</button>
+                    }
+                }
+                <button class="nf-page-btn" disabled="@(currentPage >= totalPages - 1)" @onclick="() => GoToPage(currentPage + 1)">→</button>
+            </div>
+        }
+
         <div class="nf-list">
             @foreach (var item in items)
             {
@@ -634,6 +656,7 @@
     private string? selectedCategory = null;
     private const int PageSize = 30;
     private int totalPages => (int)Math.Ceiling((double)totalCount / PageSize);
+    private Dictionary<string, int> _categoryCounts = new();
 
     private IEnumerable<int?> GetPageNumbers()
     {
@@ -680,6 +703,18 @@
         AuthState.UserId = userId;
 
         await LoadFeed();
+        _ = LoadCategoryCounts();
+    }
+
+    private async Task LoadCategoryCounts()
+    {
+        var cats = new[] { "work", "car", "flat", "shop", "agri" };
+        foreach (var cat in cats)
+        {
+            var r = await UserService.GetNotificationFeedAsync(userId, 0, 0, cat);
+            _categoryCounts[cat] = r?.UnreadCount ?? 0;
+        }
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadFeed()

@@ -165,6 +165,7 @@ public class UserJobDto
     public DateTime? NextExecution { get; set; }
     public DateTime? LastExecution { get; set; }
     public string? LastState { get; set; }
+    public List<string> Websites { get; set; } = new();
 }
 
 public record UserPlanDto(

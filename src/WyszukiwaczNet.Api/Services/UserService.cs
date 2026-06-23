@@ -18,7 +18,7 @@ public interface IUserService
     Task<List<UserNotificationConfigDto>> GetAllNotificationConfigsAsync(int userId);
     Task<(bool Success, string? Message)> SaveNotificationConfigAsync(SaveNotificationConfigRequest request);
     Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled);
-    Task<(List<NotificationFeedItemDto> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null);
+    Task<(List<NotificationFeedItemDto> Items, int TotalCount, int UnreadCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null);
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
     Task MarkSingleNotificationReadAsync(int notificationId);
@@ -205,9 +205,9 @@ public class UserService : IUserService
         return await _userRepository.SetNotificationConfigEnabledAsync(userId, category, enabled);
     }
 
-    public async Task<(List<NotificationFeedItemDto> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null)
+    public async Task<(List<NotificationFeedItemDto> Items, int TotalCount, int UnreadCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null)
     {
-        var (notifications, total) = await _userRepository.GetNotificationFeedAsync(userId, page, pageSize, category);
+        var (notifications, total, unread) = await _userRepository.GetNotificationFeedAsync(userId, page, pageSize, category);
         var items = notifications.Select(n => new NotificationFeedItemDto
         {
             Id = n.Id,
@@ -220,7 +220,7 @@ public class UserService : IUserService
             Status = n.Status,
             CreatedAt = n.CreatedAt
         }).ToList();
-        return (items, total);
+        return (items, total, unread);
     }
 
     public async Task<int> GetUnreadNotificationCountAsync(int userId)

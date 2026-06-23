@@ -22,7 +22,7 @@ public interface IUserRepository
     Task<UserNotificationConfig> SaveNotificationConfigAsync(UserNotificationConfig config);
     Task<bool> SetNotificationConfigEnabledAsync(int userId, string? category, bool enabled);
     Task SaveNotificationFeedItemsAsync(List<Notification> items);
-    Task<(List<Notification> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null);
+    Task<(List<Notification> Items, int TotalCount, int UnreadCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null);
     Task<int> GetUnreadNotificationCountAsync(int userId);
     Task MarkNotificationsReadAsync(int userId);
     Task MarkSingleNotificationReadAsync(int notificationId);
@@ -183,7 +183,7 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<(List<Notification> Items, int TotalCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null)
+    public async Task<(List<Notification> Items, int TotalCount, int UnreadCount)> GetNotificationFeedAsync(int userId, int page = 0, int pageSize = 30, string? category = null)
     {
         var platformNames = GetPlatformNamesForCategory(category);
 
@@ -197,8 +197,11 @@ public class UserRepository : IUserRepository
 
         var ordered = baseQuery.OrderByDescending(n => n.CreatedAt);
         var total = await ordered.CountAsync();
-        var items = await ordered.Skip(page * pageSize).Take(pageSize).ToListAsync();
-        return (items, total);
+        var unread = await baseQuery.CountAsync(n => n.Status == "new");
+        var items = pageSize > 0
+            ? await ordered.Skip(page * pageSize).Take(pageSize).ToListAsync()
+            : new List<Notification>();
+        return (items, total, unread);
     }
 
     private static List<string>? GetPlatformNamesForCategory(string? category) => category switch
