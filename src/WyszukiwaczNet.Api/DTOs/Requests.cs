@@ -97,7 +97,8 @@ public record OfferResponse(
     string? AdditionalInfo,
     DateTime CreatedAt,
     string Status,
-    VehicleDetailResponse? VehicleDetail
+    VehicleDetailResponse? VehicleDetail,
+    JobDetailResponse? JobDetail
 );
 
 public record VehicleDetailResponse(
@@ -108,6 +109,18 @@ public record VehicleDetailResponse(
     string? Gearbox,
     int? EnginePower,
     string? BodyType
+);
+
+public record JobDetailResponse(
+    int OfferId,
+    decimal? SalaryMin,
+    decimal? SalaryMax,
+    string? SalaryCurrency,
+    string? SalaryType,
+    string? SalaryRaw,
+    string? Technologies,
+    string? WorkLocation,
+    string? HqLocation
 );
 
 public record PlatformResponse(

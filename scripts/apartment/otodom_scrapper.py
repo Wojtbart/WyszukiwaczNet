@@ -8,7 +8,6 @@ from psycopg2 import Error
 import sys
 import argparse
 import urllib.parse
-import unicodedata
 import re
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -52,7 +51,8 @@ def insert_offer(cnx, platform_id, offer):
 
 
 def normalize_city_name(city):
-    return unicodedata.normalize('NFKD', city).encode('ASCII', 'ignore').decode('utf-8').lower()
+    pl = str.maketrans('ąćęłńóśźżĄĆĘŁŃÓŚŹŻ', 'acelnoszzACELNOSZZ')
+    return city.translate(pl).lower()
 
 
 def get_room_suffix(rooms):
@@ -75,17 +75,30 @@ def generate_otodom_url(transaction_type, city, room_path_suffix=""):
 
     # (province_path, city_slug) — city_slug=None means use normalized city name
     city_province_map = {
-        "krakow":      ("malopolskie", None),
-        "warszawa":    ("mazowieckie", None),
-        "rzeszow":     ("podkarpackie", None),
-        "wroclaw":     ("dolnoslaskie", None),
-        "poznan":      ("wielkopolskie", None),
-        "gdansk":      ("pomorskie", None),
-        "lodz":        ("lodzkie", None),
-        "katowice":    ("slaskie", None),
-        "szczecin":    ("zachodniopomorskie", None),
-        "lublin":      ("lubelskie", None),
-        "rabka-zdroj": ("malopolskie/nowotarski", "rabka--zdroj"),
+        "krakow":       ("malopolskie", None),
+        "warszawa":     ("mazowieckie", None),
+        "rzeszow":      ("podkarpackie", None),
+        "wroclaw":      ("dolnoslaskie", None),
+        "poznan":       ("wielkopolskie", None),
+        "gdansk":       ("pomorskie", None),
+        "lodz":         ("lodzkie", None),
+        "katowice":     ("slaskie", None),
+        "szczecin":     ("zachodniopomorskie", None),
+        "lublin":       ("lubelskie", None),
+        "bialystok":    ("podlaskie", None),
+        "bydgoszcz":    ("kujawsko-pomorskie", None),
+        "gdynia":       ("pomorskie", None),
+        "czestochowa":  ("slaskie", None),
+        "radom":        ("mazowieckie", None),
+        "sosnowiec":    ("slaskie", None),
+        "torun":        ("kujawsko-pomorskie", None),
+        "kielce":       ("swietokrzyskie", None),
+        "gliwice":      ("slaskie", None),
+        "zabrze":       ("slaskie", None),
+        "olsztyn":      ("warminsko-mazurskie", None),
+        "opole":        ("opolskie", None),
+        "zielona-gora": ("lubuskie", None),
+        "rabka-zdroj":  ("malopolskie/nowotarski", "rabka--zdroj"),
     }
 
     entry = city_province_map.get(city)
@@ -162,7 +175,7 @@ def scrape_otodom(cnx, phrase, filters=None):
         "Referer": "https://www.otodom.pl/"
     }
 
-    response = requests.get(final_url, headers=headers)
+    response = requests.get(final_url, headers=headers, timeout=30)
 
     if response.status_code != 200:
         print("Failed request")
@@ -170,7 +183,8 @@ def scrape_otodom(cnx, phrase, filters=None):
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    listings = soup.select_one('ul[data-sentry-component="CardsList"]')
+    all_lists = soup.select('ul[data-sentry-component="CardsList"]')
+    listings = all_lists[-1] if all_lists else None
 
     if not listings:
         print("Nothing found!")
@@ -274,7 +288,7 @@ if __name__ == "__main__":
 
         scrape_otodom(cnx, phrase, filters)
 
-        print("Inserted:", COUNTER)
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("Database error:", e)

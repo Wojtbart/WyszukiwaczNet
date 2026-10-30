@@ -210,7 +210,7 @@ public class UserRepository : IUserRepository
         "car"  => ["otomoto", "gratka", "sprzedajemy", "autocentrum", "samochody", "autoscout"],
         "flat" => ["otodom", "olxnieruchomosci", "nieruchomoscionline"],
         "shop" => ["amazon", "allegro", "olx", "ebay", "aliexpress", "pepper", "carrot"],
-        "agri" => ["olxciagniki", "brzozowiak", "sprzedajemyciagniki", "otomotorolnicze"],
+        "agri" => ["olxciagniki", "sprzedajemyciagniki", "otomotorolnicze"],
         _      => null
     };
 

@@ -209,9 +209,17 @@ def get_data_and_insert(cnx, phrase, location=None, employment_level=None, contr
 
     print(f"Found {len(offers)} offers")
 
+    kw_lower = phrase.lower()
+
     for offer_div in offers:
         data = parse_offer(offer_div)
         if not data:
+            continue
+
+        title_match = kw_lower in (data.get("title") or "").lower()
+        tech_match = kw_lower in (data.get("technologies") or "").lower()
+        if not title_match and not tech_match:
+            print(f"  SKIP (keyword not in title/tech): {data['title']}")
             continue
 
         if offer_exists(cnx, platform_id, data["url"]):
@@ -244,7 +252,7 @@ if __name__ == "__main__":
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connection OK")
         get_data_and_insert(cnx, phrase, args.location, args.employment_level, args.contract_type)
-        print(f"Records inserted: {COUNTER}")
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("PostgreSQL error:", e)

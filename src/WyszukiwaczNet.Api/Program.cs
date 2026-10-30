@@ -1,3 +1,4 @@
+using Hangfire.Dashboard;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -83,6 +84,21 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHangfireDashboard("/hangfire");
+app.MapHangfireDashboard("/hangfire", new Hangfire.DashboardOptions
+{
+    Authorization = [new LocalRequestsOnlyAuthorizationFilter()]
+});
 
 app.Run();
+
+public class LocalRequestsOnlyAuthorizationFilter : IDashboardAuthorizationFilter
+{
+    public bool Authorize(DashboardContext context)
+    {
+        var httpContext = context.GetHttpContext();
+        var remote = httpContext.Connection.RemoteIpAddress;
+        return remote != null &&
+               (System.Net.IPAddress.IsLoopback(remote) ||
+                remote.Equals(httpContext.Connection.LocalIpAddress));
+    }
+}

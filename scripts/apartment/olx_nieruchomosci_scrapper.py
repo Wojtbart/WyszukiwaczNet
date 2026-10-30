@@ -1,4 +1,4 @@
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
@@ -52,7 +52,10 @@ def parse_price(text):
     else:
         cleaned = cleaned.replace(".", "")
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except ValueError:
         return None, None
 
@@ -105,12 +108,9 @@ def get_data_and_insert(cnx, phrase, filters=None):
     print(URL)
 
     try:
-        response = requests.get(URL, headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
-        }, timeout=30)
-    except requests.exceptions.Timeout:
-        print("Request timed out")
+        response = requests.get(URL, impersonate="chrome120", timeout=30)
+    except requests.exceptions.RequestsError as e:
+        print(f"Request error: {e}")
         return
 
     soup = BeautifulSoup(response.content, "html.parser")
@@ -151,8 +151,9 @@ def get_data_and_insert(cnx, phrase, filters=None):
         location = location_tag.text.strip() if location_tag else None
 
         # ------------------ ADDITIONAL INFO (area, type badges) ------------------
-        badges = listing.find_all("div", class_="PKliU")
-        additional_info = ", ".join(b.get_text(strip=True) for b in badges) or None
+        param_icons = listing.find_all("svg", attrs={"data-testid": "blueprint-card-param-icon"})
+        badge_texts = [icon.parent.get_text(strip=True) for icon in param_icons if icon.parent]
+        additional_info = ", ".join(t for t in badge_texts if t) or None
 
         # ------------------ INSERT ------------------
         insert_offer(cnx, PLATFORM_ID, {

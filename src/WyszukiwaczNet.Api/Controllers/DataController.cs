@@ -333,11 +333,11 @@ public class DataController : ControllerBase
         "bulldogjob" => "work/bulldogjob_scrapper.py",
         "solidjobs" => "work/solidjobs_scrapper.py",
         "otodom" => "apartment/otodom_scrapper.py",
+        "nieruchomoscionline" => "apartment/nieruchomosci_online_scrapper.py",
         "olxnieruchomosci" => "apartment/olx_nieruchomosci_scrapper.py",
         "pepper" => "promotions/pepper_scrapper.py",
         "carrot" => "promotions/carrot_scrapper.py",
         "olxciagniki" => "agriculture/olx_ciagniki_scrapper.py",
-        "brzozowiak" => "agriculture/brzozowiak_scrapper.py",
         "sprzedajemyciagniki" => "agriculture/sprzedajemy_ciagniki_scrapper.py",
         "otomotorolnicze" => "agriculture/otomoto_rolnicze_scrapper.py",
         _ => null

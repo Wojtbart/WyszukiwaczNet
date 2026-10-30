@@ -49,7 +49,10 @@ def parse_price(text):
     else:
         cleaned = cleaned.replace(".", "")
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except ValueError:
         return None, None
 
@@ -126,64 +129,65 @@ def extract_feature(feature_grid, icon_name):
     return None
 
 
-def parse_listing(a_tag):
-    """Parse single offer <a> tag. Returns dict or None."""
-    href = a_tag.get("href", "")
+def parse_listing(article):
+    """Parse single offer <article> tag. Returns dict or None."""
+    # link
+    a_tag = article.find("a", href=True)
+    href = a_tag.get("href", "") if a_tag else ""
     if not href or "/konto/" in href:
         return None
-
     url = BASE_URL + href if href.startswith("/") else href
 
-    article = a_tag.find("article")
-    if not article:
-        return None
-
     # title
-    title_tag = article.find("h2")
+    title_tag = article.find(class_=lambda c: c and "OfferCard_title" in c) or article.find("h3")
     title = title_tag.get_text(strip=True) if title_tag else None
 
     # image
     img = article.find("img")
     image_url = img.get("src") if img else None
 
-    # short spec (optional) — join non-separator spans
-    short_spec_div = article.find("div", class_=lambda c: c and "OfferShortSpec_spec" in c)
+    # short spec / version line
+    version_div = article.find(class_=lambda c: c and "OfferCard_version" in c)
     additional_info = None
-    if short_spec_div:
+    if version_div:
         parts = [
             s.get_text(strip=True)
-            for s in short_spec_div.find_all("span")
+            for s in version_div.find_all("span")
             if s.get_text(strip=True) not in ("·", "")
         ]
-        additional_info = " · ".join(parts) if parts else None
+        additional_info = " · ".join(parts) if parts else version_div.get_text(strip=True) or None
 
-    # feature grid
-    feature_grid = article.find("div", class_=lambda c: c and "OfferFeatureGrid_grid" in c)
-    year_raw  = extract_feature(feature_grid, "calendar_month")
-    fuel      = extract_feature(feature_grid, "local_gas_station")
-    gearbox   = extract_feature(feature_grid, "settings")
-    mileage_raw = extract_feature(feature_grid, "speed")
+    # price
+    price_tag = article.find(class_=lambda c: c and "OfferCard_price" in c)
+    price, currency = parse_price(price_tag.get_text(strip=True) if price_tag else None)
 
-    # price — innermost span with display:inline-block has just the number
-    price_wrap = article.find("span", class_=lambda c: c and "OfferListItemNew_price" in c)
-    price_number_span = price_wrap.find("span") if price_wrap else None
-    price_text = price_number_span.get_text(strip=True) if price_number_span else (
-        price_wrap.get_text(strip=True) if price_wrap else None
-    )
-    price, currency = parse_price(price_text)
-
-    # seller + location
-    seller_tag = article.find("div", class_=lambda c: c and "OfferListItemNew_firm" in c)
+    # seller
+    seller_tag = article.find(class_=lambda c: c and "OfferCard_seller" in c)
     seller = seller_tag.get_text(strip=True) if seller_tag else None
 
-    loc_tag = article.find("div", class_=lambda c: c and "OfferListItemNew_location" in c)
+    # location
+    loc_tag = article.find(class_=lambda c: c and "OfferCard_loc" in c)
     location = None
     if loc_tag:
-        # remove icon text
         icon = loc_tag.find("i")
         if icon:
             icon.decompose()
-        location = loc_tag.get_text(strip=True)
+        location = loc_tag.get_text(strip=True) or None
+
+    # dl dt/dd params: Rok produkcji, Przebieg, Paliwo, Skrzynia biegów
+    year = mileage = fuel = gearbox = None
+    dl = article.find("dl")
+    if dl:
+        dts = dl.find_all("dt")
+        dds = dl.find_all("dd")
+        params = {dt.get_text(strip=True): dds[i].get_text(strip=True) for i, dt in enumerate(dts) if i < len(dds)}
+        year_str = params.get("Rok produkcji")
+        year = int(year_str) if year_str and year_str.isdigit() else None
+        mileage_str = params.get("Przebieg", "")
+        mileage_digits = re.sub(r"\D", "", mileage_str)
+        mileage = int(mileage_digits) if mileage_digits else None
+        fuel = params.get("Paliwo")
+        gearbox = params.get("Skrzynia biegów")
 
     return {
         "url": url,
@@ -194,8 +198,8 @@ def parse_listing(a_tag):
         "currency": currency,
         "seller": seller,
         "location": location,
-        "year": parse_year(year_raw),
-        "mileage": parse_mileage(mileage_raw),
+        "year": year,
+        "mileage": mileage,
         "fuel": fuel,
         "gearbox": gearbox,
     }
@@ -239,20 +243,20 @@ def get_data_and_insert(cnx, phrase, filters=None):
     response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    container = soup.find("div", class_=lambda c: c and "OfferListItemView_grid" in c)
+    container = soup.find("div", class_=lambda c: c and "Listing_grid" in c)
     if not container:
         print("No offer list container found")
         return
 
-    listings = container.find_all("a", href=True, recursive=False)
+    listings = container.find_all("article", class_=lambda c: c and "OfferCard_card" in c)
     if not listings:
         print("No listings found")
         return
 
-    print(f"Found {len(listings)} offer links")
+    print(f"Found {len(listings)} offer articles")
 
-    for a_tag in listings:
-        data = parse_listing(a_tag)
+    for article in listings:
+        data = parse_listing(article)
         if not data:
             continue
 
@@ -316,7 +320,7 @@ if __name__ == "__main__":
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connection OK")
         get_data_and_insert(cnx, phrase, filters)
-        print(f"Records inserted: {COUNTER}")
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("PostgreSQL error:", e)

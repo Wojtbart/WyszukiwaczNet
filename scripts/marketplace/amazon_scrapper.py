@@ -38,7 +38,10 @@ def parse_price(text):
     if len(parts) > 2:
         cleaned = parts[0] + "." + "".join(parts[1:])
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except:
         return None, None
 
@@ -85,7 +88,7 @@ def get_data_and_insert(cnx, phrase, filters=None):
     page = requests.get(URL, headers={
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
         "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8"
-    })
+    }, timeout=30)
 
     soup = BeautifulSoup(page.content, "html.parser")
 
@@ -180,7 +183,7 @@ if __name__ == "__main__":
         print("PostgreSQL connected")
 
         get_data_and_insert(cnx, phrase, filters)
-        print("Inserted:", COUNTER)
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("DB error:", e)

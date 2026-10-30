@@ -261,7 +261,7 @@ if __name__ == "__main__":
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connection OK")
         get_data_and_insert(cnx, keyword, args.location, args.experience_level)
-        print(f"Records inserted: {COUNTER}")
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("PostgreSQL error:", e)

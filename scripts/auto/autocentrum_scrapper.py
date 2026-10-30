@@ -36,7 +36,10 @@ def parse_price(text):
     else:
         cleaned = cleaned.replace(".", "")
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except ValueError:
         return None, None
 
@@ -151,91 +154,78 @@ def get_data_and_insert(cnx, phrase, filters=None):
         "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Connection": "keep-alive",
-    })
+    }, timeout=30)
 
     soup = BeautifulSoup(page.content, "html.parser")
 
-    listings = soup.find("div", class_="offer-list-wrapper")
-    if not listings:
+    container = soup.find("div", class_="offersItems")
+    if not container:
         print("Nothing found!")
         return
 
-    articles = listings.find_all("div", class_="offer-item")
+    items = container.find_all("div", class_="listing__item")
 
-    for listing in articles:
+    for item_div in items:
 
         # ------------------ LINK ------------------
-        link_tag = listing.find("a", href=True)
-        if not link_tag:
+        a_tag = item_div.find("a", class_="offerItem", href=True)
+        if not a_tag:
             continue
 
-        url = "https://www.autocentrum.pl" + link_tag["href"]
+        href = a_tag.get("href", "")
+        url = ("https://www.autocentrum.pl" + href) if href.startswith("/") else href
 
         if offer_exists(cnx, PLATFORM_ID, url):
             continue
 
         # ------------------ IMAGE ------------------
-        img_tag = listing.find("img")
+        img_tag = a_tag.find("img")
         image_url = img_tag["src"] if img_tag and img_tag.has_attr("src") else None
 
         # ------------------ TITLE ------------------
-        title_tag = listing.find("h2")
-        title = title_tag.text.strip() if title_tag else None
+        title_tag = a_tag.find(class_="offerItem__title")
+        title = title_tag.get_text(strip=True) if title_tag else None
 
         # ------------------ ADDITIONAL INFO ------------------
-        sub_tag = listing.find("div", class_="sub-hd")
-        additional_info = sub_tag.text.strip() if sub_tag else None
-
-        # ------------------ LOCATION ------------------
-        address_tag = listing.find("div", class_="address")
-        location = address_tag.text.strip() if address_tag else None
+        version_tag = a_tag.find(class_="offerItem__version")
+        additional_info = version_tag.get_text(strip=True) if version_tag else None
 
         # ------------------ PRICE ------------------
-        price_span = listing.select_one(".price span")
-        price, currency = parse_price(price_span.text if price_span else None)
+        price_tag = a_tag.find(class_="offerItem__priceTotal")
+        price_text = price_tag.get_text(strip=True) if price_tag else None
+        price, currency = parse_price(price_text)
 
-        # ------------------ OTHER DETAILS ------------------
-        mileage = year = fuel = gearbox = body_type = engine = None
-        engine_power = None
+        # ------------------ VEHICLE DETAILS FROM QUICKSPECS ------------------
+        year = mileage = fuel = gearbox = engine_power = body_type = None
 
-        labels = listing.select_one(".labels")
-        if labels:
-            items = labels.find_all("div")
-
-            for item in items:
-
-                text = item.get_text(strip=True).lower()
-
-                # ---- FUEL TYPE ----
-                if item.find("i", class_="icon-fuel"):
-                    fuel = text
+        specs_tag = a_tag.find(class_="offerItem__quickSpecs")
+        if specs_tag:
+            specs_text = specs_tag.get_text(separator="\n")
+            for line in specs_text.split("\n"):
+                line = line.strip()
+                if not line:
                     continue
+                # year
+                year_match = re.search(r"\b(19|20)\d{2}\b", line)
+                if year_match and year is None:
+                    year = int(year_match.group(0))
+                # engine power
+                km_match = re.search(r"(\d+)\s*KM", line, re.IGNORECASE)
+                if km_match and engine_power is None:
+                    engine_power = int(km_match.group(1))
+                # gearbox
+                line_lower = line.lower()
+                if "automatyczna" in line_lower and gearbox is None:
+                    gearbox = "automatyczna"
+                elif ("manualna" in line_lower or "ręczna" in line_lower) and gearbox is None:
+                    gearbox = "manualna"
+                # fuel
+                if fuel is None:
+                    for keyword in ("benzyna", "diesel", "hybryda", "elektr", "lpg", "cng"):
+                        if keyword in line_lower:
+                            fuel = line
+                            break
 
-                # ---- BODY TYPE ----
-                if item.find("i", class_="icon-cab"):
-                    body_type = text
-                    continue
-
-                # ---- MILEAGE ----
-                if "km" in text:
-                    mileage = parse_mileage(text)
-                    continue
-
-                # ---- ENGINE POWER ----
-                if item.find("i", class_="icon-rocket"):
-                    engine_power = parse_engine_power(text)
-                    continue
-
-                # ---- YEAR ----
-                if text.isdigit() and len(text) == 4:
-                    year = int(text)
-                    continue
-
-                # ---- GEARBOX ----
-                if "manualna" in text or "automatyczna" in text:
-                    gearbox = text
-                    continue
-               
         # ------------------ INSERT OFFER ------------------
         offer_id = insert_offer(cnx, PLATFORM_ID, {
             "title": title,
@@ -244,7 +234,7 @@ def get_data_and_insert(cnx, phrase, filters=None):
             "url": url,
             "image_url": image_url,
             "seller": None,
-            "location": location,
+            "location": None,
             "additional_info": additional_info
         })
 
@@ -254,7 +244,6 @@ def get_data_and_insert(cnx, phrase, filters=None):
             "mileage": mileage,
             "fuel": fuel,
             "gearbox": gearbox,
-            "engine": engine,
             "engine_power": engine_power,
             "body_type": body_type
         })
@@ -294,7 +283,7 @@ if __name__ == "__main__":
         print("PostgreSQL connected")
 
         get_data_and_insert(cnx, phrase, filters)
-        print("Inserted:", COUNTER)
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("DB error:", e)

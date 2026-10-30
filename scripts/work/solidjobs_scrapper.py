@@ -1,110 +1,152 @@
+# -*- coding: utf-8 -*-
 import requests
-import json
 import re
+import json
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
 import argparse
-import urllib.parse
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from bs4 import BeautifulSoup
 import psycopg2
 from psycopg2 import Error
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_URL = "https://solid.jobs"
 PLATFORM_NAME = "solidjobs"
 COUNTER = 0
+SITEMAP_URL = "https://solid.jobs/sitemap-offers.xml"
 
-DEFAULT_EXPERIENCES = ["Intern", "Junior", "Regular", "Senior"]
-DEFAULT_CONTRACTS = ["Umowa o pracę", "B2B", "Umowa zlecenie"]
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
+    "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
+}
 
-LEVEL_MAP = {"intern": "Intern", "junior": "Junior", "regular": "Regular", "senior": "Senior"}
+LEVEL_MAP = {"intern": "intern", "junior": "junior", "regular": "regular", "senior": "senior"}
 CONTRACT_MAP = {"uop": "Umowa o pracę", "b2b": "B2B", "zlecenie": "Umowa zlecenie"}
 
 
-def build_url(keyword, location=None, experience=None, contract_type=None):
-    filters = []
-
-    if location:
-        filters.append("cities=" + urllib.parse.quote(location.title(), safe=''))
-
-    filters.append("categories=Programista")
-
-    exp_list = [experience] if experience else DEFAULT_EXPERIENCES
-    filters.append("experiences=" + urllib.parse.quote(",".join(exp_list), safe=','))
-
-    ct_list = [contract_type] if contract_type else DEFAULT_CONTRACTS
-    filters.append("contractTypes=" + urllib.parse.quote(",".join(ct_list), safe=','))
-
-    if keyword:
-        filters.append("parsedSearchTerm=" + urllib.parse.quote(keyword, safe=''))
-
-    path = "/offers/it;" + ";".join(filters)
-    print(BASE_URL + path + "?sort=PublishDate")
-    return BASE_URL + path + "?sort=PublishDate"
+def keyword_slug_terms(keyword):
+    """Return list of terms to look for in URL slug for a given keyword."""
+    kw = keyword.lower().strip()
+    slug_map = {
+        "c#": ["csharp", "c-sharp", "dotnet", "asp-net"],
+        "csharp": ["csharp", "c-sharp", "dotnet"],
+        ".net": ["dotnet", "net-developer", "asp-net"],
+        "dotnet": ["dotnet", "net-developer", "asp-net"],
+        "c++": ["cpp", "cplusplus", "c-plus", "cplusplus"],
+        "cpp": ["cpp", "cplusplus", "c-plus"],
+        "javascript": ["javascript", "js-developer", "nodejs", "react", "angular", "vue"],
+        "typescript": ["typescript", "angular", "react"],
+    }
+    if kw in slug_map:
+        return slug_map[kw]
+    # Default: normalize keyword for slug matching
+    normalized = re.sub(r'[^a-z0-9]', '', kw)
+    return [normalized] if normalized else [kw]
 
 
-def extract_offers_from_ng_state(html):
-    m = re.search(r'<script id="ng-state" type="application/json">(.*?)</script>', html, re.DOTALL)
-    if not m:
+def get_recent_offer_urls(keyword, days_back=45):
+    """Fetch sitemap and return offer URLs matching keyword, modified within days_back days."""
+    print(f"Fetching sitemap...")
+    resp = requests.get(SITEMAP_URL, headers=HEADERS, timeout=20)
+    if resp.status_code != 200:
+        print(f"Sitemap fetch failed: {resp.status_code}")
         return []
 
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days_back)
+    url_blocks = re.findall(r'<url>(.*?)</url>', resp.text, re.DOTALL)
+
+    slug_terms = keyword_slug_terms(keyword)
+    print(f"Slug terms for '{keyword}': {slug_terms}")
+
+    matching = []
+    for block in url_blocks:
+        loc_match = re.search(r'<loc>([^<]+)</loc>', block)
+        lastmod_match = re.search(r'<lastmod>(\d{4}-\d{2}-\d{2})</lastmod>', block)
+        if not loc_match:
+            continue
+        url = loc_match.group(1)
+        if lastmod_match:
+            lastmod = datetime.strptime(lastmod_match.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            if lastmod < cutoff:
+                continue
+        url_lower = url.lower()
+        if any(term in url_lower for term in slug_terms):
+            matching.append(url)
+
+    print(f"Sitemap: {len(url_blocks)} total, {len(matching)} matching '{keyword}' (last {days_back} days)")
+    return matching
+
+
+def get_offer_details_from_page(html):
+    """Extract offer details from ng-state JSON in individual offer page HTML."""
+    soup = BeautifulSoup(html, "html.parser")
+    el = soup.find("script", {"id": "ng-state"})
+    if not el:
+        return None
     try:
-        state = json.loads(m.group(1))
-    except json.JSONDecodeError as e:
-        print(f"JSON parse error: {e}")
-        return []
+        state = json.loads(el.string)
+    except (json.JSONDecodeError, TypeError):
+        return None
 
     for key, val in state.items():
-        if isinstance(val, dict) and "b" in val and isinstance(val["b"], list):
-            offers = val["b"]
-            if offers and isinstance(offers[0], dict) and "jobTitle" in offers[0]:
-                return offers
+        if not isinstance(val, dict):
+            continue
+        details = val.get("b", {})
+        if isinstance(details, dict) and "jobOfferDetails" in details:
+            return details["jobOfferDetails"]
+    return None
 
-    return []
+
+def matches_location(details, location):
+    if not location:
+        return True
+    city = (details.get("companyCity") or details.get("companyAddress") or "").lower()
+    return location.lower() in city
 
 
-def map_offer(raw):
-    offer_id = raw.get("id")
-    slug = raw.get("jobOfferUrl", "")
-    url = f"{BASE_URL}/offer/{offer_id}/{slug}"
+def matches_experience(details, experience):
+    if not experience:
+        return True
+    lvl = (details.get("experienceLevel") or "").lower()
+    return experience.lower() in lvl
 
-    salary = raw.get("salaryRange") or {}
-    salary_min = salary.get("lowerBound")
-    salary_max = salary.get("upperBound")
-    salary_currency = salary.get("currency", "PLN")
-    employment_type = salary.get("employmentType", "")
-    salary_period = salary.get("salaryPeriod", "Month")
 
-    if salary_min and salary_max:
-        salary_raw = f"{salary_min} – {salary_max} {salary_currency} {employment_type}/mies."
-    elif salary_min:
-        salary_raw = f"{salary_min} {salary_currency} {employment_type}/mies."
-    else:
-        salary_raw = None
+def matches_contract(details, contract_type):
+    if not contract_type:
+        return True
+    salary = details.get("salaryRange", {})
+    emp = (salary.get("employmentType") or "").lower()
+    ct = contract_type.lower()
+    if ct == "b2b" and "b2b" in emp:
+        return True
+    if ct in ("uop", "umowa o pracę") and ("umowa" in emp or "uop" in emp):
+        return True
+    return False
 
-    skills = [s["name"] for s in raw.get("requiredSkills", []) if s.get("name")]
-    technologies = ", ".join(skills) if skills else None
 
-    remote = raw.get("remotePossible")
-    city = raw.get("companyCity")
-
-    return {
-        "title": raw.get("jobTitle"),
-        "url": url,
-        "image_url": raw.get("companyLogoUrl"),
-        "company": raw.get("companyName"),
-        "salary_min": salary_min,
-        "salary_max": salary_max,
-        "salary_currency": salary_currency,
-        "salary_type": salary_period.lower() if salary_period else "monthly",
-        "salary_raw": salary_raw,
-        "technologies": technologies,
-        "location": remote,
-        "work_location": remote,
-        "hq_location": city,
-        "additional_info": employment_type if employment_type else None,
-    }
+def parse_salary(salary_range):
+    if not salary_range:
+        return None, None, "PLN", "monthly", None
+    lo = salary_range.get("lowerBound") or 0
+    hi = salary_range.get("upperBound") or 0
+    currency = salary_range.get("currency", "PLN")
+    period = salary_range.get("salaryPeriod", "Month")
+    emp_type = salary_range.get("employmentType", "")
+    salary_type = "hourly" if period.lower() == "hour" else "monthly"
+    if lo == 0 and hi == 0:
+        return None, None, currency, salary_type, None
+    lo = int(lo) if lo else None
+    hi = int(hi) if hi else None
+    parts = [str(x) for x in [lo, hi] if x]
+    if lo and hi and lo == hi:
+        parts = [str(lo)]
+    salary_raw = "–".join(parts) + f" {currency}"
+    if emp_type:
+        salary_raw += f" {emp_type}"
+    return lo, hi, currency, salary_type, salary_raw
 
 
 def get_platform_id(cnx):
@@ -177,46 +219,63 @@ def get_data_and_insert(cnx, keyword, location=None, experience=None, contract_t
     global COUNTER
     platform_id = get_platform_id(cnx)
 
-    url = build_url(keyword, location, experience, contract_type)
-    print(f"Fetching: {url}")
-
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Safari/537.36"
-        ),
-        "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
-        "Accept": "text/html,application/xhtml+xml,application/xhtml+xml,*/*;q=0.8",
-    }
-
-    response = requests.get(url, headers=headers, timeout=20)
-    print(f"Status: {response.status_code}")
-
-    raw_offers = extract_offers_from_ng_state(response.text)
-    if not raw_offers:
-        print("No offers found in ng-state — page may not use SSR transfer state")
+    offer_urls = get_recent_offer_urls(keyword)
+    if not offer_urls:
+        print("No matching URLs in sitemap")
         return
 
-    print(f"Found {len(raw_offers)} offers in page state")
-
-    kw_lower = keyword.lower() if keyword else None
-    if kw_lower:
-        def matches_keyword(r):
-            title = (r.get("jobTitle") or "").lower()
-            skills = " ".join(s.get("name", "") for s in r.get("requiredSkills", [])).lower()
-            return kw_lower in title or kw_lower in skills
-        raw_offers = [r for r in raw_offers if matches_keyword(r)]
-        print(f"After keyword filter '{keyword}': {len(raw_offers)} offers")
-
-    for raw in raw_offers:
-        data = map_offer(raw)
-        if not data["title"] or not data["url"]:
+    for offer_url in offer_urls:
+        if offer_exists(cnx, platform_id, offer_url):
+            print(f"  SKIP (exists): {offer_url}")
             continue
 
-        if offer_exists(cnx, platform_id, data["url"]):
-            print(f"  SKIP (exists): {data['url']}")
+        offer_resp = requests.get(offer_url, headers=HEADERS, timeout=20)
+        details = get_offer_details_from_page(offer_resp.text)
+        if not details:
+            print(f"  SKIP (no details): {offer_url}")
             continue
+
+        if not matches_location(details, location):
+            continue
+        if not matches_experience(details, experience):
+            continue
+        if not matches_contract(details, contract_type):
+            continue
+
+        title = details.get("jobTitle")
+        if not title:
+            continue
+
+        company = details.get("companyName")
+        city = details.get("companyCity") or details.get("companyAddress")
+        logo = details.get("companyLogoUrl")
+        remote = details.get("remotePossible", "")
+        skills = [s["name"] for s in details.get("requiredSkills", []) if s.get("name")]
+        technologies = ", ".join(skills) if skills else None
+
+        salary_min, salary_max, salary_currency, salary_type, salary_raw = parse_salary(
+            details.get("salaryRange")
+        )
+
+        emp_type = (details.get("salaryRange") or {}).get("employmentType", "")
+        additional_info = f"{emp_type} | {remote}" if emp_type and remote else (emp_type or remote or None)
+
+        data = {
+            "title": title,
+            "url": offer_url,
+            "image_url": logo,
+            "company": company,
+            "location": city,
+            "salary_min": salary_min,
+            "salary_max": salary_max,
+            "salary_currency": salary_currency,
+            "salary_type": salary_type,
+            "salary_raw": salary_raw,
+            "technologies": technologies,
+            "work_location": remote,
+            "hq_location": city,
+            "additional_info": additional_info,
+        }
 
         offer_id = insert_offer(cnx, platform_id, data)
         if offer_id is None:
@@ -225,7 +284,7 @@ def get_data_and_insert(cnx, keyword, location=None, experience=None, contract_t
         cnx.commit()
 
         COUNTER += 1
-        print(f"  +inserted: {data['title']} | {data['company']}")
+        print(f"  +inserted: {title} | {company} | {city}")
 
 
 if __name__ == "__main__":
@@ -250,7 +309,7 @@ if __name__ == "__main__":
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connection OK")
         get_data_and_insert(cnx, keyword, args.location, experience, contract_type)
-        print(f"Records inserted: {COUNTER}")
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("PostgreSQL error:", e)

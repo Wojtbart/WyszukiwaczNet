@@ -96,7 +96,10 @@ def parse_price(price_text):
     else:
         cleaned = cleaned.replace(".", "")
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except ValueError:
         return None, None
 
@@ -135,7 +138,7 @@ def get_data_and_insert(cnx, phrase, filters=None):
 
     URL = build_url(phrase, filters)
 
-    page = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
+    page = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
     soup = BeautifulSoup(page.content, "html.parser")
 
     listings = soup.find_all("article", {"data-orientation": "horizontal"})
@@ -264,7 +267,7 @@ if __name__ == "__main__":
         print("Connection to PostgreSQL from script successful!")
 
         get_data_and_insert(cnx, phrase, filters)
-        print("Records inserted:", COUNTER)
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("Connection error with PostgreSQL:", e)

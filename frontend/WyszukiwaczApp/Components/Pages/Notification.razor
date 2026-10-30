@@ -540,7 +540,7 @@
     };
     private List<LabelValue> _contractOptions = new()
     {
-        new("Umowa o pracę", 0), new("B2B", 3)
+        new("Umowa o pracę", 0), new("B2B", 3), new("Umowa zlecenie", 2)
     };
     private List<LabelValue> _roomsOptions = new()
     {
@@ -556,7 +556,7 @@
     private string _selectedCategory = string.Empty;
     private Dictionary<string, bool> _categoryEnabled = new();
     private List<string> _carPlatforms     = new() { "OtoMoto", "Olx", "Gratka", "Sprzedajemy", "Autocentrum", "Samochody" };
-    private List<string> _flatPlatforms    = new() { "OtoDom", "OlxNieruchomosci" };
+    private List<string> _flatPlatforms    = new() { "OtoDom", "OlxNieruchomosci", "NieruchomosciOnline" };
     private List<string> _shopPlatforms    = new() { "Amazon", "Olx" };
     private List<string> _workPlatforms    = new() { "Pracuj", "JustJoinIt", "NoFluffJobs", "TheProtocolIt", "BulldogJob", "Solidjobs" };
     private List<string> _tractorPlatforms = new() { "Olxciagniki", "Brzozowiak", "Sprzedajemyciagniki", "Otomotorolnicze" };
@@ -780,8 +780,8 @@
                 .Where(p => ActivePlatforms.Any(a => a.Equals(p, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
-        await LoadJobs();
         await LoadAllCategoryStatuses();
+        await LoadJobs();
         await ApplyConfigForCategory();
 
         StateHasChanged();
@@ -792,6 +792,23 @@
         if (userId <= 0) return;
         var result = await NotificationProxy.GetJobsForUser(userId);
         userJobs = result?.Data ?? new();
+
+        // Sync enabled state: category with no jobs → disabled
+        var activeCategories = userJobs
+            .Select(j => DeriveCategoryFromWebsites(j.Websites))
+            .Where(c => c != null)
+            .ToHashSet();
+
+        foreach (var cat in _categoryEnabled.Keys.ToList())
+        {
+            if (_categoryEnabled[cat] && !activeCategories.Contains(cat))
+            {
+                _categoryEnabled[cat] = false;
+                if (userId > 0)
+                    await UserService.SetNotificationConfigEnabledAsync(userId, cat, false);
+            }
+        }
+
         StateHasChanged();
     }
 
@@ -1036,7 +1053,7 @@
             return "Zakupy";
         if (set.Any(w => new[] { "pracuj", "justjoinit", "nofluffjobs", "theprotocolit", "bulldogjob", "solidjobs" }.Contains(w)))
             return "Praca";
-        if (set.Any(w => new[] { "olxciagniki", "brzozowiak", "sprzedajemyciagniki", "otomotorolnicze" }.Contains(w)))
+        if (set.Any(w => new[] { "olxciagniki", "sprzedajemyciagniki", "otomotorolnicze" }.Contains(w)))
             return "Ciągniki";
         return null;
     }

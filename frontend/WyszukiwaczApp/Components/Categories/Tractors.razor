@@ -70,12 +70,6 @@
 </RadzenButton>
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
-    <RadzenImage Path="images/brzozowiak.jpg" Style="width: 2rem;height:2rem;" AlternateText="Brzozowiak" />
-    <RadzenLabel Text="Brzozowiak.pl" Component="CheckBoxBrzozowiak" Style="margin:0.3rem; vertical-align: middle; font-weight:bold;" />
-    <RadzenCheckBox @bind-Value=@setBrzozowiakGrid Name="CheckBoxBrzozowiak" />
-</RadzenButton>
-
-<RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
     <RadzenImage Path="images/sprzedajemy.jpg" Style="width: 4rem;height:2rem;" AlternateText="Sprzedajemy" />
     <RadzenLabel Text="Sprzedajemy" Component="CheckBoxSprzedajemy" Style="margin:0.3rem; vertical-align: middle;" />
     <RadzenCheckBox @bind-Value=@setSprzedajemyGrid Name="CheckBoxSprzedajemy" />
@@ -133,68 +127,6 @@
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="@(Loc["ProductionYear"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
                 <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
-            </RadzenDataGridColumn>
-        </Columns>
-    </RadzenDataGrid>
-}
-
-@if (setBrzozowiakGrid)
-{
-    <RadzenDataGrid Data="@brzozowiakData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
-                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
-                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
-                    PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
-                    LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
-        <EmptyTemplate>
-            <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
-        </EmptyTemplate>
-        <HeaderTemplate>
-            <RadzenImage Path="images/brzozowiak.jpg" Style="width: 4rem; height:4rem;" AlternateText="Brzozowiak" />
-            <h3 style="display: inline-block; color:red; font-weight:bold;">Brzozowiak.pl – Ciągniki</h3>
-        </HeaderTemplate>
-        <Columns>
-            <RadzenDataGridColumn Property="Title" Title="@(Loc["Title"].Value)" Frozen="true" Width="300px" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    <RadzenText TextStyle="TextStyle.H6" style="font-weight:bold; white-space:pre-wrap">@context.Title</RadzenText>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Url" Title="@(Loc["Link"].Value)" Width="150px" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    <div class="rz-text-align-center" style="height:38px;">
-                        <RadzenLink Path="@context.Url" Text="@(Loc["OpenLink"].Value)" Target="_blank" class="link" />
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="ImageUrl" Title="@(Loc["Image"].Value)" Sortable="false" Filterable="false" Width="100px" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    @if (string.IsNullOrEmpty(context.ImageUrl))
-                    {
-                        <div style="color:gray; font-style:italic; font-size:0.85rem;">@Loc["NoImage"]</div>
-                    }
-                    else
-                    {
-                        <RadzenImage Path="@context.ImageUrl" Style="width:4rem;height:4rem;" AlternateText="@(Loc["Image"].Value)" />
-                    }
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Price" Title="@(Loc["PricePLN"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    @(context.Location?.Contains(" - ") == true ? context.Location.Substring(0, context.Location.IndexOf(" - ")) : context.Location)
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Location" Title="@(Loc["AddedDate"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    @(context.Location?.Contains(" - ") == true ? context.Location.Substring(context.Location.IndexOf(" - ") + 3) : "")
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["AdditionalInfo"].Value)" Width="250px" TextAlign="TextAlign.Left">
-                <Template Context="context">
-                    <div style="white-space:normal; font-size:0.85rem;">@context.AdditionalInfo</div>
-                </Template>
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
@@ -324,15 +256,13 @@
     private string searchPhrase = string.Empty;
     private bool isLoading = false;
     private bool setOlxGrid = false;
-    private bool setBrzozowiakGrid = false;
 
-    private void SelectAll() => setOlxGrid = setBrzozowiakGrid = setSprzedajemyGrid = setOtomotoGrid = true;
-    private void DeselectAll() => setOlxGrid = setBrzozowiakGrid = setSprzedajemyGrid = setOtomotoGrid = false;
+    private void SelectAll() => setOlxGrid = setSprzedajemyGrid = setOtomotoGrid = true;
+    private void DeselectAll() => setOlxGrid = setSprzedajemyGrid = setOtomotoGrid = false;
     private bool setSprzedajemyGrid = false;
     private bool setOtomotoGrid = false;
 
     private IEnumerable<ScrapedItem>? olxData;
-    private IEnumerable<ScrapedItem>? brzozowiakData;
     private IEnumerable<ScrapedItem>? sprzedajemyData;
     private IEnumerable<ScrapedItem>? otomotoData;
 
@@ -355,7 +285,6 @@
 
         var websites = new List<string>();
         if (setOlxGrid) websites.Add("olxciagniki");
-        if (setBrzozowiakGrid) websites.Add("brzozowiak");
         if (setSprzedajemyGrid) websites.Add("sprzedajemyciagniki");
         if (setOtomotoGrid) websites.Add("otomotorolnicze");
 
@@ -376,7 +305,6 @@
                 return;
             }
             olxData = result.Data?.OlxciagnikiData?.Output;
-            brzozowiakData = result.Data?.BrzozowiakData?.Output;
             sprzedajemyData = result.Data?.SprzedajemyciagnikiData?.Output;
             otomotoData = result.Data?.OtomotorolniczeData?.Output;
             StateHasChanged();

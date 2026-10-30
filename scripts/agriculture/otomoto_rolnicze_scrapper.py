@@ -23,7 +23,10 @@ def parse_price(text):
     else:
         cleaned = cleaned.replace(".", "")
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except ValueError:
         return None, None
 

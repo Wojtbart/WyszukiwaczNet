@@ -179,12 +179,6 @@
                     @(context.Location?.Contains(" - ") == true ? context.Location.Substring(context.Location.IndexOf(" - ") + 3) : "")
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="@(Loc["MileageKm"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="@(Loc["ProductionYear"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
-            </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
 }
@@ -227,12 +221,6 @@
                 <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center" />
-            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="@(Loc["MileageKm"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="@(Loc["ProductionYear"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
-            </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
 }
@@ -462,22 +450,11 @@
             <RadzenDataGridColumn Property="Price" Title="@(Loc["PricePLN"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">@Globals.FormatPrice(context.Price)</Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="Location" Title="@(Loc["Location"].Value)" TextAlign="TextAlign.Center">
-                <Template Context="context">
-                    <RadzenText style="white-space:pre-wrap">@context.Location</RadzenText>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.Mileage" Title="@(Loc["MileageKm"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.Mileage</Template>
-            </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="VehicleDetail.ProductionYear" Title="@(Loc["ProductionYear"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
                 <Template Context="context">@context.VehicleDetail?.ProductionYear</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="VehicleDetail.Gearbox" Title="@(Loc["Gearbox"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
                 <Template Context="context">@context.VehicleDetail?.Gearbox</Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn Property="VehicleDetail.BodyType" Title="@(Loc["BodyTypeShort"].Value)" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
-                <Template Context="context">@context.VehicleDetail?.BodyType</Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn Property="AdditionalInfo" Title="@(Loc["Extra"].Value)" TextAlign="TextAlign.Center">
                 <Template Context="context">

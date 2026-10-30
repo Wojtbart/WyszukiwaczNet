@@ -66,8 +66,8 @@ def get_data_and_insert(cnx,phrase):
     URL = F"https://www.aliexpress.com/w/wholesale-{final_phrase}.html"
 
     page = requests.get(URL, headers = {
-        'User-Agent': 'Popular browser\'s user-agent',
-    })
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    }, timeout=30)
     page_content = BeautifulSoup(page.content, "html.parser")
 
     not_found_result=page_content.findAll(string='''Przepraszamy, Twoje wyszukiwanie "{final_phrase}" nie pasuje do żadnego produktu. Spróbuj ponownie.''')
@@ -175,7 +175,7 @@ if __name__ == "__main__":
         print("✅ Connection to PostgreSQL successful!")
 
         get_data_and_insert(cnx, phrase)
-        print("Records inserted:", COUNTER)
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("❌ Connection error with PostgreSQL:", e)

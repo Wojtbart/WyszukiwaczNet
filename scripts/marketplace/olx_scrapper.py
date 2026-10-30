@@ -1,4 +1,4 @@
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
@@ -53,7 +53,10 @@ def parse_price(text):
     else:
         cleaned = cleaned.replace(".", "")
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except ValueError:
         return None, None
 
@@ -128,10 +131,7 @@ def get_data_and_insert(cnx, phrase, filters=None):
     URL = build_url(phrase, filters)
     print(URL)
 
-    page = requests.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
-    })
+    page = requests.get(URL, impersonate="chrome120", timeout=30)
 
     soup = BeautifulSoup(page.content, "html.parser")
 
@@ -171,14 +171,7 @@ def get_data_and_insert(cnx, phrase, filters=None):
         location_tag = listing.find("p", {"data-testid": "location-date"})
         location = location_tag.text.strip() if location_tag else None
 
-        # ------------------ YEAR & MILEAGE ------------------
-        year = None
-        mileage = None
-
-        params_section = listing.find("div", attrs={'color': 'text-global-secondary'})
-        if params_section:
-            text_data = params_section.get_text(" ", strip=True)
-            year, mileage = parse_year_and_mileage(text_data)
+        year = mileage = None
 
         # ------------------ INSERT OFFER ------------------
         offer_id =insert_offer(cnx, PLATFORM_ID, {
@@ -241,7 +234,7 @@ if __name__ == "__main__":
         print("PostgreSQL connected")
 
         get_data_and_insert(cnx, phrase, filters)
-        print("Inserted:", COUNTER)
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("DB error:", e)

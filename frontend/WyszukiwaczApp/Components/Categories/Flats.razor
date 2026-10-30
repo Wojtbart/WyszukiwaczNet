@@ -82,7 +82,13 @@
     </RadzenColumn>
 </RadzenRow>
 
-<RadzenText TextStyle="TextStyle.H4" Text="Wybierz strony, z których chcesz pobrać ogłoszenia" Style="color:red; margin-bottom:20px;" />
+<RadzenText TextStyle="TextStyle.H4" Text="Wybierz strony, z których chcesz pobrać ogłoszenia" Style="color:red; margin-bottom:10px;" />
+
+<RadzenButton Text="Zaznacz wszystkie" Icon="done_all" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small"
+              Style="margin-right:8px; margin-bottom:12px;" Click="@SelectAll" />
+<RadzenButton Text="Odznacz wszystkie" Icon="remove_done" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+              Style="margin-bottom:12px;" Click="@DeselectAll" />
+<br />
 
 <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
     <RadzenImage Path="images/otoDom.png" Style="width: 4rem;height:2rem;" AlternateText="OtoDom" />
@@ -95,6 +101,7 @@
     <RadzenLabel Text="OLX Nieruchomości" Component="CheckBoxOlxNieruch" Style="margin:0.3rem; vertical-align: middle;" />
     <RadzenCheckBox @bind-Value=@setOlxNieruchomosciGrid Name="CheckBoxOlxNieruch" />
 </RadzenButton>
+
 
 @if (setOtoDomGrid)
 {
@@ -216,6 +223,7 @@
     </RadzenDataGrid>
 }
 
+
 @code
 {
     private record ActivityOpt(string Value, string Display);
@@ -247,13 +255,24 @@
     private bool isLoading = false;
     private bool setOtoDomGrid = false;
     private bool setOlxNieruchomosciGrid = false;
-
     private IEnumerable<ScrapedItem>? otoDomData;
     private IEnumerable<ScrapedItem>? olxNieruchomosciData;
 
     private string textBoxValue = string.Empty;
 
     DataModel model = new();
+
+    void SelectAll()
+    {
+        setOtoDomGrid = true;
+        setOlxNieruchomosciGrid = true;
+    }
+
+    void DeselectAll()
+    {
+        setOtoDomGrid = false;
+        setOlxNieruchomosciGrid = false;
+    }
 
     void UpdateAdditionalPhrase()
     {
@@ -295,6 +314,7 @@
         if (setOtoDomGrid) websites.Add("otoDom");
         if (setOlxNieruchomosciGrid) websites.Add("olxnieruchomosci");
 
+
         model = new DataModel
         {
             websites = websites,
@@ -318,6 +338,7 @@
             }
             otoDomData = result.Data?.OtoDomData?.Output ?? Enumerable.Empty<ScrapedItem>();
             olxNieruchomosciData = result.Data?.OlxnieruchomosciData?.Output ?? Enumerable.Empty<ScrapedItem>();
+
             StateHasChanged();
         }
         catch (Exception ex)

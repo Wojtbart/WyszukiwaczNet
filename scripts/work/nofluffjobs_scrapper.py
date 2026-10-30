@@ -91,7 +91,9 @@ def parse_offer(card):
             return None
         title = title_tag.get_text(strip=True)
 
-        img_tag = card.find("img", alt="Company logo")
+        img_tag = card.find("img", attrs={"data-cy": "company logo on the job offer listing"})
+        if not img_tag:
+            img_tag = card.find("img", alt="Company logo")
         image_url = img_tag.get("src") if img_tag else None
 
         salary_span = card.find("span", attrs={"data-cy": "salary ranges on the job offer listing"})
@@ -100,15 +102,25 @@ def parse_offer(card):
         tech_spans = card.find_all("span", attrs={"data-cy": "category name on the job offer listing"})
         technologies = ", ".join(s.get_text(strip=True) for s in tech_spans if s.get_text(strip=True)) or None
 
-        company_tag = card.find("h4", class_="company-name")
-        company = company_tag.get_text(strip=True) if company_tag else None
+        # Company: inside row-start-4 div, first tw-flex span → tw-truncate child
+        company = None
+        row4 = card.find("div", class_=lambda c: c and "tw-row-start-4" in c)
+        if row4:
+            co_container = row4.find("span", class_=lambda c: c and "tw-flex" in c)
+            if co_container:
+                co_tr = co_container.find("span", class_=lambda c: c and "tw-truncate" in c)
+                company = co_tr.get_text(strip=True) or None if co_tr else None
+        if not company:
+            company_tag = card.find("h4")
+            if company_tag:
+                company = company_tag.get_text(strip=True)
 
+        # Location: span with data-cy, strip "+N" suffix
         location = None
-        city_tag = card.find("nfj-posting-item-city")
-        if city_tag:
-            city_span = city_tag.find("span", class_=lambda c: c and "tw-text-ellipsis" in c)
-            if city_span:
-                location = city_span.get_text(strip=True)
+        loc_span = card.find("span", attrs={"data-cy": "location on the job offer listing"})
+        if loc_span:
+            loc_text = loc_span.get_text(strip=True)
+            location = re.sub(r'\s*\+\d+$', '', loc_text).strip() or None
 
         return {
             "title": title,
@@ -263,7 +275,7 @@ if __name__ == "__main__":
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connection OK")
         get_data_and_insert(cnx, keyword, args.location, args.seniority, args.employment)
-        print(f"Records inserted: {COUNTER}")
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("PostgreSQL error:", e)

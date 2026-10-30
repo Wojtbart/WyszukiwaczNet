@@ -57,6 +57,7 @@ public class DataWrapper
     public PlatformData? AmazonData { get; set; }
     public PlatformData? OtoDomData { get; set; }
     public PlatformData? OlxnieruchomosciData { get; set; }
+    public PlatformData? NieruchomoscionlineData { get; set; }
     public PlatformData? OtoMotoData { get; set; }
     public PlatformData? AutoscoutData { get; set; }
     public PlatformData? GratkaData { get; set; }
@@ -70,7 +71,6 @@ public class DataWrapper
     public PlatformData? BulldogjobData { get; set; }
     public PlatformData? SolidjobsData { get; set; }
     public PlatformData? OlxciagnikiData { get; set; }
-    public PlatformData? BrzozowiakData { get; set; }
     public PlatformData? SprzedajemyciagnikiData { get; set; }
     public PlatformData? OtomotorolniczeData { get; set; }
 }

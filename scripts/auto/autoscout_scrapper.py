@@ -4,6 +4,7 @@ import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..",
 from dbconfig import read_db_config
 import sys
 import re
+import json
 from datetime import datetime, timezone
 import psycopg2
 from psycopg2 import Error
@@ -121,6 +122,28 @@ def insert_vehicle_details(cnx, offer_id, vehicle):
 # =========================
 # SCRAPER
 # =========================
+def find_listings_in_json(obj, depth=0):
+    """Recursively find listings array in __NEXT_DATA__ JSON."""
+    if depth > 6:
+        return None
+    if isinstance(obj, list) and len(obj) > 0:
+        first = obj[0]
+        if isinstance(first, dict) and "url" in first and "id" in first and str(first.get("url", "")).startswith("/oferta/"):
+            return obj
+    if isinstance(obj, dict):
+        for v in obj.values():
+            result = find_listings_in_json(v, depth + 1)
+            if result:
+                return result
+    elif isinstance(obj, list):
+        for item in obj:
+            if isinstance(item, dict):
+                result = find_listings_in_json(item, depth + 1)
+                if result:
+                    return result
+    return None
+
+
 def get_data_and_insert(cnx, phrase):
     global COUNTER
 
@@ -129,25 +152,25 @@ def get_data_and_insert(cnx, phrase):
     final_phrase = "/".join(phrase).lower()
     URL = f"https://www.autoscout24.pl/lst/{final_phrase}"
 
-    page = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
+    page = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
     soup = BeautifulSoup(page.content, "html.parser")
 
-    listings = soup.find("main")
+    script_tag = soup.find("script", {"id": "__NEXT_DATA__"})
+    if not script_tag:
+        print("Nothing found")
+        return
+
+    data = json.loads(script_tag.string)
+    listings = find_listings_in_json(data)
     if not listings:
         print("Nothing found")
         return
-    articles = listings.find_all("article")
 
-    for listing in articles:
-        # =====================
-        # LINK
-        # =====================
-        #AKTUALNIE JEST TUTAJ PROBLEM Z WYCIAGNIECIEM LINKU< GDY SCRAPUJĘ STRONE
-        link_tag = listing.find("a", recursive=False)
-        if not link_tag:
+    for item in listings:
+        url_path = item.get("url", "")
+        if not url_path:
             continue
-
-        url = link_tag["href"]
+        url = "https://www.autoscout24.pl" + url_path
 
         if offer_exists(cnx, platform_id, url):
             continue
@@ -155,53 +178,55 @@ def get_data_and_insert(cnx, phrase):
         # =====================
         # TITLE
         # =====================
-        title_spans = listing.select("h2 span")
-        title = " ".join([s.text.strip() for s in title_spans if s.text.strip()])
+        title = item.get("title", "") or None
 
         # =====================
         # IMAGE
         # =====================
-        img_tag = listing.select_one("img[data-testid='list-item-image']")
-        image_url = img_tag["src"] if img_tag and img_tag.has_attr("src") else None
+        images = item.get("images") or []
+        image_url = images[0] if images else None
 
         # =====================
         # PRICE
         # =====================
-        price_tag = listing.select_one("[data-testid='regular-price']")
-        price, currency = parse_price(price_tag.text if price_tag else None)
+        price_data = item.get("price") or {}
+        price_raw = price_data.get("priceRaw")
+        price = float(price_raw) if price_raw is not None else None
+        currency = "EUR"
 
         # =====================
-        # SELLER + LOCATION
+        # LOCATION + SELLER
         # =====================
-        seller_tag = listing.select_one("[data-testid='dealer-company-name']")
-        location_tag = listing.select_one("[data-testid='dealer-address']")
+        location_data = item.get("location") or {}
+        city = location_data.get("city", "")
+        country = location_data.get("countryCode", "")
+        location = f"{city}, {country}".strip(", ") or None
 
-        seller = seller_tag.text.strip() if seller_tag else None
-        location = location_tag.text.strip() if location_tag else None
+        seller_data = item.get("seller") or {}
+        seller = seller_data.get("companyName") or None
 
         # =====================
         # VEHICLE DETAILS
         # =====================
-        year = mileage = fuel = gearbox = None
+        vehicle = item.get("vehicle") or {}
+        fuel = vehicle.get("fuel") or None
+        gearbox = vehicle.get("transmission") or None
 
-        calendar = listing.select_one("[data-testid='VehicleDetails-calendar']")
-        mileage_tag = listing.select_one("[data-testid='VehicleDetails-mileage_odometer']")
-        fuel_tag = listing.select_one("[data-testid='VehicleDetails-gas_pump']")
-        power_tag = listing.select_one("[data-testid='VehicleDetails-speedometer']")
+        vehicle_details = item.get("vehicleDetails") or []
+        year = mileage = engine_power = None
+        for vd in vehicle_details:
+            icon = vd.get("iconName", "")
+            text = vd.get("data", "")
+            if icon == "calendar":
+                year = parse_year(text)
+            elif icon == "mileage_odometer":
+                mileage = parse_mileage(text)
+            elif icon == "speedometer":
+                engine_power = parse_engine_power(text)
 
-        if calendar:
-            year = parse_year(calendar.text)
-
-        if mileage_tag:
-            mileage = parse_mileage(mileage_tag.text)
-
-        if fuel_tag:
-            fuel = fuel_tag.text.strip()
-
-        # Autoscout często nie pokazuje gearbox bezpośrednio
-        gearbox = None
-
-        additional_info = engine_power = power_tag.text.strip() if power_tag else None
+        additional_info = ", ".join(
+            vd.get("data", "") for vd in vehicle_details if vd.get("data")
+        ) or None
 
         # =====================
         # INSERT
@@ -223,7 +248,7 @@ def get_data_and_insert(cnx, phrase):
             "fuel": fuel,
             "gearbox": gearbox,
             "body_type": None,
-            "engine_power": parse_engine_power(engine_power)
+            "engine_power": engine_power
         })
 
         COUNTER += 1
@@ -252,7 +277,7 @@ if __name__ == "__main__":
         print("Connection to PostgreSQL successful!")
 
         get_data_and_insert(cnx, phrase)
-        print("Records inserted:", COUNTER)
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("Connection error:", e)

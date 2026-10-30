@@ -262,7 +262,6 @@ public class NotificationJob : INotificationJob
         "bulldogjob" => "work/bulldogjob_scrapper.py",
         "solidjobs" => "work/solidjobs_scrapper.py",
         "olxciagniki" => "agriculture/olx_ciagniki_scrapper.py",
-        "brzozowiak" => "agriculture/brzozowiak_scrapper.py",
         "sprzedajemyciagniki" => "agriculture/sprzedajemy_ciagniki_scrapper.py",
         "otomotorolnicze" => "agriculture/otomoto_rolnicze_scrapper.py",
         _ => null
@@ -274,7 +273,7 @@ public class NotificationJob : INotificationJob
         var site = website.ToLower();
 
         var isAuto = site is "otomoto" or "autoscout" or "gratka" or "sprzedajemy" or "autocentrum" or "samochody";
-        var isTractor = site is "olxciagniki" or "brzozowiak" or "sprzedajemyciagniki" or "otomotorolnicze";
+        var isTractor = site is "olxciagniki" or "sprzedajemyciagniki" or "otomotorolnicze";
         var isFlat = site is "otodom" or "nieruchomoscionline" or "olxnieruchomosci";
         var isWork = site is "pracuj" or "justjoinit" or "nofluffjobs" or "theprotocolit" or "bulldogjob" or "solidjobs";
 
@@ -311,14 +310,88 @@ public class NotificationJob : INotificationJob
         if (site == "pracuj" && request.EmploymentLevel.HasValue)
         { args.Add("--et"); args.Add(request.EmploymentLevel.Value.ToString()); }
         else if (site == "justjoinit" && request.EmploymentLevel.HasValue)
-        { args.Add("--el"); args.Add(request.EmploymentLevel.Value.ToString()); }
+        {
+            var level = request.EmploymentLevel.Value switch
+            {
+                17 => "junior",
+                4  => "mid",
+                18 => "senior",
+                19 => "expert",
+                _  => (string?)null
+            };
+            if (level != null) { args.Add("--el"); args.Add(level); }
+        }
+        else if (site == "nofluffjobs" && request.EmploymentLevel.HasValue)
+        {
+            var seniority = request.EmploymentLevel.Value switch
+            {
+                17 => "junior",
+                4  => "mid",
+                18 => "senior",
+                19 => "expert",
+                _  => (string?)null
+            };
+            if (seniority != null) { args.Add("--seniority"); args.Add(seniority); }
+        }
         else if (isWork && request.EmploymentLevel.HasValue)
-        { args.Add("--level"); args.Add(request.EmploymentLevel.Value.ToString()); }
+        {
+            var level = request.EmploymentLevel.Value switch
+            {
+                17 => "junior",
+                4  => site == "bulldogjob" ? "medium" : "regular",
+                18 => "senior",
+                19 => site == "bulldogjob" ? "lead" : "expert",
+                _  => (string?)null
+            };
+            if (level != null) { args.Add("--level"); args.Add(level); }
+        }
 
         if (site == "pracuj" && request.ContractType.HasValue)
         { args.Add("--tc"); args.Add(request.ContractType.Value.ToString()); }
-        else if (isWork && request.ContractType.HasValue)
-        { args.Add("--emp"); args.Add(request.ContractType.Value.ToString()); }
+        else if (site == "justjoinit" && request.ContractType.HasValue)
+        {
+            var empType = request.ContractType.Value switch
+            {
+                3 => "b2b",
+                0 => "permanent",
+                2 => "mandate-contract",
+                _ => (string?)null
+            };
+            if (empType != null) { args.Add("--emp"); args.Add(empType); }
+        }
+        else if (site == "nofluffjobs" && request.ContractType.HasValue)
+        {
+            var empType = request.ContractType.Value switch
+            {
+                3 => "b2b",
+                0 => "permanent",
+                2 => "zlecenie",
+                _ => (string?)null
+            };
+            if (empType != null) { args.Add("--employment"); args.Add(empType); }
+        }
+        else if (site == "theprotocolit" && request.ContractType.HasValue)
+        {
+            var contract = request.ContractType.Value switch
+            {
+                3 => "kontrakt-b2b",
+                0 => "umowa-o-prace",
+                2 => "umowa-zlecenie",
+                _ => (string?)null
+            };
+            if (contract != null) { args.Add("--contract"); args.Add(contract); }
+        }
+        else if (site == "solidjobs" && request.ContractType.HasValue)
+        {
+            var contract = request.ContractType.Value switch
+            {
+                3 => "b2b",
+                0 => "uop",
+                2 => "zlecenie",
+                _ => (string?)null
+            };
+            if (contract != null) { args.Add("--contract"); args.Add(contract); }
+        }
 
         return args;
     }

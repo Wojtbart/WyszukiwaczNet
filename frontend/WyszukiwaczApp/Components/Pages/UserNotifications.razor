@@ -618,7 +618,7 @@
     private static readonly HashSet<string> _shopPlatforms = new(StringComparer.OrdinalIgnoreCase)
         { "amazon", "allegro", "olx", "ebay", "aliexpress", "pepper", "carrot" };
     private static readonly HashSet<string> _agriPlatforms = new(StringComparer.OrdinalIgnoreCase)
-        { "olxciagniki", "brzozowiak", "sprzedajemyciagniki", "otomotorolnicze" };
+        { "olxciagniki", "sprzedajemyciagniki", "otomotorolnicze" };
 
     private static string GetCategoryCss(string? name)
     {
@@ -740,8 +740,6 @@
         if (item.Status != "new") return;
         item.Status = "read";
         unreadCount = Math.Max(0, unreadCount - 1);
-        items!.Remove(item);
-        items.Add(item);
         AuthState.NotifyNotificationsChanged();
         StateHasChanged();
         await UserService.MarkNotificationReadAsync(userId, item.Id);

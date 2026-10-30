@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 import requests
-from bs4 import BeautifulSoup
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
 import re
-import json
 import argparse
-import urllib.parse
 import unicodedata
 from datetime import datetime, timezone
 import psycopg2
@@ -15,95 +12,100 @@ from psycopg2 import Error
 sys.stdout.reconfigure(encoding='utf-8')
 
 BASE_URL = "https://justjoin.it"
+API_URL = "https://justjoin.it/api/candidate-api/offers"
 PLATFORM_NAME = "justjoinit"
 COUNTER = 0
 
+CATEGORY_MAP = {
+    "c#": "net",
+    ".net": "net",
+    "net": "net",
+    "java": "java",
+    "javascript": "javascript",
+    "js": "javascript",
+    "python": "python",
+    "php": "php",
+    "react": "javascript",
+    "angular": "javascript",
+    "node": "javascript",
+    "devops": "devops",
+    "data": "data",
+    "mobile": "mobile",
+    "testing": "testing",
+    "ux": "ux",
+}
+
 
 def to_city_slug(text):
-    """'Rzeszów' → 'rzeszow' — strip diacritics, lowercase."""
     normalized = unicodedata.normalize('NFD', text)
     ascii_str = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
     return ascii_str.lower().replace(' ', '-')
 
 
-def build_url(keyword, location=None, experience_level=None, employment_type=None):
-    path = f"{BASE_URL}/job-offers"
-    path += f"/{to_city_slug(location)}" if location else "/all-locations"
-    KEYWORD_SLUG_MAP = {"c#": "net"}
+def fetch_offers(keyword, location=None, experience_level=None, employment_type=None):
     kw_lower = keyword.strip().lower()
-    keyword_slug = KEYWORD_SLUG_MAP.get(kw_lower) or re.sub(r'[^a-z0-9\-]', '', to_city_slug(keyword))
-    path += f"/{keyword_slug}"
-    params = []
-    if employment_type:
-        params.append(("employment-type", employment_type))
-    if experience_level:
-        params.append(("experience-level", experience_level))
-    params += [
-        ("keyword", keyword),
-        ("orderBy", "DESC"),
-        ("sortBy", "newest"),
-    ]
-    return f"{path}?{urllib.parse.urlencode(params)}"
+    category = CATEGORY_MAP.get(kw_lower, kw_lower)
 
+    params = {
+        "categories": category,
+        "keywords": keyword,
+        "keywordType": "any",
+        "sortBy": "newest",
+        "orderBy": "descending",
+        "perPage": 100,
+    }
+    if location:
+        params["city"] = to_city_slug(location)
 
-def extract_offers_from_html(html):
-    """Pull offers from Next.js streaming chunks embedded in self.__next_f.push(...)."""
-    pushes = re.findall(
-        r'self\.__next_f\.push\(\[\d+,"((?:[^"\\]|\\.)*)"\]\)',
-        html, re.DOTALL,
-    )
-    chunks = []
-    for p in pushes:
-        try:
-            chunks.append(json.loads('"' + p + '"'))
-        except Exception:
-            continue
-    big = "".join(chunks)
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/124.0.0.0 Safari/537.36"
+        ),
+        "Accept": "application/json",
+        "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
+    }
 
-    pos = 0
+    all_offers = []
+    page = 1
+
     while True:
-        i = big.find('"data":[', pos)
-        if i == -1:
-            return []
-        arr_start = big.find('[', i)
-        arr_text = _extract_balanced_array(big, arr_start)
-        if arr_text and 'applyUrl' in arr_text and 'companyName' in arr_text:
-            try:
-                arr = json.loads(arr_text)
-                if isinstance(arr, list) and arr and isinstance(arr[0], dict) and "slug" in arr[0]:
-                    return arr
-            except Exception:
-                pass
-        pos = i + 1
+        params["page"] = page
+        response = requests.get(API_URL, params=params, headers=headers, timeout=20)
+        if response.status_code != 200:
+            print(f"  API error {response.status_code} on page {page}")
+            break
 
+        data = response.json()
+        offers = data.get("data", [])
+        if not offers:
+            break
 
-def _extract_balanced_array(text, start):
-    depth = 0
-    in_str = False
-    esc = False
-    for j in range(start, len(text)):
-        c = text[j]
-        if in_str:
-            if esc:
-                esc = False
-            elif c == "\\":
-                esc = True
-            elif c == '"':
-                in_str = False
-        else:
-            if c == '"':
-                in_str = True
-            elif c == '[':
-                depth += 1
-            elif c == ']':
-                depth -= 1
-                if depth == 0:
-                    return text[start:j + 1]
-    return None
+        all_offers.extend(offers)
+
+        meta = data.get("meta", {})
+        next_cursor = meta.get("next", {})
+        if not next_cursor or next_cursor.get("cursor") is None:
+            break
+
+        page += 1
+        if page > 20:
+            break
+
+    # local filtering — API doesn't support these natively
+    if experience_level:
+        all_offers = [o for o in all_offers if o.get("experienceLevel") == experience_level]
+    if employment_type:
+        all_offers = [
+            o for o in all_offers
+            if any(et.get("type") == employment_type for et in o.get("employmentTypes", []))
+        ]
+
+    return all_offers
 
 
 def pick_salary(employment_types):
-    """Prefer PLN original; fall back to first non-null entry."""
     if not employment_types:
         return None, None, "PLN", "monthly", None, None
 
@@ -140,7 +142,7 @@ def parse_offer(offer):
             return None
         url = f"{BASE_URL}/job-offer/{slug}"
 
-        title = offer.get("title") or offer.get("body")
+        title = offer.get("title")
         if not title:
             return None
 
@@ -154,7 +156,12 @@ def parse_offer(offer):
         else:
             location = city
 
-        skills = offer.get("requiredSkills") or []
+        # requiredSkills is now list of objects {name, level, ...}
+        raw_skills = offer.get("requiredSkills") or []
+        if raw_skills and isinstance(raw_skills[0], dict):
+            skills = [s.get("name", "") for s in raw_skills if s.get("name")]
+        else:
+            skills = raw_skills
         technologies = ", ".join(skills) if skills else None
 
         salary_min, salary_max, salary_currency, salary_type, salary_raw, contract = pick_salary(
@@ -256,24 +263,11 @@ def get_data_and_insert(cnx, keyword, location=None, experience_level=None, empl
     global COUNTER
     platform_id = get_platform_id(cnx)
 
-    url = build_url(keyword, location, experience_level, employment_type)
-    print(f"Fetching: {url}")
+    print(f"Fetching via API: keyword={keyword}, location={location}, level={experience_level}, emp={employment_type}")
+    offers = fetch_offers(keyword, location, experience_level, employment_type)
 
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Safari/537.36"
-        ),
-        "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
-        "Accept": "text/html,application/xhtml+xml,application/xhtml+xml,*/*;q=0.8",
-    }
-    response = requests.get(url, headers=headers, timeout=20)
-    html = response.text
-
-    offers = extract_offers_from_html(html)
     if not offers:
-        print("No offers extracted from streaming chunks")
+        print("No offers found")
         return
 
     print(f"Found {len(offers)} offers")
@@ -318,7 +312,7 @@ if __name__ == "__main__":
         cnx = psycopg2.connect(**db_config)
         print("PostgreSQL connection OK")
         get_data_and_insert(cnx, keyword, args.location, args.experience_level, args.employment_type)
-        print(f"Records inserted: {COUNTER}")
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("PostgreSQL error:", e)

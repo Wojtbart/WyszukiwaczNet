@@ -1,4 +1,4 @@
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "config"))
 from dbconfig import read_db_config
@@ -52,7 +52,10 @@ def parse_price(text):
     else:
         cleaned = cleaned.replace(".", "")
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except ValueError:
         return None, None
 
@@ -104,10 +107,7 @@ def get_data_and_insert(cnx, phrase):
     URL = f"https://www.olx.pl/rolnictwo/ciagniki/q-{final_phrase}/?search%5Border%5D=created_at%3Adesc"
     print(URL)
 
-    page = requests.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.8",
-    }, timeout=30)
+    page = requests.get(URL, impersonate="chrome120", timeout=30)
 
     soup = BeautifulSoup(page.content, "html.parser")
     listings = soup.find_all("div", {"data-cy": "l-card"})
@@ -147,10 +147,6 @@ def get_data_and_insert(cnx, phrase):
 
         # ------------------ YEAR & MILEAGE ------------------
         year = mileage = None
-        params_section = listing.find("div", attrs={"color": "text-global-secondary"})
-        if params_section:
-            text_data = params_section.get_text(" ", strip=True)
-            year, mileage = parse_year_and_mileage(text_data)
 
         # ------------------ INSERT ------------------
         offer_id = insert_offer(cnx, platform_id, {

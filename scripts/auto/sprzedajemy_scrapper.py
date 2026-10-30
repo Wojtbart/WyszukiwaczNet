@@ -36,7 +36,10 @@ def parse_price(price_text):
     else:
         cleaned = cleaned.replace(".", "")
     try:
-        return float(cleaned), "PLN"
+        price = float(cleaned)
+        if price > 99_999_999:
+            return None, None
+        return price, "PLN"
     except ValueError:
         return None, None
 
@@ -152,7 +155,7 @@ def get_data_and_insert(cnx, phrase, filters=None):
     URL = build_url(phrase, filters)
     print(URL)
 
-    response = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"})
+    response = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
     soup = BeautifulSoup(response.content, "html.parser")
 
     listings = soup.select("ul.normal > li")
@@ -219,20 +222,8 @@ def get_data_and_insert(cnx, phrase, filters=None):
         # ----------------------
         # LOCATION
         # ----------------------
-        location = None
-        address_tag = details.find("div", class_="address")
-        if address_tag:
-            a = address_tag.find("a")
-            if a:
-                location = a.text.strip()
-
-        # ----------------------
-        # ADDITIONAL INFO
-        # ----------------------
-        additional_info = None
-        attr_tag = details.find("p", class_="attributes")
-        if attr_tag:
-            additional_info = attr_tag.text.strip()
+        city_tag = listing.find("strong", class_="city")
+        location = city_tag.get_text(strip=True) if city_tag else None
 
         # ----------------------
         # VEHICLE DETAILS
@@ -240,15 +231,7 @@ def get_data_and_insert(cnx, phrase, filters=None):
         year = None
         mileage = None
         fuel_type = None
-
-        if attr_tag:
-            spans = attr_tag.find_all("span")
-            if len(spans) >= 1:
-                year = parse_year(spans[0].text.strip())
-            if len(spans) >= 3:
-                mileage = spans[2].text.strip()
-            if len(spans) >= 5:
-                fuel_type = spans[4].text.strip()
+        additional_info = None
 
         # ----------------------
         # INSERT
@@ -313,7 +296,7 @@ if __name__ == "__main__":
         print("Connection to PostgreSQL successful!")
 
         get_data_and_insert(cnx, phrase, filters)
-        print("Records inserted:", COUNTER)
+        print(f"Records: {COUNTER}")
 
     except Error as e:
         print("Connection error:", e)

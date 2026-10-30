@@ -190,12 +190,6 @@
                         TValue="bool" Change="@(v => OnPlatformChange(v, "olxciagniki"))" />
     </RadzenButton>
     <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
-        <RadzenImage Path="images/brzozowiak.jpg" Style="width: 2rem;height:2rem;" AlternateText="Brzozowiak" />
-        <RadzenLabel Text="Brzozowiak.pl" Component="cbBrzozowiak" Style="margin:0.3rem; vertical-align: middle;" />
-        <RadzenCheckBox Name="cbBrzozowiak" Value="@(selectedPlatform == "brzozowiak")"
-                        TValue="bool" Change="@(v => OnPlatformChange(v, "brzozowiak"))" />
-    </RadzenButton>
-    <RadzenButton Icon="cached" ButtonStyle="ButtonStyle.Light" Shade="Shade.Lighter">
         <RadzenImage Path="images/sprzedajemy.jpg" Style="width: 4rem;height:2rem;" AlternateText="Sprzedajemy" />
         <RadzenLabel Text="Sprzedajemy Ciągniki" Component="cbSprzedajemyciagniki" Style="margin:0.3rem; vertical-align: middle;" />
         <RadzenCheckBox Name="cbSprzedajemyciagniki" Value="@(selectedPlatform == "sprzedajemyciagniki")"

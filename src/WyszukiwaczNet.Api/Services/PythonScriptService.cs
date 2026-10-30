@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-using WyszukiwaczNet.Api.DTOs;
 using WyszukiwaczNet.Api.Entities;
 using WyszukiwaczNet.Api.Repositories;
 
@@ -106,38 +104,13 @@ public class PythonScriptService : IPythonScriptService
 
         _logger.LogInformation("Skrypt {Script} zakończono, uzyskano {Count} rekordów", scriptPath, recordsCount);
 
-        if(recordsCount != 0)
+        if (recordsCount != 0)
         {
             var platform = await _offerRepository.GetPlatformByNameAsync(platformName.ToLower());
             if (platform != null)
                 offers = await _offerRepository.GetNewOffersByPlatformAsync(platform.Id, startTime, limit);
             else
                 offers = await _offerRepository.GetRecentOffersAsync(limit);
-
-            var response = offers.Select(o => new OfferResponse(
-                o.Id,
-                o.PlatformId,
-                o.Platform?.Name,
-                o.Title,
-                o.Price,
-                o.Currency,
-                o.Url,
-                o.ImageUrl,
-                o.SellerName,
-                o.Location,
-                o.AdditionalInfo,
-                o.CreatedAt,
-                o.Status,
-                o.VehicleDetail != null ? new VehicleDetailResponse(
-                    o.VehicleDetail.OfferId,
-                    o.VehicleDetail.ProductionYear,
-                    o.VehicleDetail.Mileage,
-                    o.VehicleDetail.FuelType,
-                    o.VehicleDetail.Gearbox,
-                    o.VehicleDetail.EnginePower,
-                    o.VehicleDetail.BodyType
-                ) : null
-            ));
         }
 
         return (recordsCount, offers);
@@ -152,8 +125,7 @@ public class PythonScriptService : IPythonScriptService
 
     private static int ParseRecordsCount(string output)
     {
-        var regex = new Regex(@"(?<=.*: )\d+");
-        var match = regex.Match(output);
-        return match.Success ? int.Parse(match.Value) : 0;
+        var match = Regex.Match(output, @"Records:\s*(\d+)");
+        return match.Success ? int.Parse(match.Groups[1].Value) : 0;
     }
 }

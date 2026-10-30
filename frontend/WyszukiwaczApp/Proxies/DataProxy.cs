@@ -24,42 +24,6 @@ public class DataProxy
             ? null
             : new AuthenticationHeaderValue("Bearer", _authState.AuthToken);
 
-    public async Task<ApiResponse<UserConfigurationData>?> GetUserConfiguration(string username)
-    {
-        try
-        {
-            Auth();
-            var response = await _httpClient.GetAsync($"users/configuration/{username}");
-            var content = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                return new ApiResponse<UserConfigurationData> { Success = false, Message = "Nie uda�o si� pobra� konfiguracji" };
-
-            return new ApiResponse<UserConfigurationData> { Success = true, Data = JsonConvert.DeserializeObject<UserConfigurationData>(content) };
-        }
-        catch
-        {
-            return new ApiResponse<UserConfigurationData> { Success = false, Message = "yst�pi� b��d podczas pobierania konfiguracji" };
-        }
-    }
-
-    public async Task<ApiResponse<object>?> SaveConfiguration(NotificationModel model)
-    {
-        try
-        {
-            Auth();
-            var json = JsonConvert.SerializeObject(model);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("users/configuration", content);
-
-            return new ApiResponse<object> { Success = response.IsSuccessStatusCode };
-        }
-        catch
-        {
-            return new ApiResponse<object> { Success = false, Message = "Wyst�pi� b��d podczas zapisywania konfiguracji" };
-        }
-    }
-
     public async Task<GetDataResponse?> getData(DataModel model)
     {
         try
@@ -107,40 +71,6 @@ public class DataProxy
             return new GetDataResponse { Success = false, Message = "Wystąpił błąd podczas komunikacji z serwerem." };
         }
     }
-}
-
-public class UserConfigurationData
-{
-    public string? Godzina_Maila { get; set; }
-    public int repeat_after_specified_time { get; set; }
-    public bool Sms { get; set; }
-    public bool Discord { get; set; }
-    public bool Email { get; set; }
-    public bool olx { get; set; }
-    public bool pepper { get; set; }
-    public bool amazon { get; set; }
-    public bool otoMoto { get; set; }
-    public bool otoDom { get; set; }
-    public bool sprzedajemy { get; set; }
-}
-
-public class NotificationModel
-{
-    public int user_id { get; set; }
-    public string phrase { get; set; } = string.Empty;
-    public string? additional_phrase { get; set; }
-    public int request_number { get; set; }
-    public string? godzina_maila { get; set; }
-    public int repeat_after_specified_time { get; set; }
-    public bool sms { get; set; }
-    public bool discord { get; set; }
-    public bool email { get; set; }
-    public bool olx { get; set; }
-    public bool pepper { get; set; }
-    public bool amazon { get; set; }
-    public bool otoMoto { get; set; }
-    public bool otoDom { get; set; }
-    public bool sprzedajemy { get; set; }
 }
 
 public class DeleteJobModel
