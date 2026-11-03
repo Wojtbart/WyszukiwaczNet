@@ -86,7 +86,6 @@ public class SubscriptionService : ISubscriptionService
             Customer = existingSub?.StripeCustomerId,
             Metadata = new Dictionary<string, string> { { "user_id", userId.ToString() }, { "plan_slug", planSlug } },
             AllowPromotionCodes = true,
-            PaymentMethodTypes = new List<string> { "card", "p24" },
         };
 
         var service = new SessionService();
