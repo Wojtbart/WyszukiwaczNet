@@ -144,7 +144,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingOlx" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -190,7 +190,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingSprzedajemy" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -232,7 +232,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingOtomoto" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -359,7 +359,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingGratka" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -420,7 +420,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingAutocentrum" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -471,7 +471,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingSamochody" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -542,6 +542,12 @@
     private string SearchPhrase => $"{searchedBrand} {searchedModel}".Trim();
 
     private bool isLoading = false;
+    private bool isLoadingOtomoto = false;
+    private bool isLoadingOlx = false;
+    private bool isLoadingGratka = false;
+    private bool isLoadingSprzedajemy = false;
+    private bool isLoadingAutocentrum = false;
+    private bool isLoadingSamochody = false;
     private bool setOtomotoGrid = false;
     private bool setOlxGrid = false;
     private bool setAutoscoutGrid = false;
@@ -611,20 +617,8 @@
             return;
         }
 
-        isLoading = true;
-
-        var websites = new List<string>();
-        if (setOtomotoGrid)    websites.Add("otoMoto");
-        if (setOlxGrid)        websites.Add("olx");
-        if (setAutoscoutGrid)  websites.Add("autoscout");
-        if (setGratkaGrid)     websites.Add("gratka");
-        if (setSprzedajemyGrid) websites.Add("sprzedajemy");
-        if (setAutocentrumGrid) websites.Add("autocentrum");
-        if (setSamochodyGrid)   websites.Add("samochody");
-
-        model = new DataModel
+        var baseModel = new DataModel
         {
-            websites = websites,
             phrase = SearchPhrase,
             request_number = "30",
             fuel = string.IsNullOrEmpty(selectedFuelType) ? null : selectedFuelType,
@@ -635,30 +629,47 @@
             price_to = selectedPriceTo,
         };
 
+        var tasks = new List<Task>();
+
+        if (setOtomotoGrid)    { isLoadingOtomoto    = true; tasks.Add(LoadPlatform("otoMoto",     baseModel, r => otoMotoData      = r.Data?.OtoMotoData?.Output,      () => isLoadingOtomoto    = false)); }
+        if (setOlxGrid)        { isLoadingOlx        = true; tasks.Add(LoadPlatform("olx",         baseModel, r => olxData          = r.Data?.OlxData?.Output,          () => isLoadingOlx        = false)); }
+        if (setGratkaGrid)     { isLoadingGratka     = true; tasks.Add(LoadPlatform("gratka",      baseModel, r => gratkaData       = r.Data?.GratkaData?.Output,       () => isLoadingGratka     = false)); }
+        if (setSprzedajemyGrid){ isLoadingSprzedajemy= true; tasks.Add(LoadPlatform("sprzedajemy", baseModel, r => sprzedajemyData  = r.Data?.SprzedajemyData?.Output,  () => isLoadingSprzedajemy= false)); }
+        if (setAutocentrumGrid){ isLoadingAutocentrum= true; tasks.Add(LoadPlatform("autocentrum", baseModel, r => autocentrumData  = r.Data?.AutocentrumData?.Output,  () => isLoadingAutocentrum= false)); }
+        if (setSamochodyGrid)  { isLoadingSamochody  = true; tasks.Add(LoadPlatform("samochody",   baseModel, r => samochodyData    = r.Data?.SamochodyData?.Output,    () => isLoadingSamochody  = false)); }
+
+        isLoading = tasks.Count > 0;
+        StateHasChanged();
+
+        await Task.WhenAll(tasks);
+        isLoading = false;
+    }
+
+    private async Task LoadPlatform(string website, DataModel baseModel, Action<GetDataResponse> setData, Action clearLoading)
+    {
+        var m = new DataModel
+        {
+            websites = new List<string> { website },
+            phrase = baseModel.phrase,
+            request_number = baseModel.request_number,
+            fuel = baseModel.fuel,
+            gearbox = baseModel.gearbox,
+            engine_capacity_from = baseModel.engine_capacity_from,
+            engine_capacity_to = baseModel.engine_capacity_to,
+            price_from = baseModel.price_from,
+            price_to = baseModel.price_to,
+        };
         try
         {
-            var result = await DataProxy.getData(model);
-            if (result == null || !result.Success)
-            {
-                await DialogService.Alert(result?.Message ?? Loc["ErrorFetching"].Value);
-                return;
-            }
-            otoMotoData  = result.Data?.OtoMotoData?.Output;
-            olxData      = result.Data?.OlxData?.Output;
-            autoscoutData   = result.Data?.AutoscoutData?.Output;
-            gratkaData      = result.Data?.GratkaData?.Output;
-            sprzedajemyData = result.Data?.SprzedajemyData?.Output;
-            autocentrumData = result.Data?.AutocentrumData?.Output;
-            samochodyData   = result.Data?.SamochodyData?.Output;
-            StateHasChanged();
+            var result = await DataProxy.getData(m);
+            if (result?.Success == true && result != null)
+                setData(result);
         }
-        catch (Exception ex)
-        {
-            await DialogService.Alert($"{Loc["ErrorFetching"]} {ex.Message}");
-        }
+        catch { }
         finally
         {
-            isLoading = false;
+            clearLoading();
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

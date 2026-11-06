@@ -723,7 +723,8 @@
         StateHasChanged();
         var result = await UserService.GetNotificationFeedAsync(userId, currentPage, PageSize, selectedCategory);
         items = result?.Data ?? new();
-        unreadCount = result?.UnreadCount ?? 0;
+        if (selectedCategory == null)
+            unreadCount = result?.UnreadCount ?? 0;
         totalCount = result?.TotalCount ?? 0;
         isLoading = false;
         StateHasChanged();
