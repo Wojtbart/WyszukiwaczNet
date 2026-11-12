@@ -109,7 +109,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingOtoDom" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych</p>
@@ -163,7 +163,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingOlxNieruchomosci" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">Brak danych</p>
@@ -253,6 +253,8 @@
     };
 
     private bool isLoading = false;
+    private bool isLoadingOtoDom = false;
+    private bool isLoadingOlxNieruchomosci = false;
     private bool setOtoDomGrid = false;
     private bool setOlxNieruchomosciGrid = false;
     private IEnumerable<ScrapedItem>? otoDomData;
@@ -308,16 +310,8 @@
             return;
         }
 
-        isLoading = true;
-
-        var websites = new List<string>();
-        if (setOtoDomGrid) websites.Add("otoDom");
-        if (setOlxNieruchomosciGrid) websites.Add("olxnieruchomosci");
-
-
-        model = new DataModel
+        var baseModel = new DataModel
         {
-            websites = websites,
             additional_phrase = model.additional_phrase,
             phrase = textBoxValue,
             request_number = "30",
@@ -328,26 +322,43 @@
             rooms = selectedRooms,
         };
 
+        var tasks = new List<Task>();
+
+        if (setOtoDomGrid)           { isLoadingOtoDom           = true; tasks.Add(LoadPlatform("otoDom",         baseModel, r => otoDomData           = r.Data?.OtoDomData?.Output           ?? Enumerable.Empty<ScrapedItem>(), () => isLoadingOtoDom           = false)); }
+        if (setOlxNieruchomosciGrid) { isLoadingOlxNieruchomosci = true; tasks.Add(LoadPlatform("olxnieruchomosci", baseModel, r => olxNieruchomosciData = r.Data?.OlxnieruchomosciData?.Output ?? Enumerable.Empty<ScrapedItem>(), () => isLoadingOlxNieruchomosci = false)); }
+
+        isLoading = tasks.Count > 0;
+        StateHasChanged();
+
+        await Task.WhenAll(tasks);
+        isLoading = false;
+    }
+
+    private async Task LoadPlatform(string website, DataModel baseModel, Action<GetDataResponse> setData, Action clearLoading)
+    {
+        var m = new DataModel
+        {
+            websites = new List<string> { website },
+            phrase = baseModel.phrase,
+            request_number = baseModel.request_number,
+            additional_phrase = baseModel.additional_phrase,
+            price_from = baseModel.price_from,
+            price_to = baseModel.price_to,
+            area_from = baseModel.area_from,
+            area_to = baseModel.area_to,
+            rooms = baseModel.rooms,
+        };
         try
         {
-            var result = await DataProxy.getData(model);
-            if (result == null || !result.Success)
-            {
-                await DialogService.Alert(result?.Message ?? "Błąd podczas pobierania danych.");
-                return;
-            }
-            otoDomData = result.Data?.OtoDomData?.Output ?? Enumerable.Empty<ScrapedItem>();
-            olxNieruchomosciData = result.Data?.OlxnieruchomosciData?.Output ?? Enumerable.Empty<ScrapedItem>();
-
-            StateHasChanged();
+            var result = await DataProxy.getData(m);
+            if (result?.Success == true && result != null)
+                setData(result);
         }
-        catch (Exception ex)
-        {
-            await DialogService.Alert($"Błąd podczas pobierania danych: {ex.Message}");
-        }
+        catch { }
         finally
         {
-            isLoading = false;
+            clearLoading();
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

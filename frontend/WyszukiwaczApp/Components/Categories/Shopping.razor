@@ -103,7 +103,7 @@
     <RadzenDataGrid Data="@amazonData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;" show
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
-                    FilterPopupRenderMode="PopupRenderMode.OnDemand" class="grid-margin" IsLoading="isLoading"
+                    FilterPopupRenderMode="PopupRenderMode.OnDemand" class="grid-margin" IsLoading="isLoadingAmazon"
                     ShowPagingSummary="true" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -144,7 +144,7 @@
     <RadzenDataGrid Data="@olxData" style="--rz-grid-header-text-transform: none; --rz-grid-header-font-size: 1rem;"
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Center"
-                    FilterPopupRenderMode="PopupRenderMode.OnDemand" class="grid-margin" IsLoading="isLoading"
+                    FilterPopupRenderMode="PopupRenderMode.OnDemand" class="grid-margin" IsLoading="isLoadingOlx"
                     ShowPagingSummary="true" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -191,6 +191,8 @@
     private decimal? selectedPriceTo;
 
     private bool isLoading = false;
+    private bool isLoadingAmazon = false;
+    private bool isLoadingOlx = false;
     private bool setAmazonGrid = false;
     private bool setOlxGrid = false;
 
@@ -215,15 +217,8 @@
             return;
         }
 
-        isLoading = true;
-
-        var websites = new List<string>();
-        if (setAmazonGrid) websites.Add("amazon");
-        if (setOlxGrid)    websites.Add("olx");
-
-        model = new DataModel
+        var baseModel = new DataModel
         {
-            websites = websites,
             phrase = searchedText,
             request_number = "30",
             additional_phrase = "",
@@ -231,25 +226,40 @@
             price_to = selectedPriceTo
         };
 
+        var tasks = new List<Task>();
+
+        if (setAmazonGrid) { isLoadingAmazon = true; tasks.Add(LoadPlatform("amazon", baseModel, r => amazonData = r.Data?.AmazonData?.Output, () => isLoadingAmazon = false)); }
+        if (setOlxGrid)    { isLoadingOlx    = true; tasks.Add(LoadPlatform("olx",    baseModel, r => olxData    = r.Data?.OlxData?.Output,    () => isLoadingOlx    = false)); }
+
+        isLoading = tasks.Count > 0;
+        StateHasChanged();
+
+        await Task.WhenAll(tasks);
+        isLoading = false;
+    }
+
+    private async Task LoadPlatform(string website, DataModel baseModel, Action<GetDataResponse> setData, Action clearLoading)
+    {
+        var m = new DataModel
+        {
+            websites = new List<string> { website },
+            phrase = baseModel.phrase,
+            request_number = baseModel.request_number,
+            additional_phrase = baseModel.additional_phrase,
+            price_from = baseModel.price_from,
+            price_to = baseModel.price_to,
+        };
         try
         {
-            var result = await DataProxy.getData(model);
-            if (result == null || !result.Success)
-            {
-                await DialogService.Alert(result?.Message ?? Loc["ErrorFetching"].Value);
-                return;
-            }
-            olxData    = result.Data?.OlxData?.Output;
-            amazonData = result.Data?.AmazonData?.Output;
-            StateHasChanged();
+            var result = await DataProxy.getData(m);
+            if (result?.Success == true && result != null)
+                setData(result);
         }
-        catch (Exception ex)
-        {
-            await DialogService.Alert($"{Loc["ErrorFetching"]} {ex.Message}");
-        }
+        catch { }
         finally
         {
-            isLoading = false;
+            clearLoading();
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

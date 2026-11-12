@@ -87,7 +87,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingOlx" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -138,7 +138,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingSprzedajemy" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -201,7 +201,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="10" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingOtomoto" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoData"]</p>
@@ -255,6 +255,9 @@
 @code {
     private string searchPhrase = string.Empty;
     private bool isLoading = false;
+    private bool isLoadingOlx = false;
+    private bool isLoadingSprzedajemy = false;
+    private bool isLoadingOtomoto = false;
     private bool setOlxGrid = false;
 
     private void SelectAll() => setOlxGrid = setSprzedajemyGrid = setOtomotoGrid = true;
@@ -281,41 +284,46 @@
             return;
         }
 
-        isLoading = true;
-
-        var websites = new List<string>();
-        if (setOlxGrid) websites.Add("olxciagniki");
-        if (setSprzedajemyGrid) websites.Add("sprzedajemyciagniki");
-        if (setOtomotoGrid) websites.Add("otomotorolnicze");
-
-        model = new DataModel
+        var baseModel = new DataModel
         {
-            websites = websites,
             phrase = searchPhrase,
             request_number = "30",
             additional_phrase = ""
         };
 
+        var tasks = new List<Task>();
+
+        if (setOlxGrid)         { isLoadingOlx        = true; tasks.Add(LoadPlatform("olxciagniki",         baseModel, r => olxData         = r.Data?.OlxciagnikiData?.Output,         () => isLoadingOlx        = false)); }
+        if (setSprzedajemyGrid) { isLoadingSprzedajemy = true; tasks.Add(LoadPlatform("sprzedajemyciagniki", baseModel, r => sprzedajemyData = r.Data?.SprzedajemyciagnikiData?.Output, () => isLoadingSprzedajemy = false)); }
+        if (setOtomotoGrid)     { isLoadingOtomoto     = true; tasks.Add(LoadPlatform("otomotorolnicze",     baseModel, r => otomotoData     = r.Data?.OtomotorolniczeData?.Output,     () => isLoadingOtomoto     = false)); }
+
+        isLoading = tasks.Count > 0;
+        StateHasChanged();
+
+        await Task.WhenAll(tasks);
+        isLoading = false;
+    }
+
+    private async Task LoadPlatform(string website, DataModel baseModel, Action<GetDataResponse> setData, Action clearLoading)
+    {
+        var m = new DataModel
+        {
+            websites = new List<string> { website },
+            phrase = baseModel.phrase,
+            request_number = baseModel.request_number,
+            additional_phrase = baseModel.additional_phrase,
+        };
         try
         {
-            var result = await DataProxy.getData(model);
-            if (result == null || !result.Success)
-            {
-                await DialogService.Alert(result?.Message ?? Loc["ErrorFetching"].Value);
-                return;
-            }
-            olxData = result.Data?.OlxciagnikiData?.Output;
-            sprzedajemyData = result.Data?.SprzedajemyciagnikiData?.Output;
-            otomotoData = result.Data?.OtomotorolniczeData?.Output;
-            StateHasChanged();
+            var result = await DataProxy.getData(m);
+            if (result?.Success == true && result != null)
+                setData(result);
         }
-        catch (Exception ex)
-        {
-            await DialogService.Alert($"{Loc["ErrorFetching"]} {ex.Message}");
-        }
+        catch { }
         finally
         {
-            isLoading = false;
+            clearLoading();
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

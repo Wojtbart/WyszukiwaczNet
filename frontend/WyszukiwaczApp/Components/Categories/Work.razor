@@ -117,7 +117,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingPracuj" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
@@ -189,7 +189,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingJJI" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
@@ -252,7 +252,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingNFJ" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
@@ -311,7 +311,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingBulldog" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
@@ -379,7 +379,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingTP" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
@@ -442,7 +442,7 @@
                     AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false" AllowColumnReorder="true"
                     FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="15" AllowPaging="true"
                     PagerHorizontalAlign="HorizontalAlign.Center" FilterPopupRenderMode="PopupRenderMode.OnDemand"
-                    class="grid-margin" IsLoading="isLoading" ShowPagingSummary="true"
+                    class="grid-margin" IsLoading="isLoadingSolidJobs" ShowPagingSummary="true"
                     LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single">
         <EmptyTemplate>
             <p style="color: lightgrey; font-size: 24px; text-align: center; margin: 2rem;">@Loc["NoJobs"]</p>
@@ -505,6 +505,12 @@
     private int? employmentLevel = null;
     private int? contractType = null;
     private bool isLoading = false;
+    private bool isLoadingPracuj = false;
+    private bool isLoadingJJI = false;
+    private bool isLoadingNFJ = false;
+    private bool isLoadingTP = false;
+    private bool isLoadingBulldog = false;
+    private bool isLoadingSolidJobs = false;
     private bool setPracujGrid = false;
     private bool setJJIGrid = false;
     private bool setNFJGrid = false;
@@ -554,19 +560,8 @@
             return;
         }
 
-        isLoading = true;
-
-        var websites = new List<string>();
-        if (setPracujGrid) websites.Add("pracuj");
-        if (setJJIGrid) websites.Add("justjoinit");
-        if (setNFJGrid) websites.Add("nofluffjobs");
-        if (setTPGrid) websites.Add("theprotocolit");
-        if (setBulldogGrid) websites.Add("bulldogjob");
-        if (setSolidJobsGrid) websites.Add("solidjobs");
-
-        model = new DataModel
+        var baseModel = new DataModel
         {
-            websites = websites,
             phrase = searchedKeyword,
             request_number = "30",
             additional_phrase = "",
@@ -575,29 +570,45 @@
             contract_type = contractType,
         };
 
+        var tasks = new List<Task>();
+
+        if (setPracujGrid)    { isLoadingPracuj    = true; tasks.Add(LoadPlatform("pracuj",        baseModel, r => pracujData    = r.Data?.PracujData?.Output,        () => isLoadingPracuj    = false)); }
+        if (setJJIGrid)       { isLoadingJJI       = true; tasks.Add(LoadPlatform("justjoinit",    baseModel, r => jjiData       = r.Data?.JustjoinitData?.Output,    () => isLoadingJJI       = false)); }
+        if (setNFJGrid)       { isLoadingNFJ       = true; tasks.Add(LoadPlatform("nofluffjobs",   baseModel, r => nfjData       = r.Data?.NofluffjobsData?.Output,   () => isLoadingNFJ       = false)); }
+        if (setTPGrid)        { isLoadingTP        = true; tasks.Add(LoadPlatform("theprotocolit", baseModel, r => tpData        = r.Data?.TheprotocolitData?.Output, () => isLoadingTP        = false)); }
+        if (setBulldogGrid)   { isLoadingBulldog   = true; tasks.Add(LoadPlatform("bulldogjob",    baseModel, r => bulldogData   = r.Data?.BulldogjobData?.Output,    () => isLoadingBulldog   = false)); }
+        if (setSolidJobsGrid) { isLoadingSolidJobs = true; tasks.Add(LoadPlatform("solidjobs",     baseModel, r => solidJobsData = r.Data?.SolidjobsData?.Output,     () => isLoadingSolidJobs = false)); }
+
+        isLoading = tasks.Count > 0;
+        StateHasChanged();
+
+        await Task.WhenAll(tasks);
+        isLoading = false;
+    }
+
+    private async Task LoadPlatform(string website, DataModel baseModel, Action<GetDataResponse> setData, Action clearLoading)
+    {
+        var m = new DataModel
+        {
+            websites = new List<string> { website },
+            phrase = baseModel.phrase,
+            request_number = baseModel.request_number,
+            additional_phrase = baseModel.additional_phrase,
+            work_location = baseModel.work_location,
+            employment_level = baseModel.employment_level,
+            contract_type = baseModel.contract_type,
+        };
         try
         {
-            var result = await DataProxy.getData(model);
-            if (result == null || !result.Success)
-            {
-                await DialogService.Alert(result?.Message ?? Loc["ErrorFetching"].Value);
-                return;
-            }
-            pracujData = result.Data?.PracujData?.Output;
-            jjiData = result.Data?.JustjoinitData?.Output;
-            nfjData = result.Data?.NofluffjobsData?.Output;
-            tpData = result.Data?.TheprotocolitData?.Output;
-            bulldogData = result.Data?.BulldogjobData?.Output;
-            solidJobsData = result.Data?.SolidjobsData?.Output;
-            StateHasChanged();
+            var result = await DataProxy.getData(m);
+            if (result?.Success == true && result != null)
+                setData(result);
         }
-        catch (Exception ex)
-        {
-            await DialogService.Alert($"{Loc["ErrorFetching"]} {ex.Message}");
-        }
+        catch { }
         finally
         {
-            isLoading = false;
+            clearLoading();
+            await InvokeAsync(StateHasChanged);
         }
     }
 }
